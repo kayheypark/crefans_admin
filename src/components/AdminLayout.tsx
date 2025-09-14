@@ -6,6 +6,7 @@ import { Layout, Menu, Avatar, Dropdown, Spin } from "antd";
 import {
   DashboardOutlined,
   UserOutlined,
+  TeamOutlined,
   FileTextOutlined,
   WarningOutlined,
   LogoutOutlined,
@@ -49,6 +50,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       key: "/dashboard",
       icon: <DashboardOutlined />,
       label: "대시보드",
+    },
+    {
+      key: "/users",
+      icon: <TeamOutlined />,
+      label: "사용자 관리",
     },
     {
       key: "/posts",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, Row, Col, Statistic, Spin, Alert } from "antd";
+import { Card, Row, Col, Statistic, Spin } from "antd";
 import {
   UserOutlined,
   FileTextOutlined,
@@ -38,7 +38,6 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [userGrowth, setUserGrowth] = useState<UserGrowthData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -47,7 +46,6 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      setError(null);
 
       // Use real API calls
       const [statsResponse, growthResponse] = await Promise.all([
@@ -58,11 +56,7 @@ export default function DashboardPage() {
       setStats(statsResponse.data);
       setUserGrowth(growthResponse.data);
     } catch (err: unknown) {
-      const error = err as Error;
-      console.error("Failed to fetch dashboard data:", error);
-      setError(
-        "Failed to connect to the server. Please check if the backend is running."
-      );
+      console.error("Failed to fetch dashboard data:", err);
 
       // Fallback to mock data when API is unavailable
       setStats({
