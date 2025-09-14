@@ -7,13 +7,10 @@ export const apiClient = axios.create({
   timeout: 10000,
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor (cookie-based auth, no need for Authorization header)
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("adminAccessToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // Using cookie-based authentication, no need to set Authorization header
     return config;
   },
   (error) => {
@@ -26,7 +23,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("adminAccessToken");
+      // No need to remove localStorage token since we use cookies
       window.location.href = "/login";
     }
     return Promise.reject(error);

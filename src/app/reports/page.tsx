@@ -50,10 +50,10 @@ export default function ReportsPage() {
         status: statusFilter,
       });
 
-      setReports(response.data.data);
+      setReports(response.data.data.data);
       setPagination(prev => ({
         ...prev,
-        total: response.data.total,
+        total: response.data.data.total,
       }));
     } catch (error) {
       console.error('Failed to fetch reports:', error);

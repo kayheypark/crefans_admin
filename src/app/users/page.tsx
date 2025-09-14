@@ -32,6 +32,7 @@ interface User {
   name: string;
   nickname: string;
   phoneNumber: string;
+  preferredUsername?: string;
   isCreator: boolean;
   emailVerified: boolean;
   userStatus: string;
@@ -62,8 +63,8 @@ export default function UsersPage() {
         limit: 100, // 많은 사용자를 가져와서 프론트엔드에서 검색/필터링
       });
 
-      setUsers(response.data.users || []);
-      setFilteredUsers(response.data.users || []);
+      setUsers(response.data.data.users || []);
+      setFilteredUsers(response.data.data.users || []);
     } catch (err: unknown) {
       const error = err as Error;
       console.error("Failed to fetch users:", error);

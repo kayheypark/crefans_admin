@@ -53,8 +53,8 @@ export default function DashboardPage() {
         adminApi.dashboard.getUserGrowth(),
       ]);
 
-      setStats(statsResponse.data);
-      setUserGrowth(growthResponse.data);
+      setStats(statsResponse.data.data);
+      setUserGrowth(growthResponse.data.data);
     } catch (err: unknown) {
       console.error("Failed to fetch dashboard data:", err);
 

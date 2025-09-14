@@ -73,10 +73,10 @@ export default function PostsPage() {
         status: statusFilter,
       });
 
-      setPosts(response.data.data);
+      setPosts(response.data.data.data);
       setPagination(prev => ({
         ...prev,
-        total: response.data.total,
+        total: response.data.data.total,
       }));
     } catch (error) {
       console.error("Failed to fetch postings:", error);
