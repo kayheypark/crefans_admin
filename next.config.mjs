@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable React StrictMode in development for better error detection
-  reactStrictMode: true,
+  // Disable React StrictMode to prevent duplicate requests (like crefans_front)
+  reactStrictMode: false,
 
   // Optimize performance
   swcMinify: true,

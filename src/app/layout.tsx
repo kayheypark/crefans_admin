@@ -1,6 +1,9 @@
-import type { Metadata } from "next";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+import type { Metadata, Viewport } from "next";
+import { ConfigProvider, App as AntdApp } from "antd";
+import StyledComponentsRegistry from "../../lib/AntdRegistry";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { Suspense } from "react";
+import "antd/dist/reset.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -21,17 +24,39 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body>
-        <AntdRegistry>
-          <AuthProvider>{children}</AuthProvider>
-        </AntdRegistry>
+        <StyledComponentsRegistry>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: "#1890ff",
+                colorBgContainer: "#fff",
+              },
+            }}
+          >
+            <AntdApp>
+              <AuthProvider>
+                <Suspense fallback={<div>Loading...</div>}>
+                  {children}
+                </Suspense>
+              </AuthProvider>
+            </AntdApp>
+          </ConfigProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );
