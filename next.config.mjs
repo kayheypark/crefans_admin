@@ -6,14 +6,7 @@ const nextConfig = {
   // Optimize performance
   swcMinify: true,
 
-  // Static export for AWS Amplify
-  output: 'export',
-  trailingSlash: false,
-
-  // Image optimization settings for static export
-  images: {
-    unoptimized: true,
-  },
+  // Remove static export to enable server-side routing
 
   // Compiler optimizations
   compiler: {
