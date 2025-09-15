@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Layout, Menu, Avatar, Dropdown, Spin } from "antd";
 import {
@@ -29,7 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/login");
+      router.replace("/login");
     }
   }, [user, isLoading, router]);
 
@@ -68,14 +68,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ];
 
-  const handleMenuClick = (key: string) => {
+  const handleMenuClick = useCallback((key: string) => {
     router.push(key);
-  };
+  }, [router]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout();
-    router.push("/login");
-  };
+    // No need to manually redirect here - logout function handles it
+  }, [logout]);
 
   const userMenuItems = [
     {

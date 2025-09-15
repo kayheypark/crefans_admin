@@ -23,8 +23,10 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // No need to remove localStorage token since we use cookies
-      window.location.href = "/login";
+      // Prevent infinite loops by checking current location
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.replace('/login');
+      }
     }
     return Promise.reject(error);
   }

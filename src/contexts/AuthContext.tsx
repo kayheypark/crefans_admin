@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { adminAuthAPI } from '@/lib/api/admin-auth';
 
 interface AdminUser {
@@ -21,7 +21,7 @@ interface AuthContextType {
   user: AdminUser | null | undefined;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,13 +42,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // null: 로그아웃, AdminUser: 로그인, undefined: 아직 파싱 전(로딩)
   const [user, setUser] = useState<AdminUser | null | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const initRef = useRef(false);
 
-  useEffect(() => {
-    // Check for existing authentication on app load
-    initializeUser();
-  }, []);
+  const initializeUser = useCallback(async () => {
+    // Prevent multiple initialization calls in StrictMode
+    if (initRef.current) return;
+    initRef.current = true;
 
-  const initializeUser = async () => {
     try {
       setIsLoading(true);
       // Try to get current admin from server using cookies
@@ -64,7 +64,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // Check for existing authentication on app load
+    initializeUser();
+  }, [initializeUser]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -103,6 +108,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Logout API call failed:', error);
     } finally {
       setUser(null);
+      // Redirect to login page after logout
+      if (typeof window !== 'undefined') {
+        window.location.replace('/login');
+      }
     }
   };
 

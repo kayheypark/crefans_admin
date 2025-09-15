@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Form, Input, Button, Alert, Typography } from 'antd';
+import { Card, Form, Input, Button, Alert, Typography, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,21 +11,43 @@ const { Title } = Typography;
 interface LoginForm {
   email: string;
   password: string;
+  remember?: boolean;
 }
+
+const STORAGE_KEY = 'crefans_admin_remember_email';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [form] = Form.useForm();
   const { login } = useAuth();
   const router = useRouter();
+
+  // Load saved email on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem(STORAGE_KEY);
+    if (savedEmail) {
+      form.setFieldsValue({
+        email: savedEmail,
+        remember: true,
+      });
+    }
+  }, [form]);
 
   const onFinish = async (values: LoginForm) => {
     setLoading(true);
     setError('');
 
     try {
+      // Handle remember email functionality
+      if (values.remember) {
+        localStorage.setItem(STORAGE_KEY, values.email);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+
       await login(values.email, values.password);
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (err: unknown) {
       const error = err as Error;
       setError(error.message || 'Login failed');
@@ -52,6 +74,7 @@ export default function LoginPage() {
         )}
 
         <Form
+          form={form}
           name="login"
           onFinish={onFinish}
           layout="vertical"
@@ -81,6 +104,10 @@ export default function LoginPage() {
               placeholder="비밀번호 입력"
               size="large"
             />
+          </Form.Item>
+
+          <Form.Item name="remember" valuePropName="checked">
+            <Checkbox>이메일 기억하기</Checkbox>
           </Form.Item>
 
           <Form.Item>
