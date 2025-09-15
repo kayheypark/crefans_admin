@@ -6,23 +6,34 @@ const nextConfig = {
   // Optimize performance
   swcMinify: true,
 
+  // Static export for AWS Amplify
+  output: 'export',
+  trailingSlash: true,
+
+  // Image optimization settings for static export
+  images: {
+    unoptimized: true,
+  },
+
   // Compiler optimizations
   compiler: {
     // Remove console logs in production
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === "production",
   },
 
-  // Experimental features for better performance
-  experimental: {
-    // Optimize CSS imports
-    optimizeCss: true,
-    // Enable turbo mode for faster builds
-    turbo: {
-      resolveAlias: {
-        underscore: 'lodash',
-        mocha: { browser: 'mocha/browser-entry.js' },
+  // SEO protection for admin panel
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow, noarchive, nosnippet, noimageindex",
+          },
+        ],
       },
-    },
+    ];
   },
 };
 

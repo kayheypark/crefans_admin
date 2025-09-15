@@ -27,6 +27,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
+  // All hooks must be called before any early returns
+  const handleMenuClick = useCallback((key: string) => {
+    router.push(key);
+  }, [router]);
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    // No need to manually redirect here - logout function handles it
+  }, [logout]);
+
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace("/login");
@@ -62,20 +72,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: "포스팅 관리",
     },
     {
+      key: "/board",
+      icon: <FileTextOutlined />,
+      label: "게시판 관리",
+    },
+    {
       key: "/reports",
       icon: <WarningOutlined />,
       label: "신고 관리",
     },
   ];
-
-  const handleMenuClick = useCallback((key: string) => {
-    router.push(key);
-  }, [router]);
-
-  const handleLogout = useCallback(async () => {
-    await logout();
-    // No need to manually redirect here - logout function handles it
-  }, [logout]);
 
   const userMenuItems = [
     {
