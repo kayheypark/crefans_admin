@@ -8,7 +8,7 @@ const nextConfig = {
 
   // Static export for AWS Amplify
   output: 'export',
-  trailingSlash: true,
+  trailingSlash: false,
 
   // Image optimization settings for static export
   images: {
