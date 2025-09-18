@@ -45,6 +45,13 @@ interface Posting {
   is_sensitive: boolean;
   is_deleted: boolean;
   user_sub: string;
+  user?: {
+    id: string;
+    handle: string;
+    name: string;
+    avatar: string;
+    isCreator: boolean;
+  };
   total_view_count: number;
   like_count: number;
   comment_count: number;
@@ -446,7 +453,21 @@ export default function PostsPage() {
         <div className="space-y-1">
           <div className="font-medium truncate max-w-xs">{text}</div>
           <div className="text-xs text-gray-500 font-mono">ID: {record.id}</div>
-          <div className="text-xs text-gray-500">작성자: {record.user_sub}</div>
+          <div className="text-xs text-gray-500">
+            작성자:{" "}
+            {record.user
+              ? `${record.user.name} (@${record.user.handle})`
+              : record.user_sub}
+            {record.user && (
+              <span className={`ml-2 px-1.5 py-0.5 rounded text-xs font-medium ${
+                record.user.isCreator
+                  ? 'bg-purple-100 text-purple-800'
+                  : 'bg-gray-100 text-gray-800'
+              }`}>
+                {record.user.isCreator ? '크리에이터' : '일반회원'}
+              </span>
+            )}
+          </div>
           {record.medias && record.medias.length > 0 && (
             <div className="text-xs text-blue-500">
               미디어 {record.medias.length}개 첨부
@@ -470,7 +491,7 @@ export default function PostsPage() {
             <Tag color="green">공개</Tag>
           ) : (
             <Tag color="red" icon={<EyeInvisibleOutlined />}>
-              비공개
+              관리자에 의하여 비공개
             </Tag>
           )}
           {record.is_membership && <Tag color="blue">멤버 전용</Tag>}
@@ -625,7 +646,7 @@ export default function PostsPage() {
                   {viewingPost.is_public ? (
                     <Tag color="green">공개</Tag>
                   ) : (
-                    <Tag color="red">비공개</Tag>
+                    <Tag color="red">관리자에 의하여 비공개</Tag>
                   )}
                   {viewingPost.is_membership && (
                     <Tag color="blue">멤버 전용</Tag>
@@ -650,7 +671,21 @@ export default function PostsPage() {
                 </div>
                 <div style={{ color: "#666", fontSize: 14, marginBottom: 16 }}>
                   <Space size="large">
-                    <span>작성자: {viewingPost.user_sub}</span>
+                    <span>
+                      작성자:{" "}
+                      {viewingPost.user
+                        ? `${viewingPost.user.name} (@${viewingPost.user.handle})`
+                        : viewingPost.user_sub}
+                      {viewingPost.user && (
+                        <span className={`ml-2 px-1.5 py-0.5 rounded text-xs font-medium ${
+                          viewingPost.user.isCreator
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {viewingPost.user.isCreator ? '크리에이터' : '일반회원'}
+                        </span>
+                      )}
+                    </span>
                     <span>조회수: {viewingPost.total_view_count}</span>
                     <span>좋아요: {viewingPost.like_count}</span>
                     <span>댓글: {viewingPost.comment_count}</span>
