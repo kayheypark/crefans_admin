@@ -15,6 +15,8 @@ import {
   message,
   Popconfirm,
   Typography,
+  Tooltip,
+  Divider,
 } from 'antd';
 import {
   PlusOutlined,
@@ -26,20 +28,38 @@ import {
 import AdminLayout from '@/components/AdminLayout';
 import { apiClient } from '../../../lib/api/client';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+
+// 카테고리 매핑
+const CATEGORY_CONFIG = {
+  NOTICE: {
+    name: '공지사항',
+    color: 'blue'
+  },
+  EVENT: {
+    name: '이벤트',
+    color: 'green'
+  }
+} as const;
 
 interface BoardPost {
   id: string;
   title: string;
-  category: string;
+  content?: string;
+  excerpt?: string;
+  category: {
+    code: string;
+    name: string;
+  };
   is_important: boolean;
   is_published: boolean;
   views: number;
   author: string;
   created_at: string;
   updated_at: string;
+  published_at?: string;
   is_deleted: boolean;
   deleted_at?: string;
 }
@@ -49,7 +69,9 @@ export default function BoardPage() {
   const [posts, setPosts] = useState<BoardPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
   const [editingPost, setEditingPost] = useState<BoardPost | null>(null);
+  const [viewingPost, setViewingPost] = useState<BoardPost | null>(null);
   const [form] = Form.useForm();
   const [pagination, setPagination] = useState({
     current: 1,
@@ -109,11 +131,30 @@ export default function BoardPage() {
     setModalVisible(true);
   };
 
+  const handleView = async (post: BoardPost) => {
+    try {
+      const response = await apiClient.get(`/admin/board/${post.id}`);
+      const data = response.data;
+
+      if (data.success) {
+        setViewingPost(data.data);
+        setViewModalVisible(true);
+      } else {
+        message.error(data.message || '게시글을 불러오는데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error fetching post detail:', error);
+      message.error('게시글을 불러오는데 실패했습니다.');
+    }
+  };
+
   const handleEdit = (post: BoardPost) => {
     setEditingPost(post);
     form.setFieldsValue({
       title: post.title,
-      category: post.category,
+      content: post.content,
+      excerpt: post.excerpt,
+      category: post.category.code,
       is_important: post.is_important,
       author: post.author,
     });
@@ -183,39 +224,6 @@ export default function BoardPage() {
 
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 100,
-      render: (id: string) => id.substring(0, 8),
-    },
-    {
-      title: '제목',
-      dataIndex: 'title',
-      key: 'title',
-      render: (title: string, record: BoardPost) => (
-        <div>
-          {title}
-          {record.is_important && (
-            <Tag color="red" style={{ marginLeft: 8 }}>
-              중요
-            </Tag>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: '카테고리',
-      dataIndex: 'category',
-      key: 'category',
-      width: 120,
-      render: (category: string) => (
-        <Tag color={category === 'NOTICE' ? 'blue' : 'green'}>
-          {category === 'NOTICE' ? '공지사항' : '이벤트'}
-        </Tag>
-      ),
-    },
-    {
       title: '상태',
       key: 'status',
       width: 120,
@@ -229,6 +237,46 @@ export default function BoardPage() {
       ),
     },
     {
+      title: '제목',
+      dataIndex: 'title',
+      key: 'title',
+      width: "unset",
+      render: (title: string, record: BoardPost) => (
+        <div>
+          <div>
+            {title}
+            {record.is_important && (
+              <Tag color="red" style={{ marginLeft: 8 }}>
+                중요
+              </Tag>
+            )}
+          </div>
+          <div style={{
+            fontSize: '12px',
+            color: '#999',
+            fontFamily: 'monospace',
+            marginTop: '4px'
+          }}>
+            {record.id}
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: '카테고리',
+      dataIndex: 'category',
+      key: 'category',
+      width: 120,
+      render: (category: { code: string; name: string }) => {
+        const config = CATEGORY_CONFIG[category.code as keyof typeof CATEGORY_CONFIG];
+        return (
+          <Tag color={config?.color || 'default'}>
+            {config?.name || category.name}
+          </Tag>
+        );
+      },
+    },
+    {
       title: '조회수',
       dataIndex: 'views',
       key: 'views',
@@ -238,14 +286,33 @@ export default function BoardPage() {
       title: '작성자',
       dataIndex: 'author',
       key: 'author',
-      width: 120,
+      width: 160,
     },
     {
-      title: '생성일',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 160,
-      render: (date: string) => new Date(date).toLocaleString('ko-KR'),
+      title: '날짜',
+      key: 'dates',
+      width: 180,
+      render: (record: BoardPost) => {
+        const formatDate = (date: string) => {
+          return new Date(date).toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }).replace(/\. /g, '-').replace(/\.$/, '');
+        };
+
+        return (
+          <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+            <div>생성 {formatDate(record.created_at)}</div>
+            {record.published_at && (
+              <div>발행 {formatDate(record.published_at)}</div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: '작업',
@@ -253,23 +320,29 @@ export default function BoardPage() {
       width: 200,
       render: (record: BoardPost) => (
         <Space>
-          <Button
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => window.open(`/board/${record.id}`, '_blank')}
-          />
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-            disabled={record.is_deleted}
-          />
-          {record.is_deleted ? (
+          <Tooltip title="보기">
             <Button
               size="small"
-              icon={<UndoOutlined />}
-              onClick={() => handleRestore(record.id)}
+              icon={<EyeOutlined />}
+              onClick={() => handleView(record)}
             />
+          </Tooltip>
+          <Tooltip title="수정">
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              disabled={record.is_deleted}
+            />
+          </Tooltip>
+          {record.is_deleted ? (
+            <Tooltip title="복원">
+              <Button
+                size="small"
+                icon={<UndoOutlined />}
+                onClick={() => handleRestore(record.id)}
+              />
+            </Tooltip>
           ) : (
             <Popconfirm
               title="정말로 삭제하시겠습니까?"
@@ -277,7 +350,9 @@ export default function BoardPage() {
               okText="삭제"
               cancelText="취소"
             >
-              <Button size="small" danger icon={<DeleteOutlined />} />
+              <Tooltip title="삭제">
+                <Button size="small" danger icon={<DeleteOutlined />} />
+              </Tooltip>
             </Popconfirm>
           )}
         </Space>
@@ -367,8 +442,8 @@ export default function BoardPage() {
               </Select>
             </Form.Item>
 
-            <Form.Item name="excerpt" label="요약">
-              <TextArea rows={2} placeholder="게시글 요약을 입력하세요 (선택사항)" />
+            <Form.Item name="excerpt" label="메모">
+              <TextArea rows={2} placeholder="게시글 메모를입력하세요 (선택사항, 회원들에게 노출이 되지 않습니다)" />
             </Form.Item>
 
             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -377,7 +452,7 @@ export default function BoardPage() {
               </Form.Item>
 
               <Form.Item name="publishNow" valuePropName="checked" initialValue={true}>
-                <Switch checkedChildren="즉시 발행" unCheckedChildren="임시 저장" />
+                <Switch checkedChildren="즉시 발행" unCheckedChildren="미발행" />
               </Form.Item>
             </Space>
 
@@ -385,6 +460,96 @@ export default function BoardPage() {
               <Input placeholder="작성자" defaultValue="크리팬스 관리자" />
             </Form.Item>
           </Form>
+        </Modal>
+
+        {/* 게시글 보기 모달 */}
+        <Modal
+          title="게시글 보기"
+          open={viewModalVisible}
+          onCancel={() => setViewModalVisible(false)}
+          width={800}
+          footer={[
+            <Button key="close" onClick={() => setViewModalVisible(false)}>
+              닫기
+            </Button>
+          ]}
+        >
+          {viewingPost && (
+            <div style={{ padding: '20px 0' }}>
+              {/* 게시글 헤더 */}
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <Tag color={CATEGORY_CONFIG[viewingPost.category.code as keyof typeof CATEGORY_CONFIG]?.color || 'default'}>
+                    {CATEGORY_CONFIG[viewingPost.category.code as keyof typeof CATEGORY_CONFIG]?.name || viewingPost.category.name}
+                  </Tag>
+                  {viewingPost.is_important && <Tag color="red">중요</Tag>}
+                  <Tag color={viewingPost.is_published ? 'green' : 'orange'}>
+                    {viewingPost.is_published ? '발행됨' : '미발행'}
+                  </Tag>
+                  {viewingPost.is_deleted && <Tag color="red">삭제됨</Tag>}
+                </div>
+
+                <Title level={3} style={{ margin: '0 0 8px 0' }}>
+                  {viewingPost.title}
+                </Title>
+
+                <div style={{ fontSize: '12px', color: '#999', fontFamily: 'monospace', marginBottom: 16 }}>
+                  {viewingPost.id}
+                </div>
+
+                <div style={{ color: '#666', fontSize: 14, marginBottom: 16 }}>
+                  <Space size="large">
+                    <span>작성자: {viewingPost.author}</span>
+                    <span>조회수: {viewingPost.views}</span>
+                    <span>생성: {new Date(viewingPost.created_at).toLocaleString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    }).replace(/\. /g, '-').replace(/\.$/, '')}</span>
+                    {viewingPost.published_at && (
+                      <span>발행: {new Date(viewingPost.published_at).toLocaleString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      }).replace(/\. /g, '-').replace(/\.$/, '')}</span>
+                    )}
+                  </Space>
+                </div>
+              </div>
+
+              <Divider />
+
+              {/* 게시글 내용 */}
+              <div style={{ whiteSpace: 'pre-line', lineHeight: 1.8, fontSize: 16, minHeight: '200px' }}>
+                {viewingPost.content}
+              </div>
+
+              {/* 메모 */}
+              {viewingPost.excerpt && (
+                <>
+                  <Divider />
+                  <div>
+                    <Text strong style={{ color: '#666' }}>관리자 메모:</Text>
+                    <div style={{
+                      background: '#f5f5f5',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      marginTop: '8px',
+                      whiteSpace: 'pre-line'
+                    }}>
+                      {viewingPost.excerpt}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </Modal>
       </div>
     </AdminLayout>
