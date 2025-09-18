@@ -9,12 +9,14 @@ export const adminApi = {
     getRevenueStats: () => apiClient.get("/admin/dashboard/revenue"),
   },
 
-  // Posting management APIs (READ ONLY)
+  // Posting management APIs
   postings: {
     list: (params: Record<string, unknown>) =>
       apiClient.get("/admin/postings", { params }),
     get: (postingId: string) =>
       apiClient.get(`/admin/postings/${postingId}`),
+    togglePrivacy: (postingId: string, isPrivate: boolean) =>
+      apiClient.patch(`/admin/postings/${postingId}/privacy`, { isPrivate }),
   },
 
   // Report management APIs (READ ONLY)
