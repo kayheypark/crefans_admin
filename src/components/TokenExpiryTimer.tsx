@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Tag } from "antd";
-import { ClockCircleOutlined, SafetyOutlined } from "@ant-design/icons";
+import { SafetyOutlined } from "@ant-design/icons";
 import {
   getAuthTimeUntilExpiryFormatted,
   getAuthTimeUntilExpiry,
