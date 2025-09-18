@@ -55,6 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const response = await adminAuthAPI.getMe();
         if (response.success && response.data?.admin) {
           setUser(response.data.admin);
+          setIsLoading(false);
           return;
         }
       } catch {
