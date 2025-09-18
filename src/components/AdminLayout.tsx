@@ -14,6 +14,7 @@ import {
   MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
+import { TokenExpiryTimer } from "./TokenExpiryTimer";
 
 const { Header, Sider, Content } = Layout;
 
@@ -28,9 +29,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   // All hooks must be called before any early returns
-  const handleMenuClick = useCallback((key: string) => {
-    router.push(key);
-  }, [router]);
+  const handleMenuClick = useCallback(
+    (key: string) => {
+      router.push(key);
+    },
+    [router]
+  );
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -136,22 +140,32 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           }}
         >
           <div className="flex justify-between items-center">
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="text-lg text-gray-600 hover:text-gray-900"
-            >
-              {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            </button>
-
-            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <div className="flex items-center cursor-pointer hover:bg-gray-100 px-3 py-2 rounded">
-                <Avatar size="small" icon={<UserOutlined />} className="mr-2" />
-                <div className="flex flex-col text-sm">
-                  <span className="text-gray-700 font-medium">{user.name}</span>
-                  <span className="text-gray-500 text-xs">{user.role}</span>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCollapsed(!collapsed)}
+                className="text-lg text-gray-600 hover:text-gray-900"
+              >
+                {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              </button>
+            </div>
+            <div className="flex items-center gap-4">
+              <TokenExpiryTimer />
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                <div className="flex items-center cursor-pointer hover:bg-gray-100 px-3 py-2 rounded">
+                  <Avatar
+                    size="small"
+                    icon={<UserOutlined />}
+                    className="mr-2"
+                  />
+                  <div className="flex flex-col text-sm">
+                    <span className="text-gray-700 font-medium">
+                      {user.name}
+                    </span>
+                    <span className="text-gray-500 text-xs">{user.role}</span>
+                  </div>
                 </div>
-              </div>
-            </Dropdown>
+              </Dropdown>
+            </div>
           </div>
         </Header>
 

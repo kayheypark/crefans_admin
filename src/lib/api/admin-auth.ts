@@ -17,6 +17,12 @@ export const adminAuthAPI = {
     return response.data;
   },
 
+  // Token refresh
+  refreshToken: async () => {
+    const response = await apiClient.post("/admin/auth/refresh", {});
+    return response.data;
+  },
+
   // Get current admin info
   getMe: async () => {
     const response = await apiClient.get("/admin/auth/me");
