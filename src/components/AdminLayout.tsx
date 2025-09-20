@@ -12,6 +12,7 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { TokenExpiryTimer } from "./TokenExpiryTimer";
@@ -74,6 +75,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       key: "/posts",
       icon: <FileTextOutlined />,
       label: "포스팅 관리",
+    },
+    {
+      key: "/media",
+      icon: <PictureOutlined />,
+      label: "미디어 관리",
     },
     {
       key: "/board",
