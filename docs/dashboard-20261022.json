@@ -1,0 +1,235 @@
+{
+  "at": "2026-10-21T16:49:14.508414+00:00",
+  "task": "Subscription dashboard with KST day-over-day comparison and 7/30/90-day trends",
+  "repositories": {
+    "crefans_admin": {
+      "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+      "branch": "feat/operator-console",
+      "dirty": true,
+      "files": {
+        "src/components/console/Dashboard.tsx": "191b4bb80b6d90e5e22ba53ca5d2136556fd101ab509da7fca99f5c95a35765e",
+        "src/components/console/ConsoleData.tsx": "3d4387288a0e28427ffdc1f223e546cb2b3974397d7ad49342d93f3e03943bb7",
+        "src/components/console/Console.tsx": "7a90d163556f93cced79f1e9dd7d5a7eda2c09f8b8f4f632d57f844061f4bc1f",
+        "src/app/globals.css": "19d864a0a0ae2dbcfa695a9cdd4fab45d9214fe36ecfd80801826388375dff34",
+        "e2e/console.spec.ts": "2ad0a55897452d2308fbbf3c27f992b7b7b5c0e858884654b1cd6829a3900dd0",
+        "README.md": "99fcc4625345f2a17aa895e812472624aa717d361d44531d6098bc083c342bf4",
+        "AGENTS.md": "714b77ec60e056601b9778ab345f346266b8c156acd4d8fe66ee36220edd18a2"
+      }
+    },
+    "crefans_server": {
+      "head": "c100a3af5a5508adb0e6ba521d2e5238fb5f1ff1",
+      "branch": "feat/operations-security",
+      "dirty": true,
+      "files": {
+        "src/platform/admin-dashboard.ts": "cc74f9be672b91feda85742a045227ea754204e9d87a32ca780c02997b0222ca",
+        "src/platform/admin.controller.ts": "b39f40de72632b050723c9e8266d75783a783d05afc34cc27cce7f430f9686ad",
+        "tests/platform-admin-console.test.cjs": "f667f140017830e2762d6b24a5fdde5bf7f8e7e7d82c6b4685373861fd6459d3",
+        "tests/admin-console-server.cjs": "b9bfc30114b77d9dd8d6f17f3f69eeb28a77fe5173c4262f5e652dbe3731077f",
+        "docs/platform-api.md": "f028792fe495fef8f4fc1dc36966097c032a8c93793be04714079036804fe8ce"
+      }
+    }
+  },
+  "environment": {
+    "os": "darwin arm64",
+    "database": "isolated loopback MySQL crefans_platform_e2e",
+    "browser": "Playwright Chromium",
+    "images": "linux/amd64"
+  },
+  "checks": [
+    {
+      "command": "npm run check",
+      "repo": "admin",
+      "exit": 0,
+      "result": "types and 3 unit tests PASS"
+    },
+    {
+      "command": "npm run build && node --test tests/platform-admin-console.test.cjs",
+      "repo": "server",
+      "exit": 0,
+      "result": "Nest build and 11 real DB/HTTP tests PASS"
+    },
+    {
+      "command": "npm run test:e2e",
+      "repo": "admin",
+      "exit": 0,
+      "result": "8 scenarios PASS including real-main auth, dashboard metrics/trends and API503 negative control"
+    },
+    {
+      "command": "docker build --platform linux/amd64",
+      "repo": "admin and server",
+      "exit": 0,
+      "result": "both images built; readonly admin standalone smoke 3 checks PASS"
+    },
+    {
+      "command": "npm run docs:contracts; npm run docs:record; npm run check:docs",
+      "repo": "front coordinating front/server docs",
+      "exit": 0,
+      "result": "56 docs, 92 routes, 41 screens, 58 models, 14 migrations; snapshot/contract checks, not runtime proof"
+    }
+  ],
+  "negativeControls": [
+    "anonymous/ordinary/inactive admin denied; moderator financial access denied",
+    "invalid/future/duplicate dates and invalid/injection days rejected",
+    "failed payment excluded; renewal not new; refunded approval retained with reversal",
+    "API503 produces error, not fake zero metrics",
+    "expired/future subscription omitted; cancellation reservation included"
+  ],
+  "limitations": [
+    "No actual PG payment or reconciliation executed",
+    "Production has no subscription orders; populated graph verified only with isolated fixtures",
+    "Refunds attributed to original approval date, not refund-date cashflow",
+    "Test and live PG orders not separated in existing data model",
+    "Documentation snapshot is not runtime test proof"
+  ],
+  "sourcesCheckedOn": "2026-10-22",
+  "sources": [
+    "https://docs.tosspayments.com/reference",
+    "https://docs.tosspayments.com/resources/glossary/transaction",
+    "https://support.stripe.com/questions/understanding-active-subscribers?locale=en-GB"
+  ],
+  "deployment": {
+    "status": "deployed",
+    "url": "https://admin.crefans.com/console",
+    "adminImage": "crefans-admin:dashboard-20261022",
+    "adminImageId": "sha256:ed547f75e0918c59536d5b960dad76e0f4759fd075fb027c02d47f696fef2f90",
+    "apiWorkerImage": "crefans-api:dashboard-20261022",
+    "apiWorkerImageId": "sha256:22c788335cc8a21e3c14c84c48fda7f14f33659f409fe5c9a31902a8dbd27fdf",
+    "archive": {
+      "sha256": "5545852370020569cc914e4d38cab88786399e2b16a4827140db2fe328c837cc",
+      "matched": true
+    },
+    "public": {
+      "at": "2026-10-21T16:49:26.236334+00:00",
+      "tlsVerified": true,
+      "checks": [
+        {
+          "url": "https://admin.crefans.com/brand/crefans-logo.svg",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/fonts/OFL.txt",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/login",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/console/revenue",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/admin/dashboard?days=7",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://beta.crefans.com/api/v1/admin/dashboard",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/admin/me",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/admin/revenue",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://admin.crefans.com/.env",
+          "status": 404,
+          "expected": 404
+        },
+        {
+          "url": "https://admin.crefans.com/runtime.env",
+          "status": 404,
+          "expected": 404
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/auth/signup",
+          "status": 404,
+          "expected": 404
+        },
+        {
+          "url": "https://beta.crefans.com/api/v1/admin/revenue",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://beta.crefans.com/api/v1/health",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://beta.crefans.com/service/feed",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://beta.crefans.com/preview/landing",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/auth/login",
+          "status": 403,
+          "expected": 403,
+          "case": "untrusted Origin"
+        }
+      ]
+    },
+    "sshCleanup": {
+      "temporaryRuleRemoved": true,
+      "baselineIngressCount": 3
+    },
+    "backup": "/opt/crefans-backup-dashboard-20261022",
+    "unchangedContainers": [
+      "database",
+      "frontend",
+      "proxy"
+    ],
+    "changedContainers": [
+      "api",
+      "worker",
+      "admin"
+    ],
+    "schemaChanges": false,
+    "sourceMatchesTestedBuild": true,
+    "earlyReadiness": "two initial 502 responses followed by successful bounded retries",
+    "browser": {
+      "authenticated": true,
+      "todaySameElapsedComparison": true,
+      "historicalFullDayComparison": true,
+      "period7Selected": true,
+      "desktopCharts": 4,
+      "mobile": {
+        "viewport": 390,
+        "bodyScrollWidth": 390,
+        "renderedLines": 4
+      },
+      "viewportRestored": true,
+      "screenshots": [
+        "docs/screenshots/dashboard-live.png",
+        "docs/screenshots/dashboard-live-mobile.png"
+      ],
+      "interactionNote": "Chrome extension date fill changed DOM without React state; native calendar keyboard selection and query verified historical comparison. No product workaround applied."
+    }
+  },
+  "completedAt": "2026-10-21T16:51:11.451830+00:00",
+  "logHashes": {
+    "/tmp/crefans-dashboard-server-build.log": "7aa1638731242a1ef372b25af70d8e696bbb2cf4a43de8594e5172824ec1cad2",
+    "/tmp/crefans-dashboard-server-tests.log": "2bcc6d04430a39237c53b9266500b4af8b9e840a1d166e0d68e070cfea961889",
+    "/tmp/crefans-dashboard-admin-check.log": "1baf10f76485303da8fcca9e749d3d851ad620b0d89aef6565852d9990527d67",
+    "/tmp/crefans-dashboard-e2e.log": "bbb98bde9c3345a941371063b774ff79ab3ae7dae6fc606fbeda27b53af60133",
+    "/tmp/crefans-dashboard-admin-image.log": "9b1691051ac6171ef8d5e7dda87a99786b453cfd712e3c88f70196f4b734adce",
+    "/tmp/crefans-dashboard-api-image.log": "3f87341be40a0487c5de615b15b65021524b505624aa6916ec1958ce3d571634",
+    "/tmp/crefans-dashboard-doc-check.log": "80af01d7c0abeee89807bfec418a5dd938998d458b789ca97b9edcb3b58addee"
+  }
+}

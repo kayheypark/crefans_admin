@@ -37,3 +37,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/.next-build/
+/.next-e2e/
+/test-results/
+/playwright-report/
+
+# Private local sessions and deployment credentials
+/.local/
