@@ -10,8 +10,8 @@ const nextConfig = {
     const url = new URL(backend);
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.pathname !== '/') throw new Error('Invalid CREFANS_API_ORIGIN');
     return [
+      // Operator login/refresh/logout live under /admin/auth; member auth is not exposed on the console host.
       {source: '/api/v1/admin/:path*', destination: `${url.origin}/api/v1/admin/:path*`},
-      ...['login', 'logout', 'refresh'].map(action => ({source: `/api/v1/auth/${action}`, destination: `${url.origin}/api/v1/auth/${action}`})),
     ];
   },
   async headers() {

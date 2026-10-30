@@ -1,0 +1,66 @@
+'use client';
+import {useState} from 'react';
+import {api} from '@/lib/console-api';
+import {useData,State} from './ConsoleData';
+import {ConfirmDialog} from './TypedConfirm';
+import {useSnackbar} from './Snackbar';
+
+// Terms §8 operator actions. The server checks permission and records every action with its reason.
+type Entry={action:string;reason:string;publicReason?:string|null;until:string|null;adminName:string|null;createdAt:string};
+const labels:Record<string,string>={'post.hidden':'숨김','post.unhidden':'숨김 해제','member.suspended':'이용 제한','member.unsuspended':'제한 해제'};
+const at=(v:string)=>new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
+const day=(v:string)=>new Date(v).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'});
+function History({path}:{path:string}){const state=useData<Entry[]>(path);return <section className="terms-history"><h3>조치 이력</h3><State {...state}/>{state.data&&(state.data.length?<div className="table-wrap"><table><thead><tr><th>일시</th><th>조치</th><th>처리자</th><th>내부 사유</th><th>당사자 안내 사유</th></tr></thead><tbody>{state.data.map((h,i)=><tr key={i}><td>{at(h.createdAt)}</td><td>{labels[h.action]||h.action}{h.action==='member.suspended'&&<small>{h.until?day(h.until)+'까지':'무기한'}</small>}</td><td>{h.adminName||'—'}</td><td>{h.reason}</td><td>{h.publicReason||'—'}</td></tr>)}</tbody></table></div>:<p className="empty">조치 이력이 없습니다.</p>)}</section>;}
+
+// reason stays internal; publicReason reaches the affected member by app notice and email (server rejects an empty one).
+function Reasons({reason,setReason,publicReason,setPublicReason,placeholder,publicPlaceholder}:{reason:string;setReason:(v:string)=>void;publicReason:string;setPublicReason:(v:string)=>void;placeholder:string;publicPlaceholder:string}){return <>
+ <label>당사자에게 보일 사유<small className="muted">앱 알림과 이메일로 당사자에게 전달됩니다.</small><textarea required maxLength={500} placeholder={publicPlaceholder} value={publicReason} onChange={e=>setPublicReason(e.target.value)}/></label>
+ <label>조치 사유<small className="muted">내부 기록용, 당사자에게 보이지 않음</small><textarea required maxLength={500} placeholder={placeholder} value={reason} onChange={e=>setReason(e.target.value)}/></label>
+</>;}
+export type ModeratedPost={id:string;title:string;hidden_at:string|null;hidden_reason:string|null};
+export type SuspendableMember={id:string;nickname:string;suspended_at:string|null;suspended_until:string|null;suspension_reason:string|null};
+export function PostModeration({post,canEdit,reload}:{post:ModeratedPost;canEdit:boolean;reload:()=>void}){
+ const [open,setOpen]=useState(false),[reason,setReason]=useState(''),[publicReason,setPublicReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),notify=useSnackbar();const hidden=!!post.hidden_at;
+ async function save(e:React.FormEvent){e.preventDefault();if(busy||!reason.trim()||!publicReason.trim())return;setBusy(true);setError('');try{const r=await api<{message:string}>(`/admin/posts/${encodeURIComponent(post.id)}/moderation`,{hidden:!hidden,reason,publicReason});setOpen(false);setReason('');setPublicReason('');notify(r.message);reload();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <div className="actions"><span>{hidden?'운영자 숨김':'정상'}</span><button type="button" onClick={()=>{setOpen(true);setError('');}}>{canEdit?(hidden?'숨김 해제':'숨기기'):'이력'}</button>
+  {open&&<ConfirmDialog title={canEdit?(hidden?'게시물 숨김 해제':'게시물 숨기기'):'게시물 조치 이력'} onCancel={()=>{if(!busy)setOpen(false);}}>
+   <p><strong>{post.title}</strong></p>
+   {canEdit&&<form className="editor" onSubmit={save}>
+    <p className="muted">{hidden?`현재 숨김 사유: ${post.hidden_reason||'—'}`:'숨기면 작성자 본인 외에는 피드·프로필·상세·댓글·후원·미디어에서 볼 수 없습니다. 작성자는 스튜디오에서 숨김 상태를 봅니다.'}</p>
+    <Reasons reason={reason} setReason={setReason} publicReason={publicReason} setPublicReason={setPublicReason} placeholder="예: 신고 확인 — 저작권 침해" publicPlaceholder={hidden?'예: 소명이 확인되어 게시물 숨김을 해제했습니다.':'예: 저작권 침해 신고가 확인되어 게시물을 숨겼습니다.'}/>
+    {error&&<p className="error" role="alert">{error}</p>}
+    <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{hidden?'숨김 해제':'숨기기'}</button></div>
+   </form>}
+   <History path={`/admin/posts/${encodeURIComponent(post.id)}/moderation`}/>
+   {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
+  </ConfirmDialog>}
+ </div>;
+}
+
+export type ReviewablePost={id:string;reviewed_at:string|null;hidden_at:string|null};
+// Beta post-publication review: one click marks a post as checked; hiding counts as a review too.
+export function PostReview({post,canEdit,reload}:{post:ReviewablePost;canEdit:boolean;reload:()=>void}){
+ const [busy,setBusy]=useState(false),[error,setError]=useState('');
+ if(post.reviewed_at||post.hidden_at)return <span>검수 완료</span>;
+ async function review(){if(busy)return;setBusy(true);setError('');try{await api(`/admin/posts/${encodeURIComponent(post.id)}/review`,{});reload();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <div className="actions"><span>미검수</span>{canEdit&&<button type="button" disabled={busy} onClick={()=>void review()}>{busy?'저장 중…':'검수 완료'}</button>}{error&&<span role="alert" className="error">{error}</span>}</div>;
+}
+export function MemberSuspension({member,canEdit,reload}:{member:SuspendableMember;canEdit:boolean;reload:()=>void}){
+ const active=!!member.suspended_at&&(!member.suspended_until||new Date(member.suspended_until)>new Date());
+ const [open,setOpen]=useState(false),[days,setDays]=useState('7'),[reason,setReason]=useState(''),[publicReason,setPublicReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),notify=useSnackbar();
+ async function save(e:React.FormEvent){e.preventDefault();if(busy||!reason.trim()||!publicReason.trim())return;setBusy(true);setError('');try{const r=await api<{message:string}>(`/admin/members/${encodeURIComponent(member.id)}/suspension`,active?{suspended:false,reason,publicReason}:{suspended:true,days:days==='none'?null:Number(days),reason,publicReason});setOpen(false);setReason('');setPublicReason('');notify(r.message);reload();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <div className="actions"><span>{active?(member.suspended_until?`제한 중 · ${day(member.suspended_until)}까지`:'제한 중 · 무기한'):'정상'}</span><button type="button" onClick={()=>{setOpen(true);setError('');}}>{canEdit?(active?'제한 해제':'이용 제한'):'이력'}</button>
+  {open&&<ConfirmDialog title={canEdit?(active?'이용 제한 해제':'회원 이용 제한'):'이용 제한 이력'} onCancel={()=>{if(!busy)setOpen(false);}}>
+   <p><strong>{member.nickname}</strong></p>
+   {canEdit&&<form className="editor" onSubmit={save}>
+    {active?<p className="muted">현재 사유: {member.suspension_reason||'—'}</p>:<><p className="muted">제한하면 로그인 세션이 바로 끊기고, 기간 동안 로그인할 수 없습니다. 게시물은 그대로이니 필요하면 콘텐츠·신고 메뉴에서 따로 숨기세요.</p>
+     <label>제한 기간<select value={days} onChange={e=>setDays(e.target.value)}><option value="7">7일</option><option value="30">30일</option><option value="none">무기한(해제할 때까지)</option></select></label></>}
+    <Reasons reason={reason} setReason={setReason} publicReason={publicReason} setPublicReason={setPublicReason} placeholder="예: 반복 스팸 신고 확인" publicPlaceholder={active?'예: 소명이 확인되어 이용 제한을 해제했습니다.':'예: 반복적인 스팸 게시로 운영정책을 위반했습니다.'}/>
+    {error&&<p className="error" role="alert">{error}</p>}
+    <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{active?'제한 해제':'이용 제한'}</button></div>
+   </form>}
+   <History path={`/admin/members/${encodeURIComponent(member.id)}/suspension`}/>
+   {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
+  </ConfirmDialog>}
+ </div>;
+}

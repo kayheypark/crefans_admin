@@ -15,9 +15,12 @@
   --brand:#1160d8;--brand-hover:#0b47a3;--brand-soft:#e8f0fe;--brand-on:#fff;--brand-ink:#0b47a3;
   --danger:#c8352f;--danger-soft:#fbe9e8;
   --shadow:0 1px 2px rgb(13 17 23 / .05),0 1px 1px rgb(13 17 23 / .04);
-  --r-sm:6px;--r:10px;--r-lg:14px;--nav-width:240px;--nav-rail:56px;
+  --r-sm:6px;--r:10px;--r-lg:14px;--nav-width:240px;--nav-rail:56px;--control-h:40px;
   --disabled-opacity:.45;--disabled-cursor:default;
-  --font:PlexKR,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  /* Console font. Revert to the previous look by pointing --font back to var(--font-plex). */
+  --font-plex:PlexKR,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --font-apple:'Apple SD Gothic Neo','AppleGothic',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;
+  --font:var(--font-apple);
 }
 @media(prefers-color-scheme:dark){:root{
   --bg:#080a0d;--surface:#0e1116;--surface-2:#141922;--surface-3:#1b2230;
@@ -65,27 +68,19 @@ button.nav-toggle{width:28px;height:28px;min-height:28px;padding:0;margin-left:a
 .sidebar nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);color:var(--text-2);font-size:14px;white-space:nowrap;text-decoration:none}
 .sidebar nav a:hover{background:var(--surface-3);color:var(--text-1)}
 .sidebar nav a[aria-current=page]{background:var(--brand-soft);color:var(--brand-ink);font-weight:600}
-.admin-user{margin-top:auto;border-top:1px solid var(--border);padding:12px 8px 2px;display:grid;gap:10px;font-size:12px;color:var(--text-3)}
-.account-detail{display:flex;align-items:center;gap:8px;min-width:0}
-.account-detail strong{display:block;font-size:12px;font-weight:600;color:var(--text-1)}
-.account-detail small{display:block;font-size:11px;color:var(--text-3);margin-top:2px}
-.account-avatar{display:flex;align-items:center;justify-content:center;width:28px;height:28px;flex:none;background:var(--surface-3);color:var(--text-2);border-radius:var(--r-sm);font-size:12px;font-weight:700}
-button.logout{justify-content:flex-start;min-height:28px;padding:4px 0;border-color:transparent;background:transparent;color:var(--text-3);font-size:12px}
-button.logout svg{width:16px;height:16px}
 .main{flex:1;min-width:0;padding:20px 24px 48px}
 .page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
-.mobile-logout{display:none}
+.menu-button,.nav-backdrop,.top-profile{display:none}
+.nav-drawer{display:contents}
 .scope-label{color:var(--text-3);font-size:11px}
 .console[data-nav=rail]{--nav-width:var(--nav-rail)}
 .console[data-nav=rail] .sidebar{padding:16px 0 12px;align-items:center}
 .console[data-nav=rail] .nav-brand{padding:0 0 12px}
-.console[data-nav=rail] .brand,.console[data-nav=rail] .nav-section,.console[data-nav=rail] nav a span,.console[data-nav=rail] .account-detail,.console[data-nav=rail] .logout span{display:none}
+.console[data-nav=rail] .brand,.console[data-nav=rail] .nav-section,.console[data-nav=rail] nav a span{display:none}
 .console[data-nav=rail] .nav-toggle{width:36px;height:36px;margin:0}
 .console[data-nav=rail] .nav-toggle svg{transform:scaleX(-1)}
 .console[data-nav=rail] .nav-group{margin-bottom:8px}
 .console[data-nav=rail] nav a{width:40px;height:40px;padding:0;justify-content:center}
-.console[data-nav=rail] .admin-user{padding:12px 0 0;width:40px}
-.console[data-nav=rail] button.logout{width:40px;height:36px;justify-content:center;padding:0}
 .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}
 .metrics article{padding:14px 16px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
 .metrics article>span{display:block;font-size:12px;color:var(--text-2);margin-bottom:6px}
@@ -133,16 +128,21 @@ section .empty{border:0;padding:24px 12px}
   .sidebar,.console[data-nav=rail] .sidebar{position:sticky;top:0;z-index:10;width:100%;height:auto;padding:0 8px;display:flex;flex-direction:row;align-items:center;gap:8px;border-right:0;border-bottom:1px solid var(--border);overflow:visible}
   .nav-brand,.console[data-nav=rail] .nav-brand{padding:0 4px;flex:none}
   .nav-brand .brand-art{width:100px;height:20px}
-  .sidebar .nav-toggle,.sidebar .nav-section,.sidebar .admin-user,.console[data-nav=rail] .sidebar .nav-toggle{display:none}
+  .sidebar .nav-toggle,.console[data-nav=rail] .sidebar .nav-toggle{display:none}
   .console[data-nav=rail] .brand{display:block}
-  .sidebar nav{display:flex;overflow-x:auto;overflow-y:hidden;min-width:0}
-  .nav-group,.console[data-nav=rail] .nav-group{display:flex;flex:none;gap:0;margin:0}
-  .sidebar nav a,.console[data-nav=rail] nav a{width:auto;height:auto;min-height:48px;gap:7px;padding:0 12px;justify-content:center;border-radius:0;border-bottom:2px solid transparent;font-size:13px}
-  .console[data-nav=rail] nav a span{display:inline}
-  .sidebar nav a[aria-current=page]{background:transparent;border-bottom-color:var(--brand);color:var(--brand-ink)}
-  .sidebar nav a svg{width:17px;height:17px}
+  .sidebar,.console[data-nav=rail] .sidebar{height:56px}
+  .menu-button{display:inline-flex;width:40px;min-height:40px;padding:0;border-color:transparent;background:transparent}
+  .menu-button svg{width:22px;height:22px}
+  .nav-drawer{position:fixed;top:56px;left:0;bottom:0;z-index:30;width:min(300px,86vw);display:flex;flex-direction:column;gap:8px;padding:16px 12px 16px;background:var(--surface);border-right:1px solid var(--border);box-shadow:var(--shadow);overflow-y:auto;overscroll-behavior:contain;visibility:hidden;transform:translateX(-100%);transition:transform .2s ease,visibility .2s}
+  .nav-drawer[data-open]{visibility:visible;transform:none}
+  .console[data-nav=rail] .nav-section{display:block}
+  .nav-drawer nav{flex:none;overflow:visible}
+  .nav-group,.console[data-nav=rail] .nav-group{gap:4px;margin:0 0 8px}
+  .nav-drawer nav a,.console[data-nav=rail] .nav-drawer nav a{width:auto;height:auto;min-height:44px;justify-content:flex-start}
+  .console[data-nav=rail] .nav-drawer nav a span{display:inline}
+  .nav-backdrop{display:block;position:fixed;inset:56px 0 0;z-index:5;background:rgba(15,23,42,.36)}
+  @media(prefers-reduced-motion:reduce){.nav-drawer{transition:none}}
   .main{padding:16px 16px 40px}
-  .mobile-logout{display:inline-flex;padding:5px;min-height:32px;border-color:transparent}
 }
 @media(max-width:600px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metrics article{padding:14px 12px}.metrics strong{font-size:22px}.scope-label{display:none}.filters{gap:10px}.filters label{min-width:0;flex:1 1 130px}.tabs{margin-top:16px}.tabs button{flex:none;min-width:90px}.pager{gap:8px}section{padding:14px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
@@ -167,3 +167,116 @@ section .empty{border:0;padding:24px 12px}
 
 /* Bean financial attribution: keep titles, source IDs and payout amounts on separate lines. */
 .bean-console td small{display:block;margin-top:6px;font-size:12px;line-height:1.6;color:var(--text-2);white-space:normal;overflow-wrap:anywhere}
+
+/* Form controls: one height and look across Chromium and iOS WebKit. */
+input:not([type=checkbox]):not([type=radio]),select{min-height:var(--control-h)}
+/* Buttons that sit in a row with inputs (filters, table actions) match the field height. */
+.filters button,.actions:has(>input,>select) button{min-height:var(--control-h)}
+select{-webkit-appearance:none;appearance:none;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+input[type=date]{-webkit-appearance:none;appearance:none;height:var(--control-h);padding-block:0;line-height:calc(var(--control-h) - 2px)}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+.pager button{min-height:32px}
+.empty+button,.table-wrap+button{margin-top:12px}
+.editor+h3{margin-top:24px}
+@media(max-width:600px){
+ .filters:has(input[type=date]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .filters:has(input[type=date]) label{min-width:0}
+ .filters:has(input[type=date])>button.primary,.filters:has(input[type=date])>.muted{grid-column:1/-1}
+ .filters:has(input[type=date])>.muted{padding-bottom:0}
+ .dashboard-tools .filters:has(input[type=date]){grid-template-columns:minmax(0,1fr) auto auto;width:100%}
+ .dashboard-tools .filters:has(input[type=date])>button.primary{grid-column:auto}
+}
+
+/* Profile avatar in the shared header: desktop page head, mobile top bar. */
+.head-profile{display:flex;align-items:center;gap:12px}
+.profile-link{display:inline-flex;border-radius:50%;text-decoration:none}
+.profile-link:focus-visible{outline-offset:3px}
+.avatar-default{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--surface-3);color:var(--text-2);border:1px solid var(--border)}
+.avatar-default svg{width:20px;height:20px}
+.avatar-default.large{width:56px;height:56px}.avatar-default.large svg{width:30px;height:30px}
+.profile-link[aria-current=page] .avatar-default{border-color:var(--brand);color:var(--brand-ink)}
+@media(max-width:1079px){
+ .head-profile .profile-link{display:none}
+ .top-profile{display:flex;margin-left:auto;padding-right:4px}
+}
+/* My page and operators */
+.profile-card{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.profile-card>div{display:grid;gap:3px;min-width:0;flex:1}
+.profile-card small{color:var(--text-3);font-size:12px}
+.mypage>.logout-button{margin-top:24px}.logout-button{gap:6px}.logout-button svg{width:16px;height:16px}
+.mypage>section+section,.operators>section+section{margin-top:16px}
+/* Operator TOTP */
+.totp-banner a{font-weight:600}
+.totp-setup{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0}.totp-setup dd{margin:0;min-width:0}
+.totp-setup code,.recovery-codes code{font-size:15px;letter-spacing:1px;word-break:break-all}.totp-setup .totp-uri{font-size:12px;letter-spacing:0;user-select:all}
+.recovery-codes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;margin:0 0 12px;padding-left:20px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.section-head h2{margin:0}
+.section-head button svg{width:16px;height:16px}
+.editor.wide{max-width:none}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.permission-table th[scope=row]{white-space:nowrap}
+.permission-table td{vertical-align:top}
+.perm-cell{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400;color:var(--text-2);min-width:120px}
+.perm-cell input{width:16px;height:16px;min-height:0;flex:none;margin-top:2px;accent-color:var(--brand)}
+.perm-on{color:var(--brand-ink);font-weight:600}.perm-off,.perm-na{color:var(--text-3)}
+.temp-password{display:grid;gap:10px;margin-bottom:16px;padding:16px;border:1px solid var(--brand);border-radius:var(--r);background:var(--brand-soft)}
+.temp-password code{font-size:18px;letter-spacing:1px;word-break:break-all;padding:10px 12px;background:var(--surface);border-radius:var(--r-sm)}
+button.danger{color:var(--danger)}
+/* Policy: info tooltip next to the change button and typed-confirmation dialog */
+.button-with-info{display:flex;align-items:center;gap:8px}
+.info-tip{position:relative;display:inline-flex}
+.info-tip>button{width:28px;min-height:28px;padding:0;border-radius:50%;border-color:transparent;background:transparent;color:var(--text-3)}
+.info-tip>button svg{width:18px;height:18px}
+.info-tip [role=tooltip]{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:max-content;max-width:min(260px,80vw);padding:8px 10px;border-radius:var(--r-sm);background:var(--text-1);color:var(--surface);font-size:12px;font-weight:500;line-height:1.5;box-shadow:var(--shadow);visibility:hidden;opacity:0;transition:opacity .15s;z-index:20;pointer-events:none}
+.info-tip:hover [role=tooltip],.info-tip:has(:focus-visible) [role=tooltip],.info-tip[data-open] [role=tooltip]{visibility:visible;opacity:1}
+/* Form fields: the tip opens below the label row and spans the field width, so it stays inside dialogs. */
+.info-tip.below{position:static}
+.info-tip.below [role=tooltip]{top:calc(100% + 4px);bottom:auto;left:0;right:0;transform:none;width:auto;max-width:none;white-space:normal}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{position:relative;display:flex;align-items:center;gap:2px;min-height:28px}
+.field-label label{display:inline}
+.field-label .info-tip>button{width:28px;min-height:28px}
+.dialog-backdrop{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.45)}
+.dialog{width:min(480px,100%);max-height:calc(100dvh - 32px);overflow-y:auto;display:grid;gap:14px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+.dialog h2{margin:0;font-size:16px}
+.change-summary{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:13px}
+.change-summary dt{color:var(--text-3)}.change-summary dd{margin:0;overflow-wrap:anywhere}
+.dialog-actions{justify-content:flex-end}
+@media(prefers-reduced-motion:reduce){.info-tip [role=tooltip]{transition:none}}
+
+
+/* iPhone focus zoom starts below 16px. Keep pinch zoom available and desktop typography unchanged. */
+@media (hover: none) and (pointer: coarse) {
+  /* 16px touch text makes fields 44px; same-row buttons follow via --control-h (also the 44px touch target). */
+  :root { --control-h: 44px; }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]),
+  textarea,
+  select,
+  [contenteditable="true"],
+  [contenteditable=""],
+  [contenteditable="plaintext-only"] {
+    /* Component font shorthands must not override the touch-input minimum. */
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+.console-snackbar-region{position:fixed;inset:0;z-index:1500;pointer-events:none}
+/* Same as the service app's Toast (crefans_front ui.module.css .toast): dark pill, × button, brand countdown bar along the bottom. */
+.console-snackbar{position:fixed;z-index:1500;inset:auto;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));margin:0;border:0;pointer-events:auto;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);box-sizing:border-box;display:flex;align-items:center;gap:16px;padding:8px 8px 8px 20px;background:var(--text-1);color:var(--surface);border-radius:var(--r-lg);box-shadow:0 8px 32px rgb(13 17 23 / .12);font-family:var(--font);font-size:14px;line-height:1.5;overflow:hidden}
+.console-snackbar>span{min-width:0;overflow-wrap:anywhere}.console-snackbar::backdrop{background:transparent;pointer-events:none}
+.console-snackbar button{flex-shrink:0;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;font:inherit;font-size:24px;cursor:pointer}.console-snackbar button:not(:disabled):hover{background:color-mix(in srgb,currentColor 12%,transparent)}
+.console-snackbar-progress{position:absolute;inset:auto 0 0;height:3px;background:var(--brand);transform-origin:left;animation:snackbar-countdown linear forwards}
+.console-snackbar[data-state=open]{animation:snackbar-in .2s cubic-bezier(.2,0,0,1) both}.console-snackbar[data-state=closing]{animation:snackbar-out .12s ease-in both;pointer-events:none}
+@keyframes snackbar-countdown{from{transform:scaleX(1)}to{transform:scaleX(0)}}@keyframes snackbar-in{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes snackbar-out{to{opacity:0;transform:translate(-50%,8px)}}
+@media(prefers-reduced-motion:reduce){.console-snackbar{animation:none!important}.console-snackbar-progress{animation-timing-function:steps(4,end)}}
+
+/* Loading rule (ConsoleData State): after 1s a spinner floats over the previous table, which stays but dims; empty/first loads get it in place. */
+.loading-spinner{display:block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:loading-spin .8s linear infinite}
+.loading-veil{position:relative;z-index:3;height:0}
+.loading-veil>.loading-spinner{position:absolute;left:calc(50% - 14px);top:72px}
+.loading-veil~.table-wrap,.loading-veil~.metrics,.loading-veil~div:has(>.table-wrap),.loading-veil~.empty{opacity:.45;pointer-events:none;transition:opacity .15s}
+.loading-block{display:flex;justify-content:center;align-items:center;min-height:120px}
+.loading-block~.empty,.loading-block~.table-wrap .empty{display:none}
+@keyframes loading-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.loading-spinner{animation-duration:2s}}
