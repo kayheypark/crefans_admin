@@ -1,5 +1,232 @@
 # 진행 상태
 
+## 2026-10-30 운영자 2차 인증(TOTP) 콘솔 화면 (미커밋·미배포, 서버는 기존 구현 사용)
+- 로그인(`src/app/login/page.tsx`): 401 TOTP_REQUIRED면 이메일·비밀번호를 유지한 채 6자리 코드 단계(inputmode numeric·one-time-code·maxLength 6), "복구 코드 사용" 전환 시 recoveryCode로 재전송. TOTP_INVALID는 서버 문구, 429는 "인증 시도가 너무 많습니다…".
+- 마이페이지 `#totp`(`src/components/console/Totp.tsx`, `Operators.tsx` MyPage): 미등록이면 안내+"등록 시작"→설정 키 4자 묶음+otpauth 주소 텍스트(외부 QR 서비스·QR 라이브러리 없음, node_modules에 QR 패키지 없음)→6자리 입력→복구 코드 8개 대화상자(복사·"보관했습니다" 체크 전 닫기 불가). 등록 후 "사용 중 · 남은 복구 코드 N개".
+- 셸(`Console.tsx`): me.totp.enabled=false면 배너 "N일 안에 2차 인증을 등록해야 합니다"(KST 달력 일수, `src/lib/totp.ts`), 유예 경과 시 차단 문구. `api()`가 403 TOTP_ENROLLMENT_REQUIRED를 이벤트로 알리면 /console/me#totp로 이동+스낵바. 버그 수정: 401 TOTP_INVALID는 세션 갱신 후 재전송하지 않음(이전엔 틀린 코드가 2번 전송돼 시도 횟수 2배 소모).
+- 검증(16:22 KST): tsc 0, next lint 0(기존 Brand.tsx img 경고 1), npm test 11/11(신규 totp 2·console-api 1), e2e totp 5/5(API 대역). 대조 8종(2단계 미표시·복구코드를 code로·닫기 체크 미강제·키 묶음 제거·배너 제거·KST 대신 경과시간·403 이벤트 제거·TOTP_INVALID 재시도) 모두 실패 확인 후 cmp·SHA-256 일치 복원. 전체 e2e 34/35: control-heights 데스크톱 1건이 같은 실행 안 console.spec 로그인 누적으로 서버 로그인 제한(admin-signin:이메일) 429 — 단독 재실행 2/2 통과, console.spec 12/12 통과(배너로 깨지는 기대 없음, 수정 안 함).
+- 미검증: 실제 서버·실제 인증 앱과 연결한 등록/로그인(격리 서버 e2e 운영자는 미등록 상태), 운영 배포.
+
+## 2026-10-30 콩 환불 동결 핫픽스 (운영 배포: refund-hotfix-20261030, 미커밋)
+- 원인(오후 night-work 1순위, 격리 DB 재현): 우리 부분취소로 토스 상태가 PARTIAL_CANCELED/CANCELED가 되면 `beans.service.ts` applyProvider가 무조건 freezeCharge → 충전 disputed·후원받은 lot 동결·미수금.
+- 수정(server `src/platform/beans.service.ts`): 취소액(totalAmount−balanceAmount) ≤ refunded_amount+처리 중 환불액이면 정상, 넘을 때만 동결. 결과 불명 환불 대사(tick `beans-refund`, `reconcileRefund`: PG 기록에 취소가 있으면 완료, 없으면 같은 멱등키 `bean-refund-${id}`로 재요청). 완료·복원은 bean_refunds 행 FOR UPDATE 후 processing 재확인(동시 처리 1회). 같은 requestId 재요청이 failed면 409 BEAN_REFUND_FAILED. 환불은 판매 승인과 분리(`keyEnvironment`). front: `beanRefundOutcome`(lib/crefans/bean-refund.ts)으로 done만 "환불했어요", processing은 "확인하고 있어요", 확정 거절 시 새 requestId. admin Beans.tsx: 처리 중 표시·확정 거절 시 새 requestId.
+- 검증(14:52 KST): server platform-beans 28/28(2회), 신규 3테스트(모니터 정상 유지·외부 취소는 동결 / 대사 완료·재요청·동시 2회 1회 반영·거절 후 409 / 판매 승인 off에도 환불). 대조 4종(옛 판정·재확인 제거·판매 승인 의존·failed 재요청) 모두 실패 확인 후 원복. front check 418/418(대조 1종), e2e 14/14. admin npm test 8/8, e2e 21/21(신규 1, 대조 2종).
+- 배포(14:5x KST): API/worker/admin/front, 마이그레이션 없음, DB·proxy 보존. 운영 확인: health 200, 비로그인 refund-quote 401, 베타 목업 환불 흐름 정상·오류 0. 이미지 정리 로컬·운영 각 3개.
+- 미확인: 실제 토스 부분취소. 이미 동결된 충전 여부는 사용자 결정(2026-10-30 "안해도됨")으로 운영 DB를 조회하지 않음 — 베타 테스트 결제라 환불 사용자가 없다고 판단. 동결 문의가 오면 수동 복구.
+
+## 2026-10-30 오후 night-work 조사 문서 (문서만, 코드 변경 없음)
+- 위치: `crefans_front/.local/night-work/2026-10-30-1414.md` (14:14~14:32, 결정 질문 K1~K14).
+- 상위: ① 정상 콩 환불 뒤 PG 감시가 충전을 차지백으로 동결(pilot-followups 회귀, 재현) ② 안전성 확보조치 유예 조항 10/31 시행 — 운영자 2차 인증 없음 ③ 콩 환불 processing 대사 없음·프론트/콘솔이 실패를 완료로 안내 ④ 운영 코드 미커밋·가이드 git 없음 ⑤ 운영 IP 요청량 제한 없음 ⑥ 원천징수 의무 가능성 vs 세금 문구.
+
+## 2026-10-30 당사자 공개 사유·콩 운영자 환불·미수금 콘솔 (운영 배포 pilot-followups-20261030, 미커밋)
+- 배포(2026-10-30 KST 사용자 "배포"): API/worker/admin/front `pilot-followups-20261030`, 마이그레이션 `20261030200000_pilot_followups` 운영 적용(배포 스크립트가 직전 mysqldump 백업), DB·proxy 컨테이너 보존. 폴더 `crefans_front/.local/pilot-followups-deploy-20261030/`(server 15·admin 4·front 18 파일). 운영 확인: 비로그인 refund-quote·admin receivables 401, health 200, 베타 목업 충전 내역 환불 신청 버튼 10·대화상자, 충전 화면 10%·5년 안내, 콘솔 로그인 안내 문구 없음, 페이지 오류 0. 이미지 정리 로컬·운영 완료. 미확인: 운영 worker의 새 작업(member-notices·bean-expiry·receivables) 실행 결과(운영 DB/로그 읽기는 권한 정책상 하지 않음), 실제 토스 부분취소·메일 발송.
+- 로그인 화면의 "운영자 전용 계정으로 로그인합니다. 크레팬스 팬·크리에이터 계정으로는 로그인할 수 없습니다." 문구 제거(사용자 요청 2026-10-30, `src/app/login/page.tsx`). tsc 통과, console e2e 12/12.
+- 조치 공개 사유(D11): 게시물 숨김/해제·회원 제한/해제 대화상자에 필수 "당사자에게 보일 사유"(≤500, 앱 알림·이메일 전달) 추가, "조치 사유"는 내부 기록용. 이력 표에 내부 사유/당사자 안내 사유 분리. 신고 행 "댓글 숨기고 처리 완료"는 행의 당사자 사유 입력이 있어야 켜지고 {hidden,reason:처리 메모,publicReason} 전송. 근거: `src/components/console/Moderation.tsx`, `Console.tsx`(ReportAction), 서버 `src/platform/moderation.ts`.
+- 콩 환불: 충전 표 결제 완료 행 "환불"(beans.update만) → 사유(≤200)·"회사 귀책(7일 이후 10% 공제 면제)" 체크 → 확인 → POST admin/beans/charges/:id/refund {requestId(대화상자당 1개, 재시도 시 재사용),waived,reason} → 스낵바에 수량·환불액·공제·면제 표시 후 재조회. PAYMENT_UNCERTAIN은 같은 창 재시도 안내. 미수금: GET admin/beans/receivables 표(크리에이터 ID·종류·출처 ID·금액·발생일), 콩 미수금만 정산 메모+"정산 완료"(beans.update), 멤버십은 "자동 차감". 근거: `src/components/console/Beans.tsx`, 서버 `beans.service.ts`(refundCharge·receivables·settleReceivable).
+- 검증(2026-10-30 12:49 KST, 서버 대역/격리 서버): tsc 0, next lint 0(기존 Brand.tsx img 경고 1), npm test 8/8, Playwright moderation 4·comment-reports 1·bean-refunds 3(신규)·console 12 = 20/20. 대조 12종(공개 사유 누락 본문·버튼 활성·이력 열, 댓글 본문·버튼, 환불 waived 누락·전체 행 버튼·권한 무시·재조회 누락, 멤버십 정산 버튼·정산 메모 누락) 모두 실패 확인 후 원본과 cmp 일치로 복원.
+- 미검증: 실제 서버와 연결한 환불·정산(토스 부분취소 포함), 운영 배포.
+
+## 2026-10-30 /pilot-work 정책 동기화 (운영 배포: pilot-sync-20261030 + 가이드 pilot-sync-20261030, 미커밋)
+- 조사: 읽기 전용 3갈래(콩·정산/세무/약관·댓글/알림). 주의: 조사 지시 오류로 나온 "후원받은 프로모션콩 출금 불가"는 오탐 — 10/26 승인대로 후원받은 프로모션콩은 출금 가능(회사 부담), 운영자 직접 지급분만 불가. 상호 '좋아하는일해야지'도 정상.
+- 합의(사용자 클릭): ① 약관·운영정책·처리방침은 한 번에 새 버전 초안만(`crefans_server/docs/terms-draft-20261030.md`, 운영 미반영, 시행 전 개발 표시) ② 세금 문구 = "크레팬스는 정산 금액에서 세금을 떼지 않으며, 소득 신고·납부는 크리에이터 본인이 합니다." ③ 후원받은 콩(일반·프로모션) 보류 = 후원 시점+7일 ④ 댓글·알림 안내 전부 ⑤ 권리침해·불법촬영물·저작권 신고 접수 = 대표 박경호·khpark@crefans.com ⑥ 서버·프론트·콘솔 배포+가이드 반영.
+- 반영: server `beanPolicy.tipHoldDays=7`, `beans.service.ts` tip lot release_at=후원+7일(이전엔 충전 lot 상속, 후원 프로모션콩 즉시 출금 가능했음). 세금 문구: front support.ts·creator-payout-policy.ts·ServiceGuidePage.tsx, guide payouts·payout-setup·income-scenarios·service-introduction.mdx, 소개서 HTML+PDF 재생성(13쪽 경계검사). 보류 문구: 스튜디오 출금 안내·가이드·소개서·콘솔 초대 툴팁·platform-api.md·admin README. 댓글·알림: 알림 탭 고정 목록 멤버십·댓글·메시지·새 게시물, 알림 설정 안내, FAQ 4문항, 서비스 안내, 가이드 4문서(게시물·메시지/알림·커뮤니티·고객센터), types·preview-pages 태그 10명.
+- 검증(2026-10-30 KST): server platform-beans 22/22(신규 "후원 후 7일" 테스트; 기존 지급 테스트는 7일 경과 헬퍼), 대조(옛 상속 규칙으로 되돌리면 신규 테스트 실패) 확인. front check 406/406, e2e comment-social·comment-edit-delete·beans·promotion-payout 21/21, 알림 탭 대조 실패 확인. admin tsc·invites e2e 3/3. 문서검사 PASS(초안 manifest 등록). 가이드 격리 빌드(Node 22.23.4)·check:guides 0, 결과물에 '원천징수' 없음.
+- 배포: API/worker/admin/front pilot-sync-20261030(마이그레이션 없음, DB·proxy 보존), 가이드 정적 102파일(8페이지·PDF·검색색인 변경, 44파일 SHA 일치, 6컨테이너·Caddy 불변, 원복 guide-before-pilot-sync-20261030). 운영 확인: 알림 탭 4종, FAQ 댓글·차단·세금 새 문구(원천징수 없음), 스튜디오 "후원 후 7일 보류", 가이드 payouts 새 문구, health 200. 가이드 capture_before의 이전 릴리스 경로를 bean-wording으로 고친 뒤 실행(첫 시도는 사전검사에서 중단, 변경 없음).
+- 미결(약관 초안 시행 전 개발): 콩 환불·유효기간·만료 안내, 지급 후 미수금, 조치 알림·공개 사유, 크리에이터 탈퇴 조건, 메시지·문의·CI 해시 파기, 등급 변경, 통신판매업 신고 후 번호 표시. 지급자 원천징수 의무는 세무사 확인 전 미확정. 댓글 요청량 제한(분당5·시간당60)은 미구현. service-hierarchy.md(사용자 원문 계층도)의 알림 분류는 손대지 않음.
+
+## 2026-10-30 D9 댓글 묶음 + 답글의 답글 — 운영 배포 완료 comment-social-20261030 (미커밋)
+- 배포(2026-10-30 10:42 KST): API/worker/admin/front `comment-social-20261030`, 마이그레이션 없음("No pending migrations"), DB·proxy 보존. 폴더 `crefans_front/.local/comment-social-deploy-20261030/`(source-delta: server 6·admin 1·front 10 파일, next-env.d.ts는 e2e 생성물이라 제외). 운영 확인: 비로그인 mention-candidates·reports·admin 댓글 숨김 401, health 200, 베타 /preview/post/morning 태그 링크 21·댓글 신고 버튼 8·답글의 답글 버튼 3·"@하" 태그 후보 4·페이지 오류 0(live-preview.png). 이미지 정리 로컬·운영 각 3개 삭제·오류 0. 실회원 계정 실사용은 미확인.
+- 차단: 게시물 작성자가 차단한 회원은 새 댓글·답글 403 COMMENT_BLOCKED, 기존 댓글은 유지.
+- 알림(type comment, 목록 분류 '댓글'): 댓글→게시물 작성자, 답글→원 댓글 작성자(스튜디오 답글 포함), 태그→태그된 사람. 1인 1건, 작성자 본인·차단 관계 제외. bootstrap 알림 type은 한글 분류명으로 변환(subscription→멤버십, message→메시지, content→새 게시물, comment→댓글) — 이전엔 영어 값이 칩으로 보였음.
+- 멘션: 서버가 본문 "@이름"에서 판별(게시물 작성자 페이지 이름·닉네임 + 보이는 댓글 작성자, 같은 이름 2명 이상·본인 제외, 최대 10). 수정 시 재판별. GET /posts/:id/mention-candidates({name,image}, 열람 기록 없음). 프론트: "@" 입력 시 목록(↑↓·Enter/Tab·Esc, 모바일은 입력창 위), 본문 안 파란 링크(/creator/:id). 팬 화면 칩 목록 대신 본문 표시(스튜디오 칩은 그대로).
+- 댓글 신고: POST /reports kind=COMMENT, 댓글 행 "신고" + 사유 대화상자. 콘솔 신고 목록에 댓글 내용, "댓글 숨기고 처리 완료". POST/GET /admin/comments/:id/moderation(숨김 시 목록 제외·댓글 수 감소).
+- 결정(D9): 해지 회원 자기 댓글 삭제는 선택 안 됨(현행 유지).
+- 검증(2026-10-30 10:25 KST): server tests/platform-comment-social 6/6, moderation 7/7, studio-replies 5/5, beta-policy 11/11, openapi 11/11(158 경로). 대조 5종(차단·작성자 제외·동명 태그·숨김 신고·스튜디오 알림) 모두 실패 확인 후 원복. front check 406/406, e2e comment-social 4 + comment-edit-delete 4, 대조 4종(링크·신고 버튼·모바일 위치·Enter 선택) 실패 확인. admin e2e 7/7(신고 숨김 대조 1종 실패 확인), typecheck·lint·npm test 8/8. docs check PASS.
+- 미검증: 실제 iPhone 한글 IME에서의 "@" 목록 동작(Playwright는 IME 조합 미재현), 운영 DB 반영.
+- 근거: server `src/platform/service.ts`(addComment·resolveMentions·mentionCandidates·report), `moderation.ts`(moderateComment), `studio.service.ts`(createReply 알림); front `components/crefans/CommentMention.tsx`, `SocialPages.tsx`, `CommentComposer.tsx`; admin `src/components/console/Console.tsx`.
+
+## 2026-10-30 night-work 조사 문서 (문서만, 코드 변경 없음)
+- 위치: `crefans_front/.local/night-work/2026-10-30-0714.md` (07:14~07:48, 주제 39, 결정 질문 D1~D11).
+- 상위: 서버 밖 DB 백업 없음 / 멤버십 PG 입금 대사 화면 없음(공개 후 수익이 출금 가능으로 안 넘어감) / 불법촬영물·권리침해·저작권 수령인 절차 없음 / 지급 후 환불 회수 장치 없음·후원 콩이 충전일 보류 승계 / 원천징수·통신판매업 미비 / 콩 실판매 전 약관·고지·환불·잔액 집계 필요 / 운영자 2차 인증·내부 관리계획 없음 / 크리에이터 탈퇴·파기 범위 / 댓글 차단·신고·열람기록·알림 / 옛 화면 경로 노출.
+
+## 2026-10-30 이용 제한·해제·게시물 숨김 알림을 서비스 앱 스낵바로 (운영 배포: comment-edit-20261030, 미커밋)
+- 운영 배포(2026-10-30 06:55 KST, comment-edit-20261030): API·worker·콘솔·프론트 교체, 마이그레이션 20261030140000_comment_edited 적용(로그 확인), DB 백업 /opt/crefans-backup-comment-edit-20261030. 확인: 로그인 없는 댓글 DELETE 401, beta /preview/post/morning에서 이탤릭 삭제 표시·수정됨·수정/삭제 버튼, 콘솔 CSS에 새 스낵바. 이미지 정리 로컬·운영 각 3개 삭제·오류 0. 근거 front `.local/comment-edit-deploy-20261030/`. 실회원 계정으로 댓글 수정·삭제는 아직 직접 확인하지 않았다. 폰트 되돌리기 스크립트(rollback-font.sh)는 이전 콘솔(스낵바·로딩 규칙 이전)로 돌아간다.
+- 사용자 지시: 이용 제한 및 해제 시 기존 스낵바(유저쪽 저장소 컴포넌트) 사용.
+- `components/console/Snackbar.tsx`를 crefans_front `components/ui/Toast.tsx`와 같은 모양·동작으로 옮김(하단 가운데 어두운 바, ×, 4초 카운트다운 막대, popover 최상위 레이어, 등장/퇴장 애니메이션, 감소 모션). props가 같아 초대·광고상품 화면도 함께 바뀜. 메시지가 없으면 아무것도 그리지 않는다.
+- `SnackbarProvider`(console/layout.tsx)와 `useSnackbar()` 추가. 이용 제한·해제와 게시물 숨김/해제는 콘솔 공용 스낵바로 띄워 목록 재조회로 행이 다시 그려져도 알림이 남는다.
+- 함께 고침: e2e console.spec이 예전 PlexKR 폰트를 기대하던 것을 현재 Apple SD Gothic Neo로 갱신(10-29 폰트 전환 때 남은 것).
+- 검증: typecheck·lint(에러 0)·npm test 8/8, e2e 전체 25 중 23 통과(실패 2: 폰트 기대값·control-heights) → 폰트 기대값 갱신 후 console.spec 단독 12/12, control-heights 단독 2/2(전체 실행 때만 1건 시간 초과, 이전부터 같음). moderation e2e에 제한 → 스낵바·카운트다운 확인 → 닫기 → 해제 → 스낵바 확인 추가. 대조: 제한 시 알림 호출 제거·카운트다운 막대 제거 각각 실패 확인.
+- 같은 작업 트리에 /ux-spinner 변경(ConsoleData 로딩 규칙)도 미커밋으로 있다.
+
+## 2026-10-30 가입 전 개발 2~4(미검수 목록·신고 사유·탈퇴 후 파기) + 멤버십 콩 환산 철회 (운영 배포)
+
+- 배포 완료(사용자 "배포", 2026-10-30): `signup-prep-20261030` API·worker·admin·front. DB 백업 후 migration 4개(report_privacy_reason, post_review, member_purge, backfill_withdrawn) 적용. 운영 확인: 6컨테이너, 처리방침 2026-10-30.1·30일 파기 문구(beta·crefans.com), 프론트 빌드 '콩 상당' 0건·'개인정보 노출' 포함, 검수 API 비인증 차단. 폰트만 되돌리기 `sudo bash /opt/crefans-backup-signup-prep-20261030/rollback-font.sh`(대기 crefans-admin:signup-prep-plex-20261030). 기존 탈퇴자 30일 파기 기산일 = 이번 배포 시각. 증거 front `.local/signup-prep-deploy-20261030/`.
+
+- 미검수 목록(사용자 선택: 바로 공개+사후 숨김): migration `20261030090000_post_review` postings.reviewed_at/reviewed_by·인덱스. `POST /admin/posts/:id/review`(content.update), `GET /admin/posts?review=pending`(공개·미삭제·미숨김·미검수). 작성자 저장 시 reviewed_at 초기화(`studio.service.ts`), 숨김도 검수로 기록. 콘솔 콘텐츠 '검수 상태' 필터·'검수 완료' 버튼. 기존 게시물은 모두 미검수로 시작.
+- 신고 사유(사용자 선택: 기본 6개): migration `20261029190000_report_privacy_reason`(enum PRIVACY 추가). `POST /reports` reason 검증(INAPPROPRIATE·COPYRIGHT·SPAM·HARASSMENT·PRIVACY·OTHER, 생략 시 OTHER, 잘못된 값 400). 프론트 신고 창 라디오 6개(선택 전 신고 버튼 비활성, `lib/crefans/report-reasons.ts`), 콘솔 신고 목록 한글 사유.
+- 탈퇴 후 파기(사용자 선택: 게시물 삭제·댓글 익명화·30일 유예): migration `20261030100000_member_purge` members.withdrawn_at/purged_at. 탈퇴 시 withdrawn_at 기록·결제 카드 빌링키 즉시 해지 대상(기존 retryBilling). 잡 `member-purge`(`member-purge.ts`, 50건씩): 30일 경과 시 게시물 삭제, 회원 이메일·실명·닉네임('탈퇴한 사용자')·전화·사진·비밀번호·본인확인 해시·로그인 ID 제거, 크리에이터 프로필·핸들, 사용자 소개, 정산 계좌번호·예금주, 출금 PIN, 본인확인 실명, 가입 인증 기록 정리, 감사 로그. 댓글은 원문 유지·표시 익명화(기존). 주문·구독·출금·동의 기록은 회원 ID로 보존. 미디어 원본 삭제는 기존 MEDIA_DELETE 설정 따름(미연결). 이 기능 이전 탈퇴자(withdrawn_at 없음)는 자동 파기 대상 아님 — 처리 방법 결정 필요.
+- 처리방침 7조를 실제 파기 절차로 갱신(30일 유예·파기 항목·게시물 삭제·댓글 익명 표시·첨부 원본 삭제 시점 별도), 문서 버전 2026-10-30.1. blocker '탈퇴·보유기간·실제 파기 절차 보완'은 사업자 확인 전까지 유지.
+- 사용자 지시로 '미구독 게시물 콩 참고 환산'(bean-notice-20261029로 운영 배포됨) 철회: PostMembershipNotice·membership-plans·bean-pricing·테스트를 커밋 상태(환산 이전)로 복원, CSS lockedMembershipPrice 제거, 전 저장소 '콩 상당/참고 환산' 0건. 대신 게시물 머리 둘째 줄에 `시각 · 멤버십 전용 · 월 ₩가격`(볼 수 있는 판매 중 최저가, 여러 개면 '부터'). AGENTS에 콩 환산 금지 규칙 추가.
+- 검증: server `platform-moderation` 6/6(검수 큐·작성자 수정 복귀·숨김=검수, 신고 사유, 30일 유예·파기 항목·댓글 익명 표시·1회 실행), 대조(수정 시 미검수 복귀 제거·유예 0일 각각 실패), legal 9/9, openapi 11/11(153경로), auth·admin-console·beans·security·signup-invites·studio-replies·finance·billing·payment-lifecycle 통과. admin typecheck·lint 오류 0·e2e moderation 4/4+control-heights 2/2. front check 399+social 29(머리줄 가격 신규).
+
+## 2026-10-29 관리자 게시물 숨김·회원 이용 제한 (가입 전 개발 1/4, 운영 배포)
+
+- 배포 완료(사용자 "지금 배포"): `moderation-20261029` API·worker·admin·front, DB 백업 후 migration `20261029180000_moderation` 적용. 첫 빌드에서 콘솔 린트(no-explicit-any) 실패 → 타입 지정 후 콘솔만 재빌드. 서버는 빌드 시점 사본 기준(이후 작업본의 신고 사유 변경은 제외). 운영 확인: 6컨테이너 정상, 조치 API 비로그인 401, 콘솔 번들에 운영 조치·이용 제한·조치 사유·애플 고딕 포함, 피드 200. 폰트만 되돌리기: `sudo bash /opt/crefans-backup-moderation-20261029/rollback-font.sh`(대기 이미지 crefans-admin:moderation-plex-20261029 보존). 증거 front `.local/moderation-deploy-20261029/`.
+
+- 약관 8조가 약속한 "게시물 비공개·계정 제한"이 없던 문제(가입 미시행 점검) 해결. migration `20261029180000_moderation`: postings.hidden_at/hidden_reason/hidden_by, members.suspended_at/suspended_until/suspension_reason, append-only `moderation_actions`(대상·조치·사유·기간·처리자·일시).
+- 서버 `src/platform/moderation.ts`(API 4개, content.update / members.update, 사유 필수, 감사 로그), `suspension.ts`. 숨김: `service.access()`에서 작성자 외 차단 + 피드·프로필·상세·저장목록 쿼리 `hidden_at:null`, 미디어 제한 대상, 게시물 후원 차단, 스튜디오 목록 `hiddenByOperator`. 제한: 세션 즉시 삭제, 로그인은 비밀번호 일치 후 403 ACCOUNT_SUSPENDED("이용이 제한된 계정입니다(…까지). 문의: khpark@crefans.com"), 토큰 검증·갱신 거부, 기간 지나면 자동 해제. 게시물은 회원 제한과 별개로 숨김.
+- 콘솔 `Moderation.tsx`: 콘텐츠 표 '운영 조치'(숨기기/해제·사유·이력), 회원 표 '이용 제한'(7일·30일·무기한·사유·이력). 조회 권한만 있으면 이력만. 권한표 설명 갱신. 프론트 스튜디오 게시물 목록에 '운영 정책에 따라 숨김'.
+- 검증: server 신규 `tests/platform-moderation.test.cjs` 3/3, 대조(숨김 검사 제거·제한 검사 제거 각각 1건 실패, 복구 후 통과), 관련 auth 3·auth-hardening 4·admin-console 12·admin-operators 7·beans 21·signup-invites 6·legal 8·openapi 11(152경로)·security 18 통과. `platform.integration`·`platform-access.integration`(별도 서버 필요 fetch failed)·`local-members`(전용 _test DB 필요)는 이 환경에서 실행 불가로 미검증. admin typecheck, e2e moderation 3/3+control-heights 2/2(스크린샷 확인). front check 401/401(신규 숨김 표시 테스트).
+- 미결: 신고 처리 화면에서 바로 숨기기 연결(현재 콘텐츠 표에서 별도), 이의제기 접수 경로, 정지 회원의 공개 프로필·게시물 노출 정책(현재 유지).
+
+## 2026-10-29 콘솔 폰트 Apple SD Gothic Neo 임시 전환 (운영 배포, 즉시 되돌리기 가능)
+
+- 사용자 요청: 운영 콘솔 폰트를 잠시 애플 고딕으로, 원하면 바로 이전 버전으로 돌릴 수 있게. `globals.css`에서 `--font-plex`(기존 IBM Plex Sans KR 스택)·`--font-apple`('Apple SD Gothic Neo','AppleGothic',…,'Malgun Gothic') 토큰을 두고 `--font:var(--font-apple)`. 코드로 되돌릴 때는 이 한 줄을 `var(--font-plex)`로.
+- 배포 `crefans-admin:console-font-20261029`: 운영 중이던 terms-history 콘솔 소스에 폰트 토큰 한 곳만 바꿔 빌드(아래 미배포 툴팁 변경은 제외). .env ADMIN_IMAGE만 변경, API·front·DB 유지. 운영 CSS `--font:var(--font-apple)` 확인.
+- 즉시 되돌리기: 툴팁 배포 이후에는 `/opt/crefans-backup-console-tooltips-20261029/rollback.sh`를 사용(아래 절). 이 배포 당시의 console-font rollback.sh는 툴팁 없는 terms-history 콘솔로 돌아감.
+- 한계: Apple SD Gothic Neo는 macOS·iOS에만 있어 Windows는 맑은 고딕, Android는 시스템 글꼴로 표시. 로그인 후 화면 육안 확인은 미실시.
+
+## 2026-10-29 초대 등록 입력란 정보 툴팁 (운영 배포)
+
+- 배포 완료(사용자 "배포"): `crefans-admin:console-tooltips-20261029`(애플 고딕 유지). 운영 콘솔 console-font 소스에 툴팁 4파일만 덮음. 운영 번들에 툴팁 문구·필드 스타일·`--font:var(--font-apple)` 확인. 대기 이미지 `crefans-admin:console-tooltips-plex-20261029`(같은 소스, 이전 IBM Plex 폰트)를 운영 서버에 적재·보존.
+- 폰트만 되돌리기(툴팁 유지, 이후 moderation 배포 전까지 유효): 운영 서버 `sudo bash /opt/crefans-backup-console-tooltips-20261029/rollback.sh` → ADMIN_IMAGE를 plex 대기 이미지로 바꾸고 콘솔만 재기동. 이전 console-font 배포의 rollback.sh는 툴팁 없는 콘솔로 돌아가므로 더 이상 쓰지 않음.
+
+- 사용자 요청: 초대 등록 모달의 각 입력란 라벨 오른쪽에 정보 툴팁과 정확한 설명. 공용 `components/console/InfoTip.tsx`(useId로 고유 id, PC 마우스 올림·키보드 포커스·터치 탭으로 열림, 바깥 탭/Esc로 닫힘)로 교체하고 기존 금융 정책 안내도 같은 컴포넌트 사용. 툴팁 버튼이 `<label>` 안에 들어가 입력란 라벨을 빼앗지 않도록 `Field`(라벨+툴팁 행, htmlFor로 연결) 사용.
+- 내용은 서버 규칙 기준: 이메일(초대 이메일만 인증 코드, 대소문자 무시, 등록 후 변경 불가, 가입 회원은 초대 불가), 메모(운영자 전용 100자, 검색), 멤버십 판매 수수료율(결제액×비율 원 미만 버림, 0~100% 소수 2자리, 비우면 금융 정책 값(현재 N), 신규 구독부터·갱신은 최초 조건), 정산 보류 기간(0~365일, 콩 후원 충전 7일 보류와 별개), 콩 출금 수수료율(콩 1개=100원, 원 미만 버림, 신청 시점), 최소 출금 금액(수수료 차감 전, 멤버십·콩 공통, 100원 단위 100원~1억 원). 수수료 설명 small 문구는 툴팁으로 이동.
+- 권한 없을 때 fieldset 전체가 비활성화돼 툴팁도 못 열리던 문제 → 입력란만 개별 비활성화. 모바일 긴 라벨에서 툴팁이 창 밖으로 나가던 문제 → 필드 폭에 맞춰 아래로 표시.
+- 검증: typecheck, e2e invites+control-heights 5/5(툴팁 6개, 각 내용·창 안 위치·다시 눌러 닫힘, 키보드 Tab 포커스로 열림), iPhone 13 에뮬레이션 탭 열림·창 안 표시 스크린샷 확인.
+
+## 2026-10-29 크리에이터별 수수료·출금 조건 변경 이력 (운영 배포)
+
+- 배포 완료(사용자 "배포", 2026-10-29): `terms-history-20261029` API·worker·admin. 기준 API invites-terms·admin control-height 소스에 server 4·admin 2파일만 덮음. DB 백업 후 migration `20261029150000_creator_term_changes` 적용(기존 개별 조건은 backfill 1행). front·DB·proxy 컨테이너 유지, .env API_IMAGE·ADMIN_IMAGE·runtime APP_RELEASE만 변경. 운영 확인: 6컨테이너 정상, 초대·회원 조건 API 비로그인 401, 콘솔 번들에 변경 이력·변경 사유·시스템 기본값·멤버십 판매 수수료율·터치 44px 포함. 로그인 후 실제 저장·이력 표시는 미확인(운영자 비밀번호 필요). 백업 `/opt/crefans-backup-terms-history-20261029`, 증거 front `.local/terms-history-deploy-20261029/`.
+
+- 사용자 요청: 개인별 수수료 변경 이력을 쌓을 것. 운영 로그(감사)와 별도로 append-only 테이블 `creator_financial_term_changes`(member_id+version unique, 조건 4개, source admin/invite/backfill, changed_by 운영자 ID, reason, created_at) 추가. migration `20261029150000_creator_term_changes`가 이미 저장된 조건을 backfill 1행으로 옮김.
+- 기록: 콘솔 변경(`saveMemberTerms`)마다 같은 트랜잭션에서 1행, 변경 사유 필수(최대 500자). 초대 조건으로 가입하면 source invite·사유 "초대 조건 적용". 값이 같으면 저장·이력 없음. 조회 `GET /admin/members/:id/terms`의 `history`(최신 100건, 운영자 이름 포함).
+- 콘솔: 회원 조건 창에 변경 사유 입력(없으면 '조건 확인' 비활성), 확인 창에 사유 표시, 아래 '변경 이력' 표(일시·버전, 조건, 변경자·출처, 사유).
+- 검증: server invites 6/6(사유 필수 400, 이력 2행 순서·출처·변경자 이름·이전 값, 무변경 저장 시 이력 미추가), openapi 11/11. backfill SQL을 e2e DB 합성 1행에 실행해 값·출처 확인 후 삭제. 대조: 이력 기록 제거 시 1건 실패, 복구 후 통과. admin typecheck·check 8/8, e2e invites+control-heights 5/5(조건 창 실제 서버 응답 포함). 로컬 개발 DB에 migration 적용.
+
+## 2026-10-29 초대 등록·확인 창에 시스템 기본값 표시, 수수료 명칭 정리 (운영 배포)
+
+- 운영 배포: 위 terms-history-20261029 릴리스에 포함.
+
+- 사용자 요청(iPhone 화면 2장): 초대 등록·조건 확인 창에 현재 시스템 기본값이 보이지 않음. 서버 `/admin/invites` 응답에 `defaults`(플랫폼 수수료·보류일은 DB 금융 정책, 콩 수수료·최소 출금은 코드 기본값)를 추가하고, 콘솔 조건 영역에 "현재 시스템 기본값: …" 한 줄, 입력 안내 "비우면 기본 N", 확인 창 "기본 20% → 15.5%"로 표시. 기본값이 미설정이면 "기본값(미설정)".
+- 용어: "멤버십 플랫폼 수수료율"이 크리에이터가 다른 멤버십을 살 때로 오해될 수 있어 "멤버십 판매 수수료율"로 바꾸고 "팬이 이 크리에이터의 멤버십을 결제할 때 플랫폼이 가져가는 비율" 설명 추가(회원 조건 창도 공통).
+- 검증: server invites 6/6(defaults 포함)·openapi 11/11, admin typecheck, e2e invites+control-heights 5/5, iPhone 13 에뮬레이션 스크린샷 확인. 운영 기본값 실제 수치는 운영 DB 조회 권한이 막혀 확인하지 못함(화면은 서버 값을 그대로 표시).
+
+## 2026-10-29 모바일(터치) 입력란·버튼 높이 불일치 수정 (운영 배포)
+
+- 운영 배포: 위 terms-history-20261029 릴리스에 포함.
+
+- 사용자 제보: 회원·크리에이터, 초대 회원, 광고상품 상단 입력줄 버튼 높이가 다름(모바일). 원인: 터치 기기에서 입력 글자를 16px로 올리는 규칙(iPhone 자동 확대 방지) 때문에 입력란이 44px, 같은 줄 버튼은 표준 40px. 이전 측정은 데스크톱 Chromium(터치 아님)만 해서 놓침.
+- 수정: `globals.css`의 `@media (hover: none) and (pointer: coarse)`에서 `--control-h:44px`(Apple 최소 터치 크기와 같음). PC는 40px 그대로.
+- 검증: iPhone 13 WebKit 에뮬레이션에서 회원 입력 44↔검색 44, 광고 선택 44↔등록 44, 초대 선택·검색·버튼 모두 44 확인(스크린샷). `e2e/control-heights.spec.ts` 390px 실행을 터치 기기(isMobile·hasTouch)로 바꿔 상시 검사, 1280·390 모두 통과. 대조: 터치 규칙 제거 시 390px 실패(회원 44↔40, 광고 44↔40), 복구 후 통과. `npm run check` 8/8.
+
+## 2026-10-29 같은 행 입력란·버튼 높이 표준화 (운영 배포)
+
+- 배포 완료(사용자 "배포"): 콘솔만 `crefans-admin:control-height-20261029`, 기준 invites-terms 소스에 globals.css 1파일만 덮음. .env ADMIN_IMAGE만 변경, API·worker·front·DB·proxy 유지. 운영 CSS에 `--control-h:40px`·필터 버튼 규칙 포함 확인, 6컨테이너 정상. 이미지 보존 3개 정리. 증거 front `.local/control-height-deploy-20261029/`.
+- 재발 방지: 배포 후 `osascript quit app "Docker"`가 두 번 연속 Docker를 반쯤 멈춘 상태로 남겨 다음 빌드가 걸림(운영 영향 없음). Docker 프로세스를 강제 종료 후 재시작해 해결. 이후 배포 끝에 Docker를 종료하지 말고 실행 상태로 둘 것.
+
+- 사용자 요청: 대시보드·운영 관리 모든 메뉴에서 입력란과 같은 행 버튼의 세로 크기를 같게. `globals.css`에 `--control-h:40px` 토큰 추가, 입력/select/날짜 입력과 `.filters button`·`.actions:has(>input,>select) button`이 같은 높이를 사용. 표 안의 단독 버튼·페이지 이동·탭·기간 버튼은 그대로.
+- 변경 전 측정(로컬 실서버+e2e DB): 대시보드 기준일↔조회/새로고침, 회원 검색↔검색, 초대 상태/검색↔검색/초대 등록, 광고 상품 상태↔광고상품 등록에서 입력 40px·버튼 37.5px 불일치.
+- 검증: 신규 `e2e/control-heights.spec.ts`(대시보드·회원·초대·콘텐츠(신고 메모 행은 신고 1건 대역)·광고·초대/조건 창, 1280px·390px) 2/2. 대조: 새 규칙 제거 시 2/2 실패, 복구 후 통과. invites·advertising e2e 포함 7/7, `npm run check` 8/8. 같은 `.filters` 규칙이라 매출·운영 로그·설정 필터 행 버튼도 40px로 함께 맞춰짐(측정 대상 밖).
+
+## 2026-10-29 초대 회원 메뉴 + 회원별 수수료·출금 조건 (운영 배포)
+
+- 배포 완료(사용자 "배포해", 2026-10-29): `invites-terms-20261029` API·worker·admin·front 한 릴리스. 기준 소스 API/front invite-notice, admin advertising에 변경 파일만 덮음(server 14·admin 5·front 5). DB 백업 후 migration `20261029120000_signup_invites` 적용(운영 29개, 두 테이블 0행). DB·proxy 유지, .env 이미지 3키·runtime APP_RELEASE만 변경. 운영 확인: beta·crefans.com 비초대 가입 코드 403, `/admin/invites` 비로그인 401, 콘솔 /console/invites 200·번들에 초대 화면 포함. 운영 로그인 후 실제 초대 등록·조건 저장은 미확인(운영자 비밀번호 필요). 첫 빌드 시 로컬 Docker 멈춤 → 강제 재시작 후 빌드, 운영 영향 없음. 이미지 보존 3개(로컬·운영 각 3개 삭제). 백업 `/opt/crefans-backup-invites-terms-20261029`, 증거 front `.local/invites-terms-deploy-20261029/`.
+
+- `/console/invites`(운영 관리 > 초대 회원): 상태(초대 중·가입 완료·취소됨)·검색, 초대 등록·메모/조건 수정·초대 취소. 개별 조건 4개(멤버십 수수료 %, 정산 보류일, 콩 출금 수수료 %, 최소 출금 금액 100원 단위), 비우면 플랫폼 기본값. 조건이 바뀌면 `TypedConfirmDialog`로 '정책 변경' 입력 후 저장(서버도 검사). 운영 설정 변경 권한이 없으면 조건 입력 잠금.
+- 회원·크리에이터 표에 '수수료·출금 조건' 열(조건 보기 → 기본값 안내·변경). 편집은 members.update + settings.update.
+- 권한표에 invites(조회·등록·수정·취소) 추가, members 설명 갱신. 컴포넌트 `src/components/console/Invites.tsx`.
+- 검증: `npm run check`(typecheck + 8/8), Playwright `e2e/invites.spec.ts` 3/3(API 대역: 등록→확인문구→저장→취소, 권한 없을 때 잠금·확인문구 생략, 회원 조건 변경). 스크린샷 확인. 운영 DB·실서버 미사용.
+- 미검증·남은 것: 실제 가입 완료까지의 E2E는 약관 미시행(POLICY_NOT_PUBLISHED)이라 불가 — 초대 소진은 함수 단위로 검증. 멤버십 상품 만들기 화면의 가격 안내(`membershipPriceHint`)는 아직 기본 20% 기준. 개별 조건은 크리에이터 약관 6조(기본 20%·7일·10만 원)와 다를 수 있어 별도 개별 합의서가 필요한지 사업자 결정 필요. 커밋·푸시 없음.
+
+## 2026-10-29 보안·장애 대응 점검 (광고상품 배포 후, 개선 미적용)
+
+- 인증/권한·금융/미디어·장애복구 AI 검토 3개를 통합하고 운영/AWS 읽기와 격리 검증을 수행. 보고서: `crefans_front/docs/security-review-20261029.md`, 증거: `crefans_front/docs/audit/security-review-20261029.json` 및 프론트 `.local/security-review-20261029/`. 실제 외부 감사/공인 인증 아님.
+- P1: 지원 종료 Next14/패치 지연, 이메일 재인증 누락, 비밀번호 회수-로그인 경쟁, PG 조회 제한 오분류/외부 멤버십 취소 대사, 동일EBS 백업 의존, watchdog off/독립 감시 부재. 기타 PIN 콩승인 회수·배치 격리·Origin/비밀번호/세션·로그/미디어복원 보완을 기록. 실제 침해·이중 청구가 발생했다고 단정하지 않음.
+- 검증: 서버 빌드0·격리 E2E/대역100통과·1skip·0실패, 신규 메모리 재현/실패 대조 주 담당 재실행0, 관리자43업무경로 권한 및 누락 대조. 운영 GET9/9, 실행소스/28migration 대조, AWS/호스트 설정 읽기. front audit7/server25 package 경고(exit1), admin/guide0(exit0); 도달 가능한 공격 수와 구분. 문서검사 명령·최종 결과는 위 증거 JSON의 documentationValidation 참조.
+- 한계: 제품 보안 수정/운영 설정 변경·실제 로그인/외부 발송/금융/운영 공격·부하·복원은 미실행. Toss test, 베타·실은행/광고메일off 유지. 기존 미커밋 변경 보존, 커밋/푸시 없음. 다음: 보고서 P1 수정과 실패경로 회귀, 외부백업/복원·감시, RPO/RTO/보유정책 결정. Docker Desktop 종료 및 backend 없음 확인.
+
+## 2026-10-29 광고상품·공통 UI 운영 배포 (advertising-20261029)
+
+- 사용자 “운영배포후 보안 및 장애 대응 점검” 승인으로 front41·server8·admin7 파일만 직전 운영 소스에 반영. 새 DB 테이블 ad_products 1개, 총28 migration 해시 일치. 광고상품 등록/수정/노출·판매 개별 설정/소프트삭제 API·콘솔, 스튜디오 목록·목업 적용. 공통 하단 스낵바·모바일 갤러리 이미지 탭·포스팅 후원 플랫 동전도 함께 반영. 무관한 PSD/Finder 파일 제외.
+- 이전 로컬 검증 소스 해시 일치 확인, amd64 API/콘솔/프론트 순차 빌드 통과. 내부 소스·콘솔 실행 산출물 대조 후 약799MB 직접 스트리밍. 설정/DB 백업→migrate deploy→API/worker→admin→front. DB/proxy 컨테이너와 나머지 환경설정 보존. 백업 /opt/crefans-backup-advertising-20261029.
+- 운영검증: 6컨테이너 정상·재시작0, frontend669/API211/worker211 소스 해시 일치, HTTP10건(광고목록 비로그인401 포함). PC Chromium·iPhone WebKit 프론트18/18, 콘솔4/4 통과. 콘솔 및 서비스 쓰기는 브라우저 API대역으로 운영 DB에 저장하지 않음. 최초 콘솔 테스트 도구 중복 로드 실패는 콘솔 저장소 도구로 분리해 해결, 제품 코드 변경 없음.
+- 이미지 계획 보고 후 로컬·운영 각각 최신9개 보존, 이전 faq-payout(front)/operators(api/admin)3개씩 일반 삭제. DB/볼륨/강제삭제 없음. Mac Docker Desktop 종료 확인. 기존 dirty 변경 보존, 커밋·푸시 없음.
+- **실제 광고 구매·PG·자동 노출·매출 미구현이며 서비스 구매 비활성**. 결제수단·시작/연장 방식 사용자 선택 대기. 운영 비밀번호 로그인·실PG/송금/발송·실기기 미검증. guide 소개서 프레임 별도 미배포 변경은 이번에 포함하지 않음.
+- 근거: front docs/audit/advertising-deployment-20261029.json 및 .local/advertising-deploy-20261029/. 후속 보안 점검 결과는 별도 최신 절과 보고서에 기록.
+
+## 2026-10-29 광고상품 관리 콘솔 (상품 관리 완료·운영 미배포)
+
+- `/console/advertising` 추가: 등록·수정, VAT 포함 금액/노출일수/순서/구매취소 안내, 스튜디오 노출과 판매 허용 각각 설정, 삭제 확인과 삭제 상품 조회. `advertising` 메뉴 권한을 운영자 편집과 내비게이션에 연결하고 서버에서도 강제. 삭제는 soft delete API이며 본문 저장 문구 대신 재사용 `Snackbar`로4초 하단 안내.
+- 검증: `npm run check` typecheck+8/8. Chrome PC1280/WebKit iPhone390에서 등록→수정→판매만 끄기→삭제→삭제 목록 확인, 조회 전용 변경 버튼 미노출 4/4(API 대역). 실제 서버 권한/소프트 삭제/경쟁 처리 등은 server23/23 검사로 별도 검증. 모바일 가로 넘침 없음, 신규 폼 스크린샷 확인 후 기존 actions 규격으로 버튼 간격 보완. 검증용 .next-advertising과 자동 tsconfig 경로를 정리하고 기존 설정/미커밋 보존.
+- 실제 광고 결제·구매 이력/매출·광고 자동 노출은 사용자 결제수단·시작 방식 선택을 기다리는 미구현 범위. 운영 계정 로그인/실PG/운영 DB 변경/배포·커밋·푸시 없음. `.local/advertising-20261029/` 및 front `docs/audit/advertising-20261029.json`에 증거.
+
+## 미배포 개선 3건 운영 반영 (2026-10-29, 완료: studio-input-console-20261029)
+
+- 사용자 “배포해” 승인에 따라 스튜디오 답글 작성자·수정·삭제, 터치 입력 최소16px·수동 확대 허용, 콘솔 마이페이지 맨 아래 로그아웃을 반영. 운영 기준 front faq-payout / API·admin admin-accounts 사본에 front11·server3·admin2 파일만 덮었고 그 외 제품 소스 변경 없음. 이전 절의 미배포 상태는 이번 배포로 해소.
+- 검증: front check379/379, server build+답글·OpenAPI·운영자권한23/23, admin check8/8. amd64 3이미지 빌드·소스/레이어/라벨 대조, 콘솔 build-stage 소스59개와 실행 산출물122개 대조. 운영 front658·API/worker각208 소스 해시 일치. HTTP11건(9개200+신규답글 PUT/DELETE 비로그인401), 6컨테이너 정상·재시작0·DB/proxy ID 유지.
+- 운영 브라우저: 목업 답글3조건(모카/하늘·모바일/PC) 작성자 사진·이름·인증·등록→수정→삭제·취소·팬 버튼 미노출 확인. 입력13화면×4조건=52조합, 모바일106개16px 이상·가로넘침 없음·PC 글자 유지. 실서비스 로그인/가입4조건도 정상(모바일16px/PC13px). 콘솔 PC/모바일 로그아웃 마지막 요소·24px 간격·1회 요청·로그인 이동 확인(API는 브라우저 대역).
+- 운영 절차: capture→변경 파일만 사본 반영→preflight(약49.6GiB)→순차 빌드→소스 검증 후 약798MB 직접 스트리밍→DB/설정 백업→migrate deploy(27개·추가없음)→API/worker→admin→front→운영 검증. 백업 `/opt/crefans-backup-studio-input-console-20261029`. 베타/콩/실판매·송금·광고메일 플래그와 기존 migration 체크섬 유지, 배치 failures={}.
+- 정리: 로컬·운영 계획을 먼저 보고하고 최신3개씩(총9개) 보존, messages-back(front)/payout-policy(api)/console-drawer(admin) 3개씩 일반 삭제. 로컬에서 목록에 있지만 태그로 조회하지 못하는 현상을 확인(이미지가 삭제된 것은 아니었음, 원인은 미확정)해 보존 도구에 정확한 ID·단일 태그·동일 저장소 digest·미사용 조건의 fallback 추가. 정상5조건과 사용중 보호 제거 대조 실패 확인. 강제삭제·볼륨삭제 없음. 최종 운영 여유 약34.2GiB. 정리 후 6컨테이너 동일·정상 재확인, 빌드용 Mac Docker Desktop 종료 완료.
+- 최초 검사 실패/수정: Docker index ID와 플랫폼 manifest ID 직접 비교 실패는 빌드의 amd64 manifest·운영 tag ID·레이어·소스해시 일치 검사로 수정. React 자동생성 ID의 dev/prod 차이는 글자 비교에서 제외. 팬 프로필 모달의 옛 폭은 애니메이션 중 측정값이라 폭 동일 주장에서 제외하고 글자·넘침은 검증(다른12화면 폭 동일). 최초 실패 원본 보존. 전송 단계 분리 제안은 자동 승인 검토 거절되어 적용하지 않고 기존 ship→archive 필수 호출 유지. 제품 코드 재수정·재배포는 없었음.
+- 경계: 실제 iPhone 키보드/핀치·운영 비밀번호 로그인·운영 회원 답글 쓰기는 미실행. 권한/저장 검증은 로컬 격리MySQL, 운영 콘솔 내부는 API대역이며 운영 실계정 종단 검증으로 간주하지 않음. 커밋/푸시 없음, 기존 변경 보존. 다음: 실기기 검수·별도 승인 시 운영 계정 실사용 확인.
+- 증거: front `docs/audit/studio-input-console-deployment-20261029.json`, 상세 front `.local/studio-input-console-deploy-20261029/`. 공통 AGENTS 규약 유지, 보존 도구 fallback 경계만 추가. 문서 기록·검사 결과는 해당 폴더 docs-checks.json에 기록.
+
+## 마이페이지 로그아웃 버튼 하단 이동 (2026-10-28, 운영 미배포)
+
+- 요청: 운영 콘솔 마이페이지 맨 아래에 로그아웃 배치. `src/components/console/Operators.tsx`의 프로필 요약 카드에서 버튼을 제거하고 비밀번호 변경·내 권한 이후 마지막 요소로 이동. 기존 아이콘·문구·onLogout 처리 유지. `src/app/globals.css`에 상단24px 여백만 추가.
+- 검증: `npm run typecheck` 종료0. Chromium1280/모바일 WebKit390에서 로그아웃1개·상단 카드 버튼없음·페이지 마지막 요소·위 간격24px·가로 넘침없음·페이지오류0. 클릭시 기존 POST `/api/v1/admin/auth/logout`1회와 `/login` 이동 확인(API는 브라우저 대역, 실제 운영 세션 로그아웃하지 않음).
+- 브랜치 `feat/console-mypage-logout`, 기존 미커밋 작업 보존. 커밋·푸시·운영 배포 미실행. 다음: 운영 반영 요청 시 배포. 기준 커밋·파일해시·화면·검증은 `.local/mypage-logout-20261028/evidence.json`과 같은 폴더의 결과 참고.
+
+
+## 아이폰 입력 자동 확대 대응 (2026-10-28, 운영 미배포)
+
+- 원인: 팬·스튜디오 입력란 14px, 콘솔 입력란 13px. iPhone Safari의 기본 배율에서 16px 미만 입력 글자에 자동 확대가 발생한다. 웹 근거: [Telerik 공식 기술 문서](https://www.telerik.com/products/aspnet-ajax/documentation/knowledge-base/common-disable-autozoom-input-safari-iphone), 확인2026-10-28. 수동 확대 허용 근거: [W3C ACT viewport 규칙](https://www.w3.org/WAI/standards-guidelines/act/rules/b4f0c3/).
+- 변경: front `app/globals.css`, admin `src/app/globals.css`에 `(hover:none) and (pointer:coarse)` 입력 최소 `max(16px,1em)` 적용. 컴포넌트 font 재정의보다 우선하게 하여 모달·검색·본문·PIN까지 공통 적용하고, 버튼/체크박스/라디오/파일/범위/색상/숨김 입력 제외. front `app/layout.tsx`의 maximumScale1·userScalablefalse 제거. 팬·목업·서비스·스튜디오·카탈로그는 같은 전역 규칙 사용. 가로 화면도 폭 대신 포인터 조건으로 적용.
+- 검증: 변경 전 WebKit 모바일 입력 35개에서 16px 미만 탐지. 변경 후 WebKit390·844가로·1280 PC와 Chromium390에서 13화면/상태×4=52조합, 모바일106개 입력 전부16px 이상·가로 넘침 없음. PC 입력 글자 동일, 너비차1px 미만(모달 모션 측정 오차 최대 약0.2px). 팬 설정/스튜디오 답글/콘솔 정책 확인 모달 포함. 프론트 check379/379, 콘솔 check8/8·타입 검사 통과. 실서비스는 동일 전역 CSS를 사용하나 로그인 화면 별도 동작 검증은 아래 경계로 남김.
+- 검증 경계: macOS Playwright의 모바일 WebKit/Chromium 에뮬레이션과 CSS 계산값 검증이다. 실제 iPhone의 네이티브 키보드·핀치 동작은 미검증. 콘솔 정책 화면은 브라우저 안에서만 API 대역을 사용했고 로그인/정책 저장/운영 데이터 변경 없음. 로컬 `/service/login`은 API 대역 주입 후에도 `불러오는 중…` 상태여서 해당 경로의 입력 실측은 미완료(목업 로그인·회원가입의 동일 표시 컴포넌트는 검증). 최종 PC 비교는 모달 애니메이션의 미세한 너비차를 구분하고 글자는 완전 일치·너비1px 미만 기준을 적용했다.
+- `feat/iphone-input-zoom` 브랜치, 기존 미커밋 작업 보존. 운영 배포·커밋·푸시 미실행. 다음: 두 프론트 배포 후 실제 iPhone Safari에서 입력·키보드 닫기·가로 화면 확인. 증거 front `docs/audit/iphone-input-zoom-20261028.json`, 상세 측정/스크린샷/재실행 스크립트 front `.local/iphone-input-20261028/`; 콘솔 `.local/iphone-input-20261028/`에는 변경 전 사본과 기준 기록.
+
+
+## 직접 입력 확인 모달 재사용 구조·을/를 조사 (2026-10-28, 운영 배포 완료: admin-accounts-20261028)
+
+- 요청: "정책 변경를" → "정책 변경을", 직접 입력 확인 로직을 다른 중요 항목에도 재사용 가능하게, 을/를을 올바르게 표시.
+- `components/console/TypedConfirm.tsx`: `ConfirmDialog`(배경·Esc·스크롤 잠금)와 `TypedConfirmDialog`(phrase 정확히 일치해야 실행 버튼 활성, 취소 기본 포커스, 자동수정 끔, 입력값을 onConfirm으로 전달)로 분리. 정책 변경은 이를 사용하도록 교체(입력 상태는 모달 내부로 이동).
+- `lib/korean.ts`: 마지막 한글 음절 받침으로 을/를(및 이/가 등 쌍) 선택, 끝 공백·괄호 등은 건너뜀, 숫자는 한자어 읽기(일·이·삼…), 판단 불가(영문 등)는 '을(를)'로 둘 다 표시.
+- 검증: typecheck, 단위 8/8(새 korean 3건: 받침/무받침 8단어, 숫자 6개, 영문·빈 값, 잘못된 조사 대조), E2E 14/14(모달 라벨 '계속하려면 정책 변경을 그대로 입력하세요' 검사 추가).
+
+## 운영자 계정 분리 로그인 (2026-10-28, 운영 배포 완료)
+
+- 로그인·세션 갱신·로그아웃을 `/api/v1/admin/auth/*`로 변경, 콘솔 API 허용 경로를 `/admin/*`만으로 제한, Next 리라이트에서 회원 `/auth/*` 제거. 로그인 화면 안내 "운영자 전용 계정, 팬·크리에이터 계정 불가".
+- E2E 서버 시드: 운영자는 회원 행 없이 `admins`(비밀번호 해시)로만 생성. E2E 14/14(팬 계정 콘솔 로그인 실패·운영자 쿠키 미발급 확인 포함), typecheck·단위5.
+- 운영 미배포. 서버 마이그레이션과 함께 배포해야 함.
+
+## 운영자·메뉴 권한, 마이페이지, 정책 변경 확인 모달 (2026-10-28, 운영 배포 완료)
+
+- 요청: 정책 변경 버튼 옆 ⓘ 툴팁("정책 변경 시 변경 확인 문구를 직접 타이핑해야 합니다.")과 실제 확인 문구 입력 모달, 페이지 제목 옆 로그아웃 제거, 드로워 하단 로그인 정보 제거 → 공통 헤더 오른쪽 기본 프사 → 마이페이지, 부운영자 생성과 메뉴별 입장·CRUD 권한 관리, 기존 운영자 정보(박경호·전화·최고관리자) 반영.
+- 사용자 결정(2026-10-28): 부운영자는 콘솔에서 새 계정 생성(임시 비밀번호, 첫 로그인 변경), 금융 실행(출금 승인·지급·정책 변경)도 권한표로 위임 허용, 확인 문구 '정책 변경', 운영 배포까지.
+- 콘솔: `Operators.tsx`(운영자·권한 화면, 권한표, 임시 비밀번호 1회 표시, 비밀번호 변경, 마이페이지). `Console.tsx` 메뉴·화면·버튼을 권한(`/admin/me` permissions)으로 표시, 운영자·권한 메뉴는 최고관리자만, 임시 비밀번호 상태면 변경 화면만. 헤더 프사(데스크톱 제목 줄·모바일 상단 바) → `/console/me`, 로그아웃은 마이페이지. 정책 변경은 ⓘ 툴팁 + 모달(변경 전후·사유, 취소 기본 포커스, Esc, 문구 정확히 일치해야 버튼 활성). 콩 화면 버튼도 권한 기준.
+- 검증: typecheck·단위5, E2E 14/14(정책 모달·툴팁·API 우회 거부, 부운영자 생성→임시 비밀번호→강제 변경→권한 메뉴만 표시→매출·운영자 API 403→비활성화 후 401 포함). 로그인 횟수 제한(이메일당 10분10회)에 걸리지 않게 E2E 서버에 두 번째 최고관리자 시드. 화면 `test-results/operator-*.png`, `policy-confirm-dialog.png`.
+- 운영 배포 `crefans-admin:operators-20261028`(API와 함께). 운영 콘솔 번들에 운영자 화면·툴팁 코드 포함 확인. 로그인 후 화면은 운영 계정 입력 금지로 운영에서 미확인(로컬 격리 검증만). 증거 front `.local/operators-deploy-20261028/`. commit/push 없음.
+- 잔여: 부운영자 로그인 계정은 회원 테이블을 써서 팬 서비스 로그인도 가능(본인확인 없음, 팬 쪽 차단 미구현). 삭제 동작이 있는 메뉴는 현재 없어 삭제 열은 모두 '해당 없음'.
+
+## 모바일 햄버거 메뉴 drawer (2026-10-28, 운영 배포 완료)
+
+- 요청: 운영 콘솔도 크리에이터 스튜디오처럼 햄버거 메뉴 drawer로. 1079px 이하의 가로 스크롤 메뉴를 대체.
+- 구현: `Console.tsx` 셸에 메뉴 열기/닫기 버튼(aria-expanded/controls), `#console-nav` drawer(메뉴 그룹 제목·관리자 정보·로그아웃 포함), 배경(backdrop). 경로 이동·Esc·배경 탭으로 닫고 열린 동안 본문 스크롤 잠금. 가로 메뉴용 활성 항목 스크롤 효과·navRef 제거. `ConsoleIcon`에 menu/close 아이콘. CSS: 데스크톱은 `.nav-drawer{display:contents}`로 기존 사이드바·접힘(rail) 유지, 모바일은 상단 56px 바 + 왼쪽 300px(최대 86vw) 고정 drawer, 슬라이드(감속 모션 설정 시 없음).
+- 검증: 로컬 격리 E2E 390에서 drawer가 본문을 덮음·8개 메뉴·그룹 제목·로그아웃 표시, 배경/Esc/이동 시 닫힘·스크롤 잠금 해제, 1280 사이드바 240px·접힘 56px 유지, 접힘 상태에서도 모바일 drawer에 메뉴 이름 표시. 모바일 간격 재점검 신규 인접 0. 기존 E2E 중 가로 메뉴 전제 3건(작은 화면 이동, 다크 화면 로그아웃, 메뉴 스크롤 유지)을 drawer 기준으로 수정. typecheck·단위5, E2E 12/12(전체 실행 10 통과, 나머지 2건은 로그인 횟수 제한·슬라이드 대기 보정 후 재실행 통과). AGENTS 메뉴 셸 규약 갱신.
+- 운영 배포 `crefans-admin:console-drawer-20261028`: 직전 운영 `console-spacing` 사본에 3파일(Console.tsx, ConsoleIcon.tsx, globals.css). 관리자 컨테이너만 교체. 운영 CSS·콘솔 JS 번들에 drawer 코드 포함, 로그인 화면 Chromium/WebKit 200·가로넘침 없음. 로그인 후 drawer 동작은 운영 계정 입력 금지로 운영에서 미확인(로컬 격리 검증만). 보존 단계로 로컬·운영 `crefans-admin:tip-attribution-20261026` 삭제(운영 여유 34.3GB). 빌드용 Docker는 종료. 증거 front `.local/console-drawer-deploy-20261028/`, 화면 `.local/console-spacing-20261028/drawer-*.png`. commit/push 없음.
+
+## 콘솔 버튼 크기·간격 점검, 모바일 날짜 입력 (2026-10-28, 운영 배포 완료)
+
+- 요청: 운영자 콘솔 버튼 크기·간격 점검, 특히 모바일에서 시작일/종료일 입력이 붙어 보이는 현상.
+- 점검: `.local/console-spacing-20261028/audit.spec.ts`(E2E 격리 서버·합성 관리자로 8개 메뉴+매출 탭4·고객지원 탭2, Chromium 390/1280, WebKit 390/360). 표 셀 인접·세그먼트 버튼(탭 2px, 기간 4px)·접힌 일별 데이터(details)는 의도된 구조로 제외.
+- 원인: 모바일 필터가 flex-wrap(gap10, 기본 130px)이라 시작일·종료일·조회가 한 줄에 몰림(Chromium 142px 입력 2개 + 버튼). iOS WebKit은 select가 기본 모양으로 줄어 바로 아래 입력과 붙고, date 입력 높이가 42~44px로 다른 입력(40)과 달랐다. 그 외 빈 목록→새 문서 버튼 0px, 정책 변경 버튼→변경 이력 제목 0px, 페이지 이동 버튼 28px.
+- 수정(`src/app/globals.css` 끝에 추가만): 입력·select 높이40, select 공통 화살표(appearance:none), date 높이40·왼쪽 정렬. 600px 이하 날짜 필터는 2열 grid gap12, 조회(primary)·안내문은 한 줄 전체, 대시보드는 기준일+조회+새로고침 한 줄. 페이지 버튼32, `.empty/.table-wrap+button` 위12, `.editor+h3` 위24. 날짜가 없는 회원 검색 필터는 그대로.
+- 검증: 수정 후 Chromium/WebKit 모든 화면 입력 높이40, 날짜 입력 간격12px(390: 16–189 / 201–374), 가로넘침 없음, 대상 0px 인접 해소. `npm run check` 타입·단위5 통과, E2E 12중 11 통과 후 실패1건(로그인 횟수 제한으로 로그인 화면 대기)은 단독 재실행 통과. 전후 화면·JSON `.local/console-spacing-20261028/`. 실제 iPhone 기기 확인은 하지 않음. commit/push 없음.
+- 운영 배포 `crefans-admin:console-spacing-20261028`: 직전 운영 `promotion-payout-20261026` 소스 사본(빌드용 .dockerignore 포함)에 `src/app/globals.css` 1파일만 반영. amd64 빌드, 이미지 CSS에 새 규칙 포함 확인, 관리자 컨테이너만 교체(나머지5 ID 유지, 재시작0). 운영 admin.crefans.com 로그인 화면 Chromium/WebKit 390·1280에서 새 CSS 적용·입력 높이40·가로넘침 없음. 로그인 후 화면은 운영 계정 입력 금지로 운영에서 미확인(로컬 격리 검증만). 보존 단계로 로컬·운영 `crefans-admin:beans-20261025` 삭제(운영 여유 34.3GB). 빌드용으로 켠 로컬 Docker Desktop은 종료. 증거 front `.local/console-spacing-deploy-20261028/`.
+
 ## 미커밋 변경 정리 (2026-10-26)
 
 - 사용자 요청으로 feat/bean-support의 누적 소스·에셋·검증 문서 변경을 보존해 리포별 커밋으로 정리. 로컬 비밀 설정/실행 폴더는 제외하고 .DS_Store/TypeScript 빌드캐시는 파일을 삭제하지 않고 추적만 해제. AGENTS 규약 보존.
