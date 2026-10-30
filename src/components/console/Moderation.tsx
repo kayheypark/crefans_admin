@@ -2,12 +2,12 @@
 import {useState} from 'react';
 import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
-import {ConfirmDialog} from './TypedConfirm';
+import {ConfirmDialog,TypedConfirmDialog} from './TypedConfirm';
 import {useSnackbar} from './Snackbar';
 
 // Terms §8 operator actions. The server checks permission and records every action with its reason.
 type Entry={action:string;reason:string;publicReason?:string|null;until:string|null;adminName:string|null;createdAt:string};
-const labels:Record<string,string>={'post.hidden':'숨김','post.unhidden':'숨김 해제','member.suspended':'이용 제한','member.unsuspended':'제한 해제'};
+const labels:Record<string,string>={'post.hidden':'숨김','post.unhidden':'숨김 해제','member.suspended':'이용 제한','member.unsuspended':'제한 해제','member.erased':'회원 삭제'};
 const at=(v:string)=>new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
 const day=(v:string)=>new Date(v).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'});
 function History({path}:{path:string}){const state=useData<Entry[]>(path);return <section className="terms-history"><h3>조치 이력</h3><State {...state}/>{state.data&&(state.data.length?<div className="table-wrap"><table><thead><tr><th>일시</th><th>조치</th><th>처리자</th><th>내부 사유</th><th>당사자 안내 사유</th></tr></thead><tbody>{state.data.map((h,i)=><tr key={i}><td>{at(h.createdAt)}</td><td>{labels[h.action]||h.action}{h.action==='member.suspended'&&<small>{h.until?day(h.until)+'까지':'무기한'}</small>}</td><td>{h.adminName||'—'}</td><td>{h.reason}</td><td>{h.publicReason||'—'}</td></tr>)}</tbody></table></div>:<p className="empty">조치 이력이 없습니다.</p>)}</section>;}
@@ -44,6 +44,21 @@ export function PostReview({post,canEdit,reload}:{post:ReviewablePost;canEdit:bo
  if(post.reviewed_at||post.hidden_at)return <span>검수 완료</span>;
  async function review(){if(busy)return;setBusy(true);setError('');try{await api(`/admin/posts/${encodeURIComponent(post.id)}/review`,{});reload();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
  return <div className="actions"><span>미검수</span>{canEdit&&<button type="button" disabled={busy} onClick={()=>void review()}>{busy?'저장 중…':'검수 완료'}</button>}{error&&<span role="alert" className="error">{error}</span>}</div>;
+}
+export type ErasableMember={id:string;email:string;nickname:string;withdrawn_at:string|null;purged_at:string|null};
+// SUPER_ADMIN only. The server refuses while subscriptions, beans, earnings or receivables are left, and checks the typed email.
+export function MemberErase({member,reload}:{member:ErasableMember;reload:()=>void}){
+ const [open,setOpen]=useState(false),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),notify=useSnackbar();
+ if(member.purged_at)return <span>삭제됨</span>;
+ async function erase(confirmEmail:string){if(busy)return;if(!reason.trim()){setError('삭제 사유를 입력해주세요.');return;}setBusy(true);setError('');try{const r=await api<{message:string}>(`/admin/members/${encodeURIComponent(member.id)}/erase`,{reason,confirmEmail});setOpen(false);setReason('');notify(r.message);reload();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <div className="actions">{member.withdrawn_at&&<span>탈퇴 · 파기 대기</span>}<button type="button" onClick={()=>{setOpen(true);setError('');}}>회원 삭제</button>
+  {open&&<TypedConfirmDialog title="회원 삭제" phrase={member.email} actionLabel="삭제" busyLabel="삭제 중…" busy={busy} error={error} onCancel={()=>setOpen(false)} onConfirm={typed=>void erase(typed)}>
+   <p><strong>{member.nickname}</strong></p>
+   <p className="muted">30일 유예 없이 바로 파기합니다. 이메일·이름·프로필·게시물·본인확인 값이 지워지고 되돌릴 수 없습니다. 댓글·메시지는 &lsquo;탈퇴한 사용자&rsquo;로 남고, 결제·정산 기록은 법정 보관을 위해 회원 번호로 남습니다. 같은 이메일로 바로 다시 초대·가입할 수 있습니다.</p>
+   <p className="muted">자동 갱신 구독, 남은 콩, 남은 수익, 진행 중 출금, 미수금, 판매 중 멤버십이 있으면 삭제되지 않습니다.</p>
+   <label>삭제 사유<small className="muted">내부 기록용</small><textarea required maxLength={500} placeholder="예: 테스트 계정 정리, 본인 요청" value={reason} onChange={e=>setReason(e.target.value)}/></label>
+  </TypedConfirmDialog>}
+ </div>;
 }
 export function MemberSuspension({member,canEdit,reload}:{member:SuspendableMember;canEdit:boolean;reload:()=>void}){
  const active=!!member.suspended_at&&(!member.suspended_until||new Date(member.suspended_until)>new Date());

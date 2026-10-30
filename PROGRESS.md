@@ -1,5 +1,11 @@
 # 진행 상태
 
+## 2026-10-30 회원 즉시 삭제 화면 (운영 배포 member-erase-20261030, 커밋 완료·푸시 안 함)
+- 회원·크리에이터 표에 SUPER_ADMIN에게만 '삭제' 열. `Moderation.tsx MemberErase`: TypedConfirmDialog로 회원 이메일을 그대로 입력해야 버튼이 켜지고, 삭제 사유(내부) 필수. 파기된 회원은 '삭제됨', 탈퇴 후 대기 중이면 '탈퇴 · 파기 대기'. 이력 라벨 member.erased='회원 삭제'.
+- 서버 규칙(남은 거래 거부·즉시 파기)은 server PROGRESS 같은 날짜 항목.
+- 검증: `npx playwright test e2e/member-erase.spec.ts e2e/moderation.spec.ts` 6/6 (API 대역), tsc·lint 통과(기존 img 경고 1건).
+
+- 배포(2026-10-30 KST): `crefans_front/.local/member-erase-deploy-20261030/` build→capture_before→ship 모두 exit 0, 마이그레이션 없음, 프론트 소스는 totp-pilot과 동일. 배포 후 health·admin login·feed 200, 비로그인 POST /admin/members/x/erase 401. 이미지 정리 로컬·운영 각각 보존9·삭제4·오류0.
 ## 2026-10-30 /pilot-work K2~K14 합의·반영 (운영 배포 totp-pilot-20261030 + 가이드, 커밋 완료·푸시 안 함)
 - 결정: 운영자 TOTP 즉시(미등록 7일 유예) / 세금 문구 중립("세금 처리 방식(원천징수 여부 포함)은 정식 정산 전에 안내합니다.") / 콩 10% 공제·만료 소멸은 현행 유지 / 처리방침 개정은 약관 초안에 묶음 / 탈퇴자 문의 3년 보존·DM 상대방 쪽 보존 / 콩 미수금만 콩 출금 차단 / 백업 최대 7일 / 탈퇴 시 충전콩은 지갑 환불 안내(프로모션콩 소멸) / 멤버십은 중개 구조 유지+고지 보강 / 다음: 요청량 제한 → 옛 경로 리다이렉트 → 덤프 정리 자동화·배포 전 테스트.
 - 반영: server TOTP(`admin-totp-core.ts`·`admin-totp.ts`, 마이그레이션 `20261030230000_admin_totp`, 로그인 2단계·복구코드·재사용 거부·5분 5회 제한·유예 후 self 경로만), 콩 미수금만 콩 출금 차단, 탈퇴 시 콩 버킷별 안내, 파기(DM 보존·문의 3년 후 삭제·CI 해시 삭제). admin TOTP 화면(로그인 2단계·등록·복구코드·유예 배너·403 이동). front 탈퇴 창(크리에이터 조건은 크리에이터에게만, 충전 내역 환불 링크), 콩 미수금 시 출금 버튼 비활성, 세금 문구. guide 콩 환불·유효기간, 미수금·탈퇴 전 출금, 저작권 수령인(전화·주소)·임시조치 안내, 세금 문구, 소개서 PDF 재생성. 덤프 정리 스크립트 `crefans_front/infra/platform/backup-retention.py`(운영 계획 실행: 21개 142MB 모두 7일 이내 → 삭제 0). 런북 백업 리전 서울. 약관 초안 13~18번·법령 원문 확인 절.
