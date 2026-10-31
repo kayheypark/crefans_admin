@@ -20,7 +20,7 @@ export function ManualPayouts({canUpdate}:{canUpdate:boolean}){
  function confirmAccount(a:Account){const reason=window.prompt(`${a.holder} · ${a.bank} ****${a.lastFour}\n통장 사본 등으로 예금주를 확인한 내용을 적어주세요.`);if(reason?.trim())void send(`/admin/settlement-accounts/${a.id}/verify`,{expectedVersion:a.version,reason:reason.trim()});}
  function submit(e:React.FormEvent){e.preventDefault();if(!form)return;const body=form.result==='paid'?{result:'paid',reference:form.reference.trim(),transferredAt:new Date(form.at).toISOString()}:{result:'rejected',reason:form.reason.trim()};void send(`/admin/withdrawals/${form.id}/manual-result`,body);}
  return <section className="manual-payouts"><h2>수동 지급</h2>
-  <p className="notice">은행 연동 없이 운영자가 직접 이체합니다. 정산 계좌는 통장 사본으로 예금주를 확인한 뒤 확인 완료로 기록하고, 이체를 마친 출금은 이체 참조번호와 함께 기록합니다. 신규 출금은 매주 수요일에 이체 대기로 전환됩니다.</p>
+  <p className="notice">은행 연동 없이 운영자가 직접 이체합니다. 정산 계좌는 통장 사본으로 예금주를 확인한 뒤 확인 완료로 기록하고, 이체를 마친 출금은 이체 참조번호와 함께 기록합니다. 화요일 23:59(한국 시간)까지 접수된 출금이 매주 수요일에 이체 대기로 전환되며, 수요일이 공휴일이면 다음 영업일에 이체합니다.</p>
   {message&&<p role="status" className="muted">{message}</p>}
   <h3>확인 대기 정산 계좌</h3><State {...accounts}/>
   {accounts.data&&(accounts.data.length?<div className="table-wrap"><table><thead><tr><th>예금주</th><th>은행·끝자리</th><th>크리에이터 ID</th><th>등록일</th><th></th></tr></thead><tbody>{accounts.data.map(a=><tr key={a.id}><td>{a.holder}</td><td>{a.bank} ****{a.lastFour}</td><td>{a.creatorId}</td><td>{day(a.createdAt)}</td><td>{canUpdate&&<button disabled={busy} onClick={()=>confirmAccount(a)}>예금주 확인 완료</button>}</td></tr>)}</tbody></table></div>:<p className="muted">확인 대기 계좌가 없습니다.</p>)}
