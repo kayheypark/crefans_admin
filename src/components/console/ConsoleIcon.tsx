@@ -2,6 +2,7 @@ const paths:Record<string,string[]>={
  advertising:['M3 10v4h4l9 5V5L7 10H3','M7 14l2 7h3l-2-6','M20 9v6'],
  overview:['M4 11 12 4l8 7','M6 10v10h12V10'],
  invites:['M4 6h16v12H4z','m4 7 8 6 8-6'],
+ referrals:['M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1','M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1'],
  beans:['M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0','M10 8h3a2 2 0 0 1 0 4h-3V8m0 4h3a2 2 0 0 1 0 4h-3v-4'],
  revenue:['M5 20V10','M12 20V4','M19 20v-7'],
  members:['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M17 4a4 4 0 0 1 0 8','M22 21v-2a4 4 0 0 0-3-3.87','M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0'],

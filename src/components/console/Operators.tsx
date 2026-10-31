@@ -14,6 +14,7 @@ export const permissionMenus:[string,string,Record<string,string>][]=[
  ['overview','대시보드',{view:'지표 조회'}],
  ['members','회원·크리에이터',{view:'목록·개별 조건·제한 이력 조회',update:'인증 배지·광고 노출·이용 제한·개별 조건 변경(조건은 운영 설정 변경 권한도 필요)'}],
  ['invites','초대 회원',{view:'초대 목록 조회',create:'초대 등록',update:'초대 메모·조건 수정',delete:'초대 취소'}],
+ ['referrals','레퍼럴 관리',{view:'레퍼럴 목록 조회',create:'회원 레퍼럴 링크 생성',update:'친구 초대 보상 켜기·끄기'}],
  ['content','콘텐츠·신고',{view:'게시물·신고·조치 이력 조회',create:'카테고리 추가',update:'신고 처리·게시물 숨김·카테고리 상태 변경'}],
  ['revenue','매출·정산',{view:'매출·결제·출금 조회',create:'PG 입금 대사 기록'}],
  ['beans','콩 후원·출금',{view:'지표·지갑 조회',create:'프로모션콩 지급·입금 대사',update:'출금 승인·반려'}],
