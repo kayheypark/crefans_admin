@@ -1,0 +1,141 @@
+{
+  "at": "2026-10-21T16:40:56.135364+00:00",
+  "repo": "/Users/ethan/repository/crefans_admin",
+  "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+  "branch": "feat/operator-console",
+  "workingTree": "dirty; previous work preserved",
+  "scope": "Remove only terms editing from admin UI; public terms, DB and common document API untouched",
+  "sourceSha256": {
+    "src/components/console/Console.tsx": "1ca321324d2f8c0d59a81beb39ba355a44599e71578879b1f5dc2815363ec9d1",
+    "e2e/console.spec.ts": "de712f6004ed1547fed3438ce22667129f881b09968395ed673d7509e7d8d82e",
+    "AGENTS.md": "72929725433fc851ca89a089fc6c8dd261a272781b5662054fd96036f8d70280",
+    "README.md": "1e8f7ea8a8f5305ecb6abd734436269a4676b5ff2786afaa283d810d1fa01151"
+  },
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "TypeScript + unit3 PASS"
+    },
+    {
+      "command": "npm run test:e2e -- --grep 'real login, six menus'",
+      "exitCode": 0,
+      "result": "1 PASS; settings options exactly privacy/policy, no terms; financial view checks retained"
+    },
+    {
+      "command": "docker build --platform linux/amd64 -t crefans-admin:no-terms-20261022 .",
+      "exitCode": 0
+    },
+    {
+      "command": "remote deploy.sh",
+      "exitCode": 0,
+      "result": "Only admin container replaced; other5 IDs unchanged"
+    },
+    {
+      "command": "python3 .local/aws-beta/admin-terms-release/check-public.py",
+      "exitCode": 0,
+      "result": "14 PASS"
+    },
+    {
+      "command": "Chrome authenticated production settings",
+      "result": "Heading 개인정보·운영정책; exact option labels 개인정보처리방침, 운영정책; terms absent"
+    }
+  ],
+  "deployment": {
+    "url": "https://admin.crefans.com/console/settings",
+    "image": "crefans-admin:no-terms-20261022",
+    "digest": "sha256:44a056da5e011906ebb89c57f5b0698a14cd35a12a229d4dc8360f8bb448b909",
+    "archiveSha256": "94fce3f9456ef29d429f837045feae455a29d5e1c8a834279cafecbc3447fe3a",
+    "archiveRemoteMatch": true,
+    "rollback": "/opt/crefans-backup-admin-terms-20261022",
+    "temporarySshRemoved": true,
+    "originalIngressRestored": 3,
+    "remoteArchiveRemoved": true,
+    "readiness": "transient502 during replacement; bounded retry then all14 checks passed"
+  },
+  "publicChecks": {
+    "at": "2026-10-21T16:40:03.790464+00:00",
+    "tlsVerified": true,
+    "checks": [
+      {
+        "url": "https://admin.crefans.com/brand/crefans-logo.svg",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/fonts/OFL.txt",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/login",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/console/revenue",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/me",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/runtime.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/signup",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/health",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/service/feed",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/preview/landing",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/login",
+        "status": 403,
+        "expected": 403,
+        "case": "untrusted Origin"
+      }
+    ]
+  },
+  "screenshot": {
+    "path": "docs/screenshots/no-terms-live.png",
+    "sha256": "f4238ebf5504283e85d2f91ef4991fca6da15c926b52095f213c84ea93b68110"
+  },
+  "limits": [
+    "No DB deletion or backend runtime change",
+    "Only relevant E2E rerun, not full7 or financial/provider regression"
+  ]
+}

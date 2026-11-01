@@ -1,0 +1,162 @@
+{
+  "at": "2026-10-21T16:37:43.229186+00:00",
+  "repo": "/Users/ethan/repository/crefans_admin",
+  "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+  "branch": "feat/operator-console",
+  "workingTree": "dirty; existing uncommitted changes preserved",
+  "sourceSha256": {
+    "src/components/console/Console.tsx": "473a7da2ec3a1cdf250f81e4e41ab484ce3327a81265a50cea9f58e6f110951b",
+    "src/app/console/layout.tsx": "b3cb6ddc9fe2bb94c5911421407b86a045caf7616cd5cce584893685170f67e1",
+    "e2e/console.spec.ts": "f7670a99ec0f2455faa3df9a4bf3fad856d6f634ba6a27667ff07f6ac010fec0",
+    "playwright.config.ts": "e10f112e6e46b65bf4e7f25c0520b6d8f9c8efae5d2903e062baa0402376f669"
+  },
+  "serverFixtureSha256": "54913f360ed8377c175f54d094b7b33000abdc1ef7dade74393a83caaa1c380d",
+  "acceptance": [
+    "Mobile nav scroll preserved across menu clicks without document navigation",
+    "Current menu remains visible on history, reload, delayed font loading and resizing",
+    "Existing authentication/revenue/admin E2E continue to pass"
+  ],
+  "negativeControl": {
+    "command": "npm run test:e2e -- --grep 'mobile menu keeps'",
+    "exitCode": 1,
+    "result": "Before shared layout fix: scrollLeft expected 358, actual 0"
+  },
+  "verification": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "TypeScript + 3 unit tests PASS"
+    },
+    {
+      "command": "npm run test:e2e",
+      "exitCode": 0,
+      "result": "7/7 PASS, real main API + isolated MySQL; delayed font load and rapid viewport changes included"
+    },
+    {
+      "command": "docker build --platform linux/amd64 -t crefans-admin:nav-scroll-20261022-2 .",
+      "exitCode": 0,
+      "result": "production standalone build PASS; existing Brand img lint warnings remain"
+    },
+    {
+      "command": "remote deploy.sh",
+      "exitCode": 0,
+      "result": "Only admin container replaced; 5 other IDs preserved"
+    },
+    {
+      "command": "python3 .local/aws-beta/admin-nav2-release/check-public.py",
+      "exitCode": 0,
+      "result": "14 verified-TLS checks PASS"
+    },
+    {
+      "command": "Chrome production 390px viewport reload then menu click",
+      "result": "settings active fully visible after reload at scrollLeft357.5; support click retained357.5 and fully visible; viewport reset"
+    }
+  ],
+  "deployment": {
+    "url": "https://admin.crefans.com/console",
+    "image": "crefans-admin:nav-scroll-20261022-2",
+    "digest": "sha256:d398e218f46d91e6bc8247b26b08885b16a9f07a1305ab74a55858d6aeb942fd",
+    "archiveSha256": "a8e793f4212e3cf85f1e5e72219694a71b2f99d3609ec4dc04c30c5fc8c2c933",
+    "localRemoteArchiveMatch": true,
+    "backup": "/opt/crefans-backup-admin-nav2-20261022",
+    "temporarySshRemoved": true,
+    "baselineIngress": 3,
+    "remoteArchiveRemoved": true
+  },
+  "publicChecks": {
+    "at": "2026-10-21T16:37:09.040594+00:00",
+    "tlsVerified": true,
+    "checks": [
+      {
+        "url": "https://admin.crefans.com/brand/crefans-logo.svg",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/fonts/OFL.txt",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/login",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/console/revenue",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/me",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/runtime.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/signup",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/health",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/service/feed",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/preview/landing",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/login",
+        "status": 403,
+        "expected": 403,
+        "case": "untrusted Origin"
+      }
+    ]
+  },
+  "screenshot": {
+    "path": "docs/screenshots/mobile-nav-live.png",
+    "sha256": "59688498c94c2e7b7e9c7fc3fb622754de7d9e1d3bd58b64305e26595109b89c"
+  },
+  "sourceReference": {
+    "url": "https://nextjs.org/docs/15/app/api-reference/file-conventions/layout",
+    "checked": "2026-10-22",
+    "applies": "Next15 shared layout + client usePathname"
+  },
+  "issuesResolved": [
+    "Generated route types stale after adding layout, regenerated with next typegen",
+    "Fixed test email accumulated signin limit across repeated runs, isolated randomized .invalid test identity without weakening limits",
+    "First deployed fix exposed late font-size clipping; final observer watches links and window resize"
+  ],
+  "limitations": [
+    "Mobile Chrome viewport and Chromium E2E; physical iOS Safari not exercised",
+    "No backend product/API/schema/policy changes or fresh full payment/security regression",
+    "Transient startup502 resolved by bounded readiness retry before final checks"
+  ]
+}
