@@ -1,10 +1,14 @@
 'use client';
 import {useEffect,useId,useState} from 'react';
+import {createPortal} from 'react-dom';
 import {objectParticle} from '@/lib/korean';
 
 export function ConfirmDialog({title,onCancel,children}:{title:string;onCancel:()=>void;children:React.ReactNode}){
+ const [mounted,setMounted]=useState(false);
+ useEffect(()=>setMounted(true),[]);
  useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape')onCancel();};const body=document.body.style.overflow;document.body.style.overflow='hidden';window.addEventListener('keydown',key);return()=>{document.body.style.overflow=body;window.removeEventListener('keydown',key);};},[onCancel]);
- return <div className="dialog-backdrop" onClick={e=>{if(e.target===e.currentTarget)onCancel();}}><div className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><h2 id="dialog-title">{title}</h2>{children}</div></div>;
+ // Table scroll containers isolate their layers; render the modal outside them.
+ return mounted?createPortal(<div className="dialog-backdrop" onClick={e=>{if(e.target===e.currentTarget)onCancel();}}><div className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><h2 id="dialog-title">{title}</h2>{children}</div></div>,document.body):null;
 }
 
 /**

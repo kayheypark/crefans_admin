@@ -5,7 +5,7 @@ export const TOTP_REQUIRED_EVENT='crefans-admin:totp-required';
 let refreshing:Promise<void>|null=null;
 export async function api<T=unknown>(path:string,body?:unknown,method=body===undefined?'GET':'POST',retry=true):Promise<T>{
   if(!/^\/admin(?:\/|$)/.test(path))throw new Error('Unsupported console API');
-  const res=await fetch('/api/v1'+path,{method,credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)})});
+  const res=await fetch('/api/v1'+path,{method,credentials:'same-origin',cache:'no-store',headers:body instanceof FormData?{}:{'Content-Type':'application/json'},...(body===undefined?{}:{body:body instanceof FormData?body:JSON.stringify(body)})});
   const data=await res.json().catch(()=>null);
   // A wrong TOTP code is also 401 but the session is fine: never refresh and resend the code.
   if(res.status===401&&retry&&!path.startsWith('/admin/auth/')&&data?.errorCode!=='TOTP_INVALID'){

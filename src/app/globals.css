@@ -89,6 +89,7 @@ button.nav-toggle{width:28px;height:28px;min-height:28px;padding:0;margin-left:a
 section{padding:16px;margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
 .table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
 section .table-wrap{border:0;border-radius:0}
+.mobile-table-wrap{display:contents}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
 th{background:var(--surface-2);font-size:11px;font-weight:600;color:var(--text-3);white-space:nowrap}
@@ -143,6 +144,11 @@ section .empty{border:0;padding:24px 12px}
   .nav-backdrop{display:block;position:fixed;inset:56px 0 0;z-index:5;background:rgba(15,23,42,.36)}
   @media(prefers-reduced-motion:reduce){.nav-drawer{transition:none}}
   .main{padding:16px 16px 40px}
+  /* The same scroll container must own both axes for sticky table headers. */
+  .main .table-wrap{max-height:70dvh;overflow:auto;isolation:isolate}
+  .main .mobile-table-wrap{display:block}
+  .main .table-wrap table{border-collapse:separate;border-spacing:0}
+  .main .table-wrap thead{position:sticky;top:0;z-index:1;box-shadow:0 1px 0 var(--border)}
 }
 @media(max-width:600px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metrics article{padding:14px 12px}.metrics strong{font-size:22px}.scope-label{display:none}.filters{gap:10px}.filters label{min-width:0;flex:1 1 130px}.tabs{margin-top:16px}.tabs button{flex:none;min-width:90px}.pager{gap:8px}section{padding:14px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
@@ -280,3 +286,46 @@ button.danger{color:var(--danger)}
 .loading-block~.empty,.loading-block~.table-wrap .empty{display:none}
 @keyframes loading-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.loading-spinner{animation-duration:2s}}
+
+/* Activity fields share the console filters, with room for a readable name. */
+.category-form{margin-top:16px;max-width:560px}.category-form label{flex:1;min-width:0}
+
+/* Activity category controls share the console table and modal layers. */
+.category-toolbar,.category-order{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.category-toolbar{margin:20px 0 12px}.category-order{flex-wrap:nowrap}.category-order button{min-width:44px;min-height:44px;padding:4px 10px;font-size:20px}
+.category-order span{min-width:22px}.category-icon{width:32px;height:32px;object-fit:contain;vertical-align:middle}.category-table td:nth-child(3){min-width:100px}
+.category-icon-preview{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border:1px solid var(--border);border-radius:12px}.category-icon-preview img{width:80px;height:80px;object-fit:contain}
+
+/* Referral management uses the existing console surfaces, metrics and controls. */
+.referral-intro{margin:-2px 0 20px;color:var(--text-3);font-size:13px}
+.referral-policy{padding:20px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);margin-bottom:24px}
+.referral-policy-heading{display:flex;align-items:center;gap:12px;margin-bottom:16px}.referral-policy-heading h3{font-size:15px;margin:0 0 4px}.referral-policy-heading p{font-size:12px;color:var(--text-3)}.referral-policy-heading>.referral-status{margin-left:auto}
+.referral-symbol{display:grid;place-items:center;width:40px;height:40px;flex-shrink:0;border-radius:var(--r);color:var(--brand-ink);background:var(--brand-soft)}.referral-symbol svg{width:22px;height:22px}
+.referral-policy>p{color:var(--text-2);font-size:13px;line-height:1.75;max-width:80ch}
+.referral-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}.referral-switch strong{font-size:13px}.referral-switch button{min-width:76px}
+.metrics.referral-metrics{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0 0 24px}.referral-metrics strong small{font-size:13px;margin-left:4px;font-weight:400}
+.referral-filters{justify-content:space-between}.referral-status{display:inline-flex;align-items:center;white-space:nowrap;gap:6px;font-size:12px;font-weight:600;padding:4px 9px;border-radius:6px;background:var(--surface-3);color:var(--text-2)}.referral-status.is-granted{background:var(--brand-soft);color:var(--brand-ink)}.referral-status.is-qualified{background:var(--brand-soft);color:var(--brand-ink)}.referral-status.is-clawed_back{background:var(--danger-soft);color:var(--danger)}
+.referral-link{display:grid;gap:8px;min-width:240px;max-width:360px}.referral-link>button{justify-self:start}.referral-link-controls{display:flex;gap:8px;align-items:stretch}.referral-link-controls input{min-width:0;flex:1;text-overflow:ellipsis;background:var(--surface-2)}.referral-link-controls button{flex-shrink:0}.referral-link small{white-space:normal;line-height:1.6}
+@media(max-width:767px){.referral-policy{padding:16px}.metrics.referral-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.referral-metrics article:last-child{grid-column:1/-1}.referral-policy-heading{gap:10px}.referral-switch button{min-height:44px}.referral-link-controls button{min-height:44px}}
+
+.referrals .table-wrap table{min-width:960px}.referrals td:first-child,.referrals td:nth-child(2){min-width:160px}.referrals td small{white-space:nowrap}
+
+/* Second-factor login: approved mobile-first option 03. Visible native input preserves selection, paste, autofill and keyboard access. */
+.login-second{background:var(--surface)}
+.login-second form{max-width:440px;padding:36px;border:0;box-shadow:none;gap:18px}
+.login-second .login-brand{margin-bottom:28px}
+.login-security-icon{color:var(--brand);height:52px;margin-bottom:2px}
+.login-security-icon svg{width:52px;height:52px}
+.login-second h1{font-size:26px;letter-spacing:-.6px}
+.login-second .muted{font-size:14px;line-height:1.7;margin:0 0 10px}
+.login-second label{font-size:14px}
+.login-otp{margin-top:-8px;margin-bottom:12px}
+.login-otp input{display:block;width:100%;height:60px;opacity:1;cursor:text;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:26px;font-variant-numeric:tabular-nums;letter-spacing:.6em;text-indent:.6em;text-align:center;color:var(--text-1);caret-color:var(--brand);background:var(--surface-2);border:1px solid var(--border-strong);border-radius:8px;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+.login-otp input:focus{outline:2px solid var(--brand);outline-offset:2px;background:var(--surface)}
+.login-otp input[aria-invalid=true]{border-color:var(--danger)}
+.login-otp input[readonly]{cursor:wait}
+.login-second .primary{min-height:48px;font-size:15px}
+.login-alternatives{display:flex;flex-direction:column;align-items:center;gap:4px}
+.login-alternatives button{border:0;background:transparent;box-shadow:none;min-height:44px;padding:8px 12px;font-size:13px;color:var(--text-3)}
+.login-alternatives button:first-child{color:var(--brand)}
+@media(max-width:600px){.login-second{padding:28px 24px;align-items:flex-start}.login-second form{padding:12px 0;max-width:380px}.login-second .login-brand{margin-bottom:36px}}
