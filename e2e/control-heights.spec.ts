@@ -16,7 +16,7 @@ for(const width of [1280,390])test.describe(width===390?'touch phone':'desktop',
 test(`same-row inputs and buttons share one height (${width}px)`,async({page})=>{if(width===1280)await page.setViewportSize({width,height:900});
  // One pending report so the content page shows its memo input beside the action buttons.
  await page.route('**/api/v1/admin/reports',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,data:[{id:'report-1',target_type:'POST',target_id:'post-1',reason:'SPAM',description:'검증'}],errorMessage:null,errorCode:null})}));
- await login(page,width===1280?process.env.ADMIN_E2E_EMAIL!:process.env.ADMIN_E2E_EMAIL!.replace('admin-','admin2-'));const report:Record<string,string[]>={};
+ await login(page,process.env.ADMIN_E2E_EMAIL!.replace('admin-',width===1280?'admin3-':'admin4-'));const report:Record<string,string[]>={};
  for(const path of sections){await page.goto(path);await page.waitForLoadState('networkidle');report[path]=await mismatches(page);}
  await page.goto('/console/content');await expect(page.getByLabel('신고 처리 메모')).toBeVisible();report['content report row']=await mismatches(page);
  await page.goto('/console/invites');await page.getByRole('button',{name:'초대 등록',exact:true}).click();report['invites dialog']=await mismatches(page);await page.keyboard.press('Escape');

@@ -105,7 +105,7 @@ test('creator badge grant and revoke require confirmation, persist and update th
 
 test('policy change shows an i tooltip and needs the typed phrase in a dialog before submitting',async({page})=>{
  await login(page,SECOND_ADMIN());await page.waitForURL(/\/console/);await page.goto('/console/settings');
- const info=page.locator('.info-tip button');await expect(info).toBeVisible();await info.hover();await expect(page.getByRole('tooltip')).toHaveText('정책 변경 시 변경 확인 문구를 직접 타이핑해야 합니다.');await expect(page.getByRole('tooltip')).toBeVisible();
+ const info=page.locator('.button-with-info .info-tip');await expect(info.getByRole('button')).toBeVisible();await info.getByRole('button').hover();await expect(info.getByRole('tooltip')).toHaveText('정책 변경 시 변경 확인 문구를 직접 타이핑해야 합니다.');await expect(info.getByRole('tooltip')).toBeVisible();
  await page.getByLabel('변경 사유').fill('E2E 확인 문구 검사');await page.getByRole('button',{name:'정책 변경',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'금융 정책 변경'});await expect(dialog).toBeVisible();await expect(dialog.getByRole('button',{name:'취소'})).toBeFocused();
  const submit=dialog.getByRole('button',{name:'정책 변경',exact:true}),phrase=dialog.getByRole('textbox');await expect(dialog.locator('label')).toContainText('계속하려면 정책 변경을 그대로 입력하세요');
@@ -128,8 +128,10 @@ test('super admin creates a sub-operator; temporary password forces a change and
  await sub.goto('/login');await sub.getByLabel('이메일',{exact:true}).fill(email);await sub.getByLabel('비밀번호',{exact:true}).fill(temp);await sub.getByRole('button',{name:'로그인',exact:true}).click();
  await expect(sub.getByRole('heading',{level:1,name:'임시 비밀번호 변경'})).toBeVisible();await sub.getByLabel('현재 비밀번호').fill(temp);await sub.getByLabel('새 비밀번호 (10자 이상)').fill('operator-pass-2026');await sub.getByLabel('새 비밀번호 확인').fill('operator-pass-2026');await sub.getByRole('button',{name:'비밀번호 변경'}).click();
  await expect(sub.getByRole('heading',{name:'운영 현황',exact:true})).toBeVisible();await expect(sub.getByRole('heading',{name:'멤버십 지표'})).toHaveCount(0);
- await sub.getByRole('button',{name:'메뉴 열기'}).click();const nav=sub.locator('#console-nav nav');await expect(nav.getByRole('link')).toHaveText(['대시보드','회원·크리에이터','콘텐츠·신고']);await sub.screenshot({path:'test-results/operator-mobile-menu.png'});
+ await sub.getByRole('button',{name:'메뉴 열기'}).click();const nav=sub.locator('#console-nav nav');await expect(nav.getByRole('link')).toHaveText(['대시보드','회원·크리에이터','콘텐츠·신고','운영 설정']);await sub.screenshot({path:'test-results/operator-mobile-menu.png'});
  await nav.getByRole('link',{name:'회원·크리에이터'}).click();await expect(sub.getByRole('button',{name:/인증 (부여|해제)/})).toHaveCount(0);
+ await sub.goto('/console/settings');await expect(sub.getByRole('heading',{name:'활동 분야 관리'})).toBeVisible();await expect(sub.getByRole('button',{name:'분야 추가',exact:true})).toHaveCount(0);await expect(sub.getByRole('heading',{name:'금융 정책',exact:true})).toHaveCount(0);
+ expect((await sub.request.get('/api/v1/admin/categories')).status()).toBe(200);expect((await sub.request.post('/api/v1/admin/categories',{data:{name:'권한 없는 등록'}})).status()).toBe(403);expect((await sub.request.get('/api/v1/admin/financial-policy')).status()).toBe(403);
  await sub.goto('/console/revenue');await expect(sub.locator('main [role=alert]')).toContainText('권한이 없습니다');
  expect((await sub.request.get('/api/v1/admin/revenue')).status()).toBe(403);expect((await sub.request.get('/api/v1/admin/operators')).status()).toBe(403);
  await sub.locator('.profile-link:visible').click();await expect(sub.getByLabel('운영자 종류')).toHaveValue('부운영자');await expect(sub.getByRole('table').last()).toContainText('허용');await sub.screenshot({path:'test-results/operator-mypage-mobile.png',fullPage:true});

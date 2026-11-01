@@ -45,3 +45,7 @@ next-env.d.ts
 
 # Private local sessions and deployment credentials
 /.local/
+
+# Generated local previews and QA artifacts (retained on disk)
+/.next-*/
+/output/
