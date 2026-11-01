@@ -1,0 +1,183 @@
+{
+  "at": "2026-10-21T16:15:57.307939+00:00",
+  "authorization": "User explicitly requested independent operator deployment and one operator account; separately approved bot creation and channel posting permission.",
+  "url": "https://admin.crefans.com/console",
+  "repos": {
+    "admin": {
+      "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+      "dirty": true
+    },
+    "server": {
+      "head": "c100a3af5a5508adb0e6ba521d2e5238fb5f1ff1",
+      "dirty": true
+    }
+  },
+  "images": {
+    "api": "crefans-api:admin-20261022",
+    "apiDigest": "sha256:038bc8c6728b5e1ef0071de67c2276a6388a72818d74e31836fb98fbef127f76",
+    "admin": "crefans-admin:console-20261022",
+    "adminDigest": "sha256:adde535dad9499e03e6bfd62e8f3ff36424396f12c8c3bbfa55b84f950d97558",
+    "frontend": "unchanged crefans-front:beta-20261021"
+  },
+  "sourceSha256": {
+    "crefans_admin/Dockerfile": "e083587f398f4710746c2adafe3d50dd2db65dce203b430ac6f4fff965202c2a",
+    "crefans_admin/.dockerignore": "2b0554d40ea910fe479126c73b59a923ab6f2d6640d4828e2c65a1158be5b3c3",
+    "crefans_admin/next.config.mjs": "8145da5a436be079a3fb19de506bed7706d78d87b7093b7dc1f3cede59f293a5",
+    "crefans_admin/src/components/console/Console.tsx": "2ae2b23011326599cd38f4973e46f79247030787d62cb6178da75a00c58489b3",
+    "crefans_admin/src/lib/console-api.ts": "5ca6c239ddf7dfecf12cf429bdd76b75c8a08c2867e7ab8cb02cfd0cea2872bd",
+    "crefans_server/infra/platform/Caddyfile": "854718c70eec2f24e7cbbcc7f29a0ae493f20be08a6c2c08d71687690cfcfd0c",
+    "crefans_server/infra/platform/compose.admin.yml": "def7c2a421a915d8f745de716149bf95963bc4bd02528b40fab6af2dc26dbe70",
+    "crefans_server/src/platform/admin-console.ts": "1d5fc97114bdf48e65d3e39e3de91cf41fb817df10e0b54526044494b13a92a0",
+    "crefans_server/src/platform/admin.controller.ts": "72d2b65b6da95ef0f9523a5c372b0f62c62ece036fd671db060e772e4e2022ad",
+    "crefans_server/src/platform/main.ts": "4a801ff0261b75939bc6906614dee53457a4253ad8ca5e71ef893ad63e687f3b"
+  },
+  "publicChecks": {
+    "at": "2026-10-21T16:12:33.542320+00:00",
+    "tlsVerified": true,
+    "checks": [
+      {
+        "url": "https://admin.crefans.com/login",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/console/revenue",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/me",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/runtime.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/signup",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/health",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/service/feed",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/preview/landing",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/login",
+        "status": 403,
+        "expected": 403,
+        "case": "untrusted Origin"
+      }
+    ]
+  },
+  "runtime": {
+    "containersRunning": [
+      "admin",
+      "api",
+      "database",
+      "frontend",
+      "proxy",
+      "worker"
+    ],
+    "operatorRole": "SUPER_ADMIN",
+    "operatorEnabled": true,
+    "manualOperatorEmailConfirmation": true,
+    "hostOnlySecureCookies": true,
+    "adminOriginAllowed": true,
+    "e2eDisabled": true,
+    "members": 1,
+    "orders": 0,
+    "pendingOperations": 0,
+    "databaseMigrations": 14,
+    "databaseMediaCertificateVolumesPreserved": true,
+    "noSeedResetMigrationApplied": true
+  },
+  "browser": {
+    "ChromeCUA": "Actual user-specified login PASS and revenue view PASS",
+    "route": "/console/revenue",
+    "role": "SUPER_ADMIN",
+    "amount": 0,
+    "screenshotSha256": "2864784e09d077d1d9be43235b47b2eea587b6e4be160dba4c6739d1cbfbad5b"
+  },
+  "compiledLocalVsContainerMatch": {
+    "dist/src/platform/admin-console.js": "ebbaa76cdcb91fb8e8c169aef668d8762f87c88dad99f4fc775f9555bd274ddf",
+    "dist/src/platform/admin.controller.js": "a207bcc0bb3039fa773b798fb6f79e5ce966d9ca8a16dcdcd2a2e0bbb1d1e9f2"
+  },
+  "telegram": {
+    "bot": "crefans_operations_bot",
+    "channel": "[crefans] operations",
+    "postOnly": true,
+    "otherManagePermissions": false,
+    "botIdentityAndGetChatMemberChecked": true,
+    "localActualUIReceipt": true,
+    "betaActualUIReceipt": true,
+    "betaEventId": "387d660e-f006-41a8-9436-1017eebb69d6",
+    "betaAction": "beta-admin-deployment-check",
+    "tokenNeverPrinted": true
+  },
+  "commands": {
+    "adminDockerBuild": "docker build --platform linux/amd64 -t crefans-admin:console-20261022 .; exit0",
+    "apiDockerBuild": "docker build --platform linux/amd64 -t crefans-api:admin-20261022 -f infra/platform/Dockerfile .; exit0",
+    "readOnlyNonRootStandalone": "login200, static7/7 assets200, Cache-Control private,no-store",
+    "publicVerification": "python3 .local/aws-beta/admin-release/check-public.py; exit0,12 PASS, normal certificate verification",
+    "deployment": "private deploy-admin.sh; exit0",
+    "bootstrap": "one-off create-only-if-absent transaction; exit0; salted scrypt hash, no existing overwrite",
+    "localTelegram": "node scripts/platform-operations-test.cjs; accepted, UIreceipt verified",
+    "betaTelegram": "own synthetic operations.test via real runtime; accepted, sameID/action UIverified",
+    "gitDiffCheck": "admin/server exit0"
+  },
+  "privateLogSha256": {
+    "deploy.log": "9cfa2fa4811edf9727752da952138970d00242921c31cc802a0948d9f02aa982",
+    "bootstrap-result.log": "ef6a7869d9345505473f29f4a9101ab782fdcc6ca5db0b9ff53b990a4c72b14e",
+    "runtime-check.log": "3a901f095bf9e44c3772ad1caca8ca41f9064165376b94b386ecc21dfaefa569",
+    "telegram-test.log": "dbef7307bc0de79b263e5bb2e00ffba9843650df0bddd117d5efc10d04497d9b",
+    "final-host-check.log": "05823f07bb622e00e73ebc29dcfa26a235f6f63686297b3290571139de52dcaf",
+    "ssh-rule-revoked.json": "2eadadef874a59b5baacc636f7fcc00dca4d46974be3efb040dfb3c1b53d5672",
+    "ssh-rules-after.json": "5434464092c4a369d8a4e7c7f2d980de38afe1ba617e760f6cc3a3fdfae7cbc3"
+  },
+  "ssh": {
+    "temporaryRuleDeleted": true,
+    "originalIngressRulesRestored": 3
+  },
+  "rollback": "/opt/crefans-backup-admin-20261022 (0700), old images retained; runtime.env/.env0600",
+  "initialFailures": [
+    "Docker build missing legacy lib/utils typing references; COPY corrected, full build PASS",
+    "Bot membership update initially absent; authorized setup channel post obtained exact chat, verified bot/permissions",
+    "Transient TLS errors during Caddy restart/certificate issue resolved with bounded retry; public TLS12 PASS afterwards"
+  ],
+  "limitations": [
+    "No live PG/refund/remittance/mail performed",
+    "No actual1hour idle summary wait yet",
+    "Manual operator bootstrap is not PASS identity verification",
+    "No member suspension/content hide/protected-media admin view in initial console",
+    "Earlier16+3+4 tests are scoped prior evidence; full162 suite not rerun for deployment"
+  ]
+}

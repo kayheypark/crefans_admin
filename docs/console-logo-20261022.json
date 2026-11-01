@@ -1,0 +1,244 @@
+{
+  "recordedAt": "2026-10-21T17:04:08.563114+00:00",
+  "repository": "/Users/ethan/repository/crefans_admin",
+  "branch": "feat/operator-console",
+  "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+  "workingTree": "Existing accumulated changes preserved; this task uncommitted",
+  "status": [
+    " M .env.example",
+    " M .gitignore",
+    " M README.md",
+    " M next.config.mjs",
+    " M package-lock.json",
+    " M package.json",
+    " M src/app/board/page.tsx",
+    " M src/app/dashboard/page.tsx",
+    " M src/app/globals.css",
+    " M src/app/layout.tsx",
+    " M src/app/login/page.tsx",
+    " M src/app/media/page.tsx",
+    " M src/app/page.tsx",
+    " M src/app/posts/page.tsx",
+    " M src/app/reports/page.tsx",
+    " M src/app/users/page.tsx",
+    " M tsconfig.json",
+    "?? .dockerignore",
+    "?? AGENTS.md",
+    "?? Dockerfile",
+    "?? PROGRESS.md",
+    "?? docs/console-logo-prompts-20261022.json",
+    "?? docs/dashboard-20261022.json",
+    "?? docs/deployment-20261022.json",
+    "?? docs/logging-inventory-20261022.json",
+    "?? docs/mobile-nav-20261022.json",
+    "?? docs/no-policy-20261022.json",
+    "?? docs/no-terms-20261022.json",
+    "?? docs/screenshots/",
+    "?? docs/uba-ui-deployment-20261022.json",
+    "?? docs/verification-20261022.json",
+    "?? e2e/",
+    "?? playwright.config.ts",
+    "?? public/brand/",
+    "?? public/fonts/",
+    "?? src/app/console/",
+    "?? src/components/console/",
+    "?? src/lib/console-api.ts",
+    "?? tests/"
+  ],
+  "request": "Existing brand symbol + lowercase console wordmark, generated with prior ChatGPT logo session as reference, applied to admin",
+  "sourceSha256": {
+    "src/components/console/Brand.tsx": "94161ef46f71aebd4ab8524c8b2e59d41a26b70500f1965e0f6f3ae4bcdf21cf",
+    "src/app/globals.css": "613aae1d0549573f02af4db49f9bf7605f01dd9da553200cd74945b83401d844",
+    "e2e/console.spec.ts": "4347d5430d39253c5c99c0dc3cc4dfe5489be84138659b5cd1c9456100f0787e",
+    "public/brand/console-logo.png": "e8e89a79ad92bbcf0ea61d73f8fe4f4ec62b0687fc3094b77e896e56cd86efa4",
+    "docs/console-logo-prompts-20261022.json": "1de06c71a59c943e9f0b546d10130274a86f3798c1b7eb2ca75b2956390e4264",
+    "AGENTS.md": "b27ff67eb2cd7e0cb964d199c93aefc5261e818e18f5cdb4312097322bf06c07",
+    "PROGRESS.md": "1aa82f375f9ddef49c896bf3dbc8791b4147bd46c9ac72402e25c8c7a33f9308",
+    "README.md": "4884532637cd90c5621d6e7d5d21462c1a4470f021366f67fb6a45e4001268dc"
+  },
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "typecheck and 3 unit tests passed",
+      "logPath": "/tmp/crefans-console-logo-check.log",
+      "logSha256": "c9b60fc4f9913a97faccb2dfa3abe8c2f72b21f459bbd8f922a11d27643e8feb",
+      "logModifiedAt": "2026-10-21T17:01:01.135697+00:00"
+    },
+    {
+      "command": "npm run test:e2e -- --grep 'UBA|mobile menu'",
+      "exitCode": 0,
+      "result": "3 existing Chromium scenarios passed against isolated MySQL/API; desktop rail, mobile nav scroll, dark theme and login branding",
+      "logPath": "/tmp/crefans-console-logo-e2e.log",
+      "logSha256": "8493cd3bd4cdf490fd476ecf64f5974b92c9c5f9dec1a918be1e05be0728ec7e",
+      "logModifiedAt": "2026-10-21T17:01:25.140042+00:00"
+    },
+    {
+      "command": "docker build --platform linux/amd64 -t crefans-admin:console-logo-20261022 .",
+      "exitCode": 0,
+      "result": "build passed; no-img-element advisory retained",
+      "logPath": "/tmp/crefans-console-logo-image.log",
+      "logSha256": "b677768d28d26d4328cd118babff50c4782b356772494c22227210da855b6c8c",
+      "logModifiedAt": "2026-10-21T17:02:15.366725+00:00"
+    },
+    {
+      "command": "npm run check:docs (crefans_front)",
+      "exitCode": 0,
+      "result": "56 front/server docs, 92 routes snapshot PASS; excludes console UI runtime",
+      "logPath": "/tmp/crefans-console-logo-docs.log",
+      "logSha256": "bbfb03197e1e978fbf0060880f9e1144f3e5d4bea2ecc314471539328932b6e6",
+      "logModifiedAt": "2026-10-21T17:02:59.602730+00:00"
+    }
+  ],
+  "asset": {
+    "mode": "built-in image_gen",
+    "transparent": true,
+    "originalAlphaPreserved": true,
+    "dimensions": [
+      2173,
+      724
+    ],
+    "selectedGeneratedFile": "/Users/ethan/.codex/generated_images/01a09da4-33f8-7420-9cc4-0fdd1e10eb69/exec-c3872a22-c37a-4c5c-98d3-15a6318b72d7.png",
+    "promptFile": "docs/console-logo-prompts-20261022.json",
+    "workspacePath": "public/brand/console-logo.png"
+  },
+  "deployment": {
+    "image": "crefans-admin:console-logo-20261022",
+    "imageId": "sha256:413a6c9058605131ac3387cc9eb25af1249b90de35a9937d1777a353f2f845a7",
+    "architecture": "amd64",
+    "archiveSha256": "0f1ef2d2bd0b7cca55cdcac72f287db578be04ed9194540d10b5dc4b21530f5a",
+    "archiveLocalRemoteMatch": true,
+    "publicAssetMatchesWorkspace": true,
+    "standaloneSmoke": "readonly/non-root/network-none login200 with console image reference",
+    "adminOnlyRecreated": true,
+    "otherFiveContainerIdsUnchanged": true,
+    "temporarySshRuleRevokedAndBaselineRestored": true,
+    "remoteTemporaryArchiveAndScriptRemoved": true,
+    "rollback": "/opt/crefans-backup-admin-console-logo-20261022",
+    "readiness": "one initial502; bounded retry succeeded"
+  },
+  "publicChecks": {
+    "at": "2026-10-21T17:03:08.887542+00:00",
+    "tlsVerified": true,
+    "checks": [
+      {
+        "url": "https://admin.crefans.com/brand/console-logo.png",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/fonts/OFL.txt",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/login",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/console/revenue",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/dashboard?days=7",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/admin/dashboard",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/me",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/runtime.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/signup",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/health",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/service/feed",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/preview/landing",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/login",
+        "status": 403,
+        "expected": 403,
+        "case": "untrusted Origin"
+      }
+    ]
+  },
+  "browserVerification": {
+    "productionChrome": {
+      "url": "https://admin.crefans.com/console/settings",
+      "imageSrc": "/brand/console-logo.png",
+      "alt": "console",
+      "naturalWidth": 2173,
+      "desktopFrame": [
+        120,
+        24
+      ],
+      "mobileFrame": [
+        100,
+        20
+      ],
+      "mobileViewport": [
+        390,
+        844
+      ],
+      "horizontalOverflow": false,
+      "viewportRestored": true
+    },
+    "localChromium": "Desktop, dark mobile, light/dark login screenshots inspected; production dark mode not changed",
+    "screenshots": {
+      "docs/screenshots/console-logo-desktop.png": "41589f524b2dbf62aa0e8255e28d0167dbdaf4d9ea05d56785a581ef38709d0d",
+      "docs/screenshots/console-logo-live-mobile.png": "f63a7a1882220f07bacc1279f8a88c27b24ba23a1b127fa1495c70a7a8778e67",
+      "docs/screenshots/console-logo-live.png": "d7b4203b987adf88c393a3d161f5627f4bb6acf4049c7c103e77e27c2046c675",
+      "docs/screenshots/console-logo-login-dark.png": "bfce82c1bc46cb11765f5e7ddf4b3f58543964f889b70580b410c3dc24059e56",
+      "docs/screenshots/console-logo-login-light.png": "54fb8945e2ed39cf3f4e5cc92df26119c204828c18989ea16e7941c9b3fc5c93",
+      "docs/screenshots/console-logo-mobile-dark.png": "d34d9f0097cb3e8cac1dbfcedb09ed24eaa6c9f9fed9896dab9d77fe93b1dd41"
+    }
+  },
+  "limits": [
+    "No backend/API/payment/DB policy changes",
+    "No real-device iOS Safari run",
+    "Earlier broad financial/security tests were not rerun for branding",
+    "Image generation is a raster interpretation of the adopted symbol, not a pixel-identical vector export"
+  ]
+}

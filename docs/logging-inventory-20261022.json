@@ -1,0 +1,111 @@
+{
+  "at": "2026-10-21T16:53:26.068248+00:00",
+  "scope": "Read-only current platform/admin source and deploy configuration logging inventory; no production mutation",
+  "repositories": {
+    "crefans_server": {
+      "head": "c100a3af5a5508adb0e6ba521d2e5238fb5f1ff1",
+      "dirty": true,
+      "files": {
+        "src/platform/main.ts": "4a801ff0261b75939bc6906614dee53457a4253ad8ca5e71ef893ad63e687f3b",
+        "src/platform/http.ts": "bef82c3bbf6e7bb07d322be84de6945eb57c667e29f6b919867e1d7a07dce302",
+        "src/platform/request-context.ts": "13512a4313574f8cc760477c3d8f9d1740e187665f30ab425167b7820ec72997",
+        "src/platform/security.service.ts": "9a02c966832986613a0ccdfce41314373f2240dd7c457eb96e3d40ab65adf4fa",
+        "src/platform/operations.service.ts": "d28ae077233e985c53c77d9b34c8b4f2fa2852d9dd577085330f571dee69a9f3",
+        "src/platform/operations-events.ts": "3e435fee5b8a39488318787895b08dd184cdccc783df7775767c900072efd044",
+        "src/platform/jobs.service.ts": "d4fa4c5d4bf8b2c1cf99f1d8815a7204d05facd49b377f1d742daa8d9df8b218",
+        "src/platform/worker.ts": "dbccbeebd3eca3c9736ba4f2dc11eed87d378288d558657da38ab528c3f4c62b",
+        "src/platform/admin.controller.ts": "b39f40de72632b050723c9e8266d75783a783d05afc34cc27cce7f430f9686ad",
+        "src/platform/admin-console.ts": "1d5fc97114bdf48e65d3e39e3de91cf41fb817df10e0b54526044494b13a92a0",
+        "src/platform/financial-policy.ts": "1bd65378e2c62504a64e6b8ef4fb391c917540e49dbb4b780de51765b4237542",
+        "src/platform/auth.service.ts": "13d1ea070d4f144d25ceaf59518bbfeb19014f5fdb54355e08609ecf0aa8c39c",
+        "src/platform/platform-auth.guard.ts": "3ad361d7d771f109f28e02284641292dc98fb47ee03dd5f0811f4060425c01db",
+        "src/platform/finance.service.ts": "4b7735e8b04437fe08a5051efac68de789289f6a5ed3c6a93afbb888b0150d9d",
+        "src/platform/payment-provider.ts": "755692c5b2570712e3ffc75619c39ecb308b8c2ef735828bebe22c6c4b37827f",
+        "src/auth/local/local-member.service.ts": "2825b84fc03d363dd2dfd29f5d46cfd87501b7532949bfd390fc9d11a6186a40",
+        "src/auth/local/member-mail.service.ts": "4b7f4f4a0d3ba44da6635f717b4bb95a2e3223ea88729a31a9404e7b4c5b1c32",
+        "src/prisma/prisma.service.ts": "34731afef83f55ad8bdf484fa7dcb0054179ee9be3494cf2a45e5ff98c2dc937",
+        "prisma/schema.prisma": "9370f1e00ad355158864618cbe9590616a0440e9ff3a7e232bb5da0307d28c45",
+        "infra/platform/compose.yml": "f4de2e897c3c473fd05e7461aebcb3f034be7a806939a39c457402e5d921d6ad",
+        "infra/platform/compose.admin.yml": "def7c2a421a915d8f745de716149bf95963bc4bd02528b40fab6af2dc26dbe70",
+        "infra/platform/Caddyfile": "854718c70eec2f24e7cbbcc7f29a0ae493f20be08a6c2c08d71687690cfcfd0c"
+      }
+    },
+    "crefans_admin": {
+      "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+      "dirty": true,
+      "files": {
+        "src/components/console/Console.tsx": "7a90d163556f93cced79f1e9dd7d5a7eda2c09f8b8f4f632d57f844061f4bc1f",
+        "src/components/console/Dashboard.tsx": "191b4bb80b6d90e5e22ba53ca5d2136556fd101ab509da7fca99f5c95a35765e",
+        "src/app/console/[[...section]]/page.tsx": "d28bab62c2137d0036b426e4340c1e752ce4b273e3f335b71f944e7d8d43d983"
+      }
+    }
+  },
+  "checks": [
+    {
+      "command": "rg/nl/cat over listed platform/auth/Prisma/admin/infra files",
+      "result": "direct source inspection; initial guessed filenames corrected using rg --files",
+      "type": "static inspection"
+    },
+    {
+      "command": "docker run --rm --network none --platform linux/amd64 --entrypoint sha256sum crefans-api:dashboard-20261022 <7 listed source files>; compare hashlib SHA256",
+      "exit": 0,
+      "matchedFiles": 7,
+      "type": "local copy of deployed image verified against source"
+    },
+    {
+      "priorDeploymentEvidence": "docs/dashboard-20261022.json",
+      "imageId": "sha256:22c788335cc8a21e3c14c84c48fda7f14f33659f409fe5c9a31902a8dbd27fdf"
+    }
+  ],
+  "present": {
+    "events": "DB platform_operational_events plus Telegram outbox, IP/peer/request_id/time/type/allowed target IDs/status, delivery attempt/error fields",
+    "errors": "HTTP>=500, worker and post-bootstrap process fatal events; error type and allowlisted internal code, not message/stack",
+    "security": "selected API query SQL signatures, detection per10min window, second hit blocks24h, next request after expiry records release; blocked repeats not individually recorded",
+    "worker": "each run in platform_jobs with duration/activity/failures; activity/errors immediate Telegram, hourly idle summary",
+    "admin": "inquiry reply/report resolution/document save actor+target events; financial_policy_changes version/new values/actor/reason/time",
+    "finance": "checkout current status/attempts/failure/retry/approval/subscription ID; revenue ledger; not complete append-only attempts history"
+  },
+  "gaps": [
+    "No admin log search/list/detail API or screen; only undelivered count, last worker check, finance policy history/payment states",
+    "No comprehensive HTTP access log: Caddy lacks log directive, no API success/4xx request completion logging",
+    "No error stack/code line/release fingerprint and no authenticated actor in general error context",
+    "request_id persisted internally but not returned to user, not printed in Telegram message; limited request/job/payment linkage",
+    "Login success/failure/logout/permission rejection and sensitive data reads lack durable audit event coverage",
+    "Some admin events in delivery outbox deleted after30 days when sent; no before/after document/profile snapshot",
+    "Payment/refund/payout attempt timeline and original sanitized provider cause not durably preserved; several failures generalized PAYMENT_FAILED",
+    "No central off-host log sink or immutable/archive policy in checked deployment; Docker per-container10m*3 rotation and local MySQL share host",
+    "No client browser error collector or independent whole-host/DB-startup/OOM monitor configured in checked scope",
+    "SMTP sendMail result/message ID not persisted by MemberMailService"
+  ],
+  "retention": {
+    "deliveredOperationalEvents": "created_at older than30days deleted by worker including admin events",
+    "undeliveredEvents": "retained without 30day deletion",
+    "workerRuns": "30days",
+    "securityIpState": "inactive/expired rows older than30days",
+    "financialPolicyHistory": "no automatic TTL found in reviewed code",
+    "docker": "json-file max-size10m max-file3 each service, capacity not guaranteed days"
+  },
+  "limits": [
+    "No new product tests run because no product code changed",
+    "No fresh remote raw DB/log sweep; current source and last verified deployment evidence only",
+    "No legal retention policy determined; retention periods require separate scoped decision",
+    "No Telegram/email sent, no SSH/firewall changes"
+  ],
+  "officialSources": [
+    {
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html",
+      "checked": "2026-10-22",
+      "applied": "who/what/when/where, interaction linking, administrative actions, protected/redacted logs and retention"
+    },
+    {
+      "url": "https://docs.docker.com/engine/logging/drivers/json-file/",
+      "checked": "2026-10-22",
+      "applied": "per-container stdout/stderr, max-size/max-file rotation and oldest file removal"
+    },
+    {
+      "url": "https://caddyserver.com/docs/caddyfile/directives/log",
+      "checked": "2026-10-22",
+      "applied": "log directive enables HTTP access logs; runtime output alone does not imply access logging"
+    }
+  ]
+}
