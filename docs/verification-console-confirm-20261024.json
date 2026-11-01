@@ -1,0 +1,62 @@
+{
+  "recordedAt": "2026-10-24T05:52:52.849460+00:00",
+  "request": "Operator reviews via email; simple grant/revoke application with retained history; deploy admin console.",
+  "decision": "Existing deployed workflow matches; no additional application/review form, runtime change or redeploy necessary.",
+  "repository": "/Users/ethan/repository/crefans_admin",
+  "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+  "dirty": true,
+  "live": {
+    "checkedAt": "2026-10-24T05:52:12.283736+00:00",
+    "runtime": {
+      "admin": {
+        "image": "sha256:86e609c20d911559f579ebd8e2b582064380d7bf1a11922a2a477a5db59496a6",
+        "running": true,
+        "restartCount": 0,
+        "OOMKilled": false
+      },
+      "api": {
+        "image": "sha256:3948975eae18b8b560367bf7d3aacf22db1d4c504870e364a4171748065b243b",
+        "running": true,
+        "restartCount": 0,
+        "OOMKilled": false
+      }
+    },
+    "loginHttpStatus": 200
+  },
+  "sourceSha256": {
+    "admin/src/components/console/Console.tsx": "60027bc9b9dd56673555de4b8bcc7860a622d914e89327ffa82c1b43ae53aa61",
+    "admin/src/components/console/Logs.tsx": "b51251243ad11baf4e3639450c6d5a1466f668e99e7f9e4da42f8c11593c17c6",
+    "admin/e2e/console.spec.ts": "ff4e8686ecd5d0a76adf63878c86f29376b751912590840e8808d0059088ab56",
+    "server/src/platform/admin.controller.ts": "b42480fd26d1f9d2b729c0f64756c1b9535ce42037f1a928721f4b5076b6e4e3",
+    "server/src/platform/audit.ts": "2f00a361947a3aa0614b35fe3611ac679c30a4c4fc031092731564c2fb4d1935",
+    "server/tests/platform-admin-console.test.cjs": "0d221985156ae3be783245b29a9fcc5975ed5931608a41cf3ba74844d5de8017"
+  },
+  "verification": {
+    "commands": [
+      "ssh: docker inspect admin/api image ID, State.Running, State.OOMKilled, RestartCount (read only)",
+      "HTTPS GET https://admin.crefans.com/login",
+      "Read deployed-source-equivalent grant/revoke control, transaction/audit writer and prior passing tests"
+    ],
+    "exitCodes": [
+      0,
+      0,
+      0
+    ],
+    "priorEvidence": "../crefans_front/docs/audit/creator-verification-deployment-20261024.json",
+    "priorTestsNotRerun": "API23/admin5/isolated admin E2E1 passed in preceding deployment; same live images reconfirmed.",
+    "mutationAuditFields": [
+      "actor_id",
+      "actor_role",
+      "occurred_at",
+      "entity_id",
+      "ip",
+      "request_id",
+      "metadata.before.is_verified",
+      "metadata.after.is_verified"
+    ],
+    "limits": [
+      "No real creator grant/revoke performed; production creators=0 at deployment.",
+      "This turn verifies already-deployed feature and records workflow policy; no new runtime image deployed."
+    ]
+  }
+}

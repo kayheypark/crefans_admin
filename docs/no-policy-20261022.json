@@ -1,0 +1,144 @@
+{
+  "at": "2026-10-21T16:55:30.848220+00:00",
+  "scope": "Remove entire privacy and policy editor section from admin; keep financial policy and support notice/FAQ editor",
+  "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+  "dirty": true,
+  "sources": {
+    "src/components/console/Console.tsx": "c1d18c9bfaf11abf28f059c1ad7c71a69eda026ff14ed32cd1e573a2bfaed708",
+    "src/app/globals.css": "8c05f1e7b090ce95e872041e807b0d7166f68f2ec42e51bbafe339b484c42de1",
+    "e2e/console.spec.ts": "96615aea10e1d47733eb4c56388a713fb12c6969e6d3a7e6977d315064559607",
+    "AGENTS.md": "aa6a67568a9a093e7fffdbe53c22503bcbb4ec15ed0bd160d595a9af0f9f45bb",
+    "README.md": "1e51fd4a8514af49c219a03b906c397606b3f6825c924de3022ab0005e3ce6e9"
+  },
+  "verification": [
+    {
+      "command": "npm run check",
+      "exit": 0,
+      "result": "types and3 units PASS"
+    },
+    {
+      "command": "npm run test:e2e -- --grep 'real login, six menus'",
+      "exit": 0,
+      "result": "1 real-main/isolatedDB browser scenario PASS: finance present, legal editor absent, notice/FAQ present"
+    }
+  ],
+  "limits": [
+    "Service legal content/API/DB not migrated or deleted",
+    "No legal wording authored",
+    "No new log tracking features implemented"
+  ],
+  "deployment": {
+    "image": "crefans-admin:no-policy-20261022",
+    "id": "sha256:aa18880856214d2cc7578a837db5b333f932b44ae0a4315dc1c56cd4c4a9896f",
+    "url": "https://admin.crefans.com/console/settings",
+    "imageBuildExit": 0,
+    "deployExit": 0,
+    "archive": {
+      "sha256": "92dc663367e0e79c2737fb6ab3d4f546dd9dba70495bef9e04b0099d82bf2004",
+      "matched": true
+    },
+    "public": {
+      "at": "2026-10-21T16:56:30.315108+00:00",
+      "tlsVerified": true,
+      "checks": [
+        {
+          "url": "https://admin.crefans.com/brand/crefans-logo.svg",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/fonts/OFL.txt",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/login",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/console/revenue",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/admin/dashboard?days=7",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://beta.crefans.com/api/v1/admin/dashboard",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/admin/me",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/admin/revenue",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://admin.crefans.com/.env",
+          "status": 404,
+          "expected": 404
+        },
+        {
+          "url": "https://admin.crefans.com/runtime.env",
+          "status": 404,
+          "expected": 404
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/auth/signup",
+          "status": 404,
+          "expected": 404
+        },
+        {
+          "url": "https://beta.crefans.com/api/v1/admin/revenue",
+          "status": 401,
+          "expected": 401
+        },
+        {
+          "url": "https://beta.crefans.com/api/v1/health",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://beta.crefans.com/service/feed",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://beta.crefans.com/preview/landing",
+          "status": 200,
+          "expected": 200
+        },
+        {
+          "url": "https://admin.crefans.com/api/v1/auth/login",
+          "status": 403,
+          "expected": 403,
+          "case": "untrusted Origin"
+        }
+      ]
+    },
+    "ssh": {
+      "temporaryRuleRemoved": true,
+      "baselineRestored": true
+    },
+    "onlyAdminRecreated": true,
+    "backup": "/opt/crefans-backup-admin-no-policy-20261022",
+    "browser": "Authenticated Chrome shows only financial policy and change history; legal section and editor absent",
+    "screenshot": "docs/screenshots/no-policy-live.png",
+    "earlyReadiness": "one transient502 followed by successful bounded retry"
+  },
+  "completedAt": "2026-10-21T16:56:53.852058+00:00",
+  "logHashes": {
+    "/tmp/crefans-no-policy-check.log": "ba83a4468c684e9eac11e0458bd4299d60cb97784d22751dd502b41a0ac3cb93",
+    "/tmp/crefans-no-policy-e2e.log": "ad9f3c7614467f9c6a75619f1d9a2e16518e14c8cd1c38cae804f3ed2012da8c",
+    "/tmp/crefans-no-policy-image.log": "7fa0f837887731cb75b25c2a1c9c88cf31d03a564167057ba3523800c7591e84",
+    "/tmp/crefans-no-policy-doc-check.log": "bbfb03197e1e978fbf0060880f9e1144f3e5d4bea2ecc314471539328932b6e6"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "mode": "built-in image_gen",
+  "referenceSession": {
+    "id": "6aa465b3-1284-83ee-b06e-a9adb4022365",
+    "title": "로고 시안 질문"
+  },
+  "referenceAsset": "public/brand/crefans-logo.svg",
+  "referenceRendering": "SVG rendered at 2x to PNG without changing artwork",
+  "lightPrompt": "Edit the attached adopted Crefans logo into the admin console logo. Exact wordmark text must be lowercase \"console\", replacing \"crefans\" entirely. Preserve the original asymmetric two-petal heart symbol exactly in shape and orientation: left petal pink-to-purple, right petal periwinkle-to-purple, with its clear diagonal cut. Preserve the same premium friendly rounded bold geometric sans wordmark style and dark navy ink (#222534), with a single horizontal lockup, symbol on the left, wordmark on the right. Match the reference's visual weight, baseline, close spacing and symbol-to-type ratio. Flat crisp professional brand artwork, no extra icon, no tagline, no second label, no borders, no shadow, no mockup. Real transparent alpha background, not white and not a checkerboard painted into the image. High resolution. Fit the whole lockup in a wide horizontal canvas with very little transparent padding, ideally about 5.4:1 width to height. The output is a production UI asset used at 120px display width, so clean legibility and exact spelling \"console\" are essential.",
+  "refinementPrompt": "Use case: precise-object-edit. Clean up the attached console logo for production use. Preserve the exact lowercase word \"console\", letter shapes, proportions, dark navy fill, pink/lilac/periwinkle two-petal heart, and horizontal layout. The only change is edge quality: remove all white, hot-magenta or cyan fringe pixels and rough noisy outlines around the symbol and lettering. Make clean smooth anti-aliased edges and flat uniform dark navy lettering, like carefully exported vector artwork. Genuine transparent alpha background. Keep entire symbol visible with no clipping. Keep the same composition and canvas aspect ratio. Do not add elements, do not change the spelling, no white backdrop, no checkerboard.",
+  "selectedOutput": "public/brand/console-logo.png",
+  "application": "Original generated PNG alpha preserved. CSS frames transparent vertical padding; dark mode uses a white silhouette of the same image."
+}

@@ -1,0 +1,37 @@
+{
+  "evidence": "../crefans_front/docs/audit/creator-verification-20261024.json",
+  "checks": [
+    {
+      "repo": "admin",
+      "command": "npm run check",
+      "completedAt": "2026-10-24T05:21:42.800089+00:00",
+      "exitCode": 0,
+      "summary": "types +5 tests PASS",
+      "log": "/tmp/crefans-admin-verification-check.log",
+      "logSha256": "1c553a6ef474de87799cc8872848fd58a76b22bb1a8c13fd9189e13f4f6c97a2"
+    },
+    {
+      "repo": "admin",
+      "command": "npm run build:verify",
+      "completedAt": "2026-10-24T05:28:19.326349+00:00",
+      "exitCode": 0,
+      "summary": "isolated .next-build production build PASS",
+      "log": "/Users/ethan/repository/crefans_admin/.local/creator-verification-20261024/build.log",
+      "logSha256": "912654abd0f8ed225c47474a1c60f49172052f7ee1ad565f5a51ea64598849b6"
+    },
+    {
+      "repo": "admin",
+      "command": "npm run test:e2e -- --grep 'creator badge'",
+      "completedAt": "2026-10-24T05:24:33.142628+00:00",
+      "exitCode": 0,
+      "summary": "1 Playwright test PASS; real isolated API/DB; confirm cancel, failure, grant, reload, public profile true, revoke/public false, audit pair",
+      "log": "/tmp/crefans-admin-verification-e2e.log",
+      "logSha256": "441bc1052d29d20fc5fb43cd2df62fc97f59fba67e60349849baf3e0e575d6d2"
+    }
+  ],
+  "sourceSha256": {
+    "admin/src/components/console/Console.tsx": "60027bc9b9dd56673555de4b8bcc7860a622d914e89327ffa82c1b43ae53aa61",
+    "admin/e2e/console.spec.ts": "ff4e8686ecd5d0a76adf63878c86f29376b751912590840e8808d0059088ab56"
+  },
+  "deployment": "not deployed"
+}

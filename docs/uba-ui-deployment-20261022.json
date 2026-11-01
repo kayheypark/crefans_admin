@@ -1,0 +1,175 @@
+{
+  "recordedAt": "2026-10-21T16:25:08.881135+00:00",
+  "repository": "/Users/ethan/repository/crefans_admin",
+  "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+  "branch": "feat/operator-console",
+  "workingTree": "uncommitted implementation; previous user changes preserved",
+  "sourceSha256": {
+    "src/app/globals.css": "c1a61af6327dcc4782eced86f65bddbe3476a2fb4bb1874bf6aa1d88bf61863c",
+    "src/app/login/page.tsx": "05f7e8f3b8b343052806d8c92b52313a2c98c691750cb3e7091f4b3580874c87",
+    "src/components/console/Console.tsx": "c1306c84b68d880648882b3496c79b2139b52cb5480d52b4d3eb3e3d57342bfb",
+    "src/components/console/Brand.tsx": "0e92de6069ce9238b0ab7fe1f5841683269a7b61a560042c5b2451cc677d3116",
+    "src/components/console/ConsoleIcon.tsx": "9f268b0b1cd6bf6c3bc272d2af9ddd6f6b45d488b98c0ed38eb6b885af2a664a",
+    "Dockerfile": "1155e4a466c115c3264e28d6a55b8d22666d8381ac47dac9cea616bc49ca6448",
+    "e2e/console.spec.ts": "3e70234b6a7e6610cb4351ac904f491fa139862ccb1c05d0437d500345dff3f2",
+    "public/brand/crefans-mark.svg": "1503cfc8da52f7fd7bf619b299b0c89af80a115369a37c6167f2e126146400d5",
+    "public/brand/crefans-logo-inverse.svg": "c0063b0f7468a9ae00a7ff7d6d73f5f2999dab98ed436c33c7f700e5d601f851",
+    "public/brand/crefans-logo.svg": "85a3a166adb3b66c00984d2ece3192228a1a3967adea3dce65ee55e33b601330",
+    "public/fonts/ibm-plex-sans-kr-korean-700-normal.woff2": "08ef18d9aac1bbc7dbf69ddeb793cd8288e77589576cab604176ccbfd224e4f3",
+    "public/fonts/ibm-plex-sans-kr-korean-400-normal.woff2": "e314e0181981858de181984148755444b0bc032874a1096d107a777ad105de5c",
+    "public/fonts/ibm-plex-mono-latin-500-normal.woff2": "01d285447409c8a588692162439a038b8cbd7871309ee20267b0d2d91c6e8e22",
+    "public/fonts/OFL.txt": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+    "public/fonts/ibm-plex-sans-kr-latin-400-normal.woff2": "071c7c06a3fe2346fd2f4034c762cd0dc79a5021da100ef14401fc07814b279e",
+    "public/fonts/ibm-plex-sans-kr-latin-700-normal.woff2": "3c498859a3afc136095360f97379858cd0f563729698c0abd951931554216a2f"
+  },
+  "reference": {
+    "repository": "/Users/ethan/repository/uba_front",
+    "readOnly": true,
+    "files": {
+      "app/app.css": "a33f4919bb65afac2bbf43ec2765790367fddf51f7a0bd4612303fae1a101407",
+      "app/components/AppNav.vue": "f3938b505f7c4c324a3aaf4317a8c1accb37b9ae2423d5c50e66cd17da41472b",
+      "app/ui/UiStats.vue": "c77577db09adcaca84893fa09061481c8cbb3b0f9763e93aa9303c2985e8c913",
+      "app/ui/UiTable.vue": "9c60b00d506f38b7cd14c008afc98ae947df3529a493db0a1e7e782693214f0f",
+      "app/ui/UiPageHead.vue": "1dade0a26b4808d64ae4235702aae9dda26058125e4aa7cf9f2038f6bde240ce"
+    }
+  },
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "TypeScript + unit 3/3 passed"
+    },
+    {
+      "command": "npm run test:e2e",
+      "exitCode": 0,
+      "result": "6/6 passed, real main API and isolated MySQL; dark/mobile/collapsible rail checked"
+    },
+    {
+      "command": "Docker linux/amd64 production build",
+      "exitCode": 0,
+      "result": "Next standalone build succeeded"
+    },
+    {
+      "command": "local readonly nonroot image smoke",
+      "exitCode": 0,
+      "result": "login + 7 static assets + 4 brand/font/license checks HTTP200"
+    },
+    {
+      "command": "remote deploy.sh",
+      "exitCode": 0,
+      "result": "admin only replaced, all other service IDs unchanged"
+    },
+    {
+      "command": "python3 .local/aws-beta/admin-uba-release/check-public.py",
+      "exitCode": 0,
+      "result": "14 TLS verified checks passed"
+    },
+    {
+      "command": "Chrome production session reload, collapse/expand",
+      "result": "authenticated real revenue page, new UBA layout and sidebar verified",
+      "screenshot": "screenshots/uba-console-live.png"
+    }
+  ],
+  "deployment": {
+    "url": "https://admin.crefans.com/console",
+    "image": "crefans-admin:uba-ui-20261022",
+    "imageDigest": "sha256:4134d32623c844265d1ae8e7657bfa7d25d90ce68ffa7a9720684e2ae74165f2",
+    "archiveSha256": "d7098b47c680e64d43c0b7bad5ad6306cbfc9f63eb5f8b501760cb9fdbe2fed3",
+    "remoteArchiveMatched": true,
+    "onlyAdminContainerChanged": true,
+    "backup": "/opt/crefans-backup-admin-uba-20261022",
+    "temporarySshRevoked": true,
+    "baselineIngressCount": 3,
+    "remoteUploadArchiveRemoved": true,
+    "readiness": "transient 502 immediately after recreate; bounded readiness succeeded and final public checks passed"
+  },
+  "publicChecks": {
+    "at": "2026-10-21T16:24:18.622499+00:00",
+    "tlsVerified": true,
+    "checks": [
+      {
+        "url": "https://admin.crefans.com/brand/crefans-logo.svg",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/fonts/OFL.txt",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/login",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/console/revenue",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/me",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://admin.crefans.com/.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/runtime.env",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/signup",
+        "status": 404,
+        "expected": 404
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/admin/revenue",
+        "status": 401,
+        "expected": 401
+      },
+      {
+        "url": "https://beta.crefans.com/api/v1/health",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/service/feed",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://beta.crefans.com/preview/landing",
+        "status": 200,
+        "expected": 200
+      },
+      {
+        "url": "https://admin.crefans.com/api/v1/auth/login",
+        "status": 403,
+        "expected": 403,
+        "case": "untrusted Origin"
+      }
+    ]
+  },
+  "screenshots": {
+    "docs/screenshots/uba-console-populated.png": "daf7f566c82253bfbad463388f4eca590111e8167f6ebc1afc8e33e5577d2b55",
+    "docs/screenshots/uba-console-mobile-dark.png": "9089c275f637a7dac2afeee31b7087a2073ebbc3a18413a2cbd8de210b819005",
+    "docs/screenshots/uba-console-live.png": "b4ac907a88a0b766921d6aa15e8cab7eeddb308d86ca94f52c6992441bd96b96",
+    "docs/screenshots/uba-console-dark.png": "de1e6bea778d664684210f3232ab22229768797ccf21690c96263456eb94661c",
+    "docs/screenshots/uba-console-desktop.png": "31aea2b067679ddbf961628f284143b24fe4a8f4998e5b9f54c6db6ac28f0c86"
+  },
+  "limitations": [
+    "UI scope; no fresh full backend regression or real payment/provider verification",
+    "No auth, financial policy, database schema or service frontend runtime changes",
+    "Existing unimplemented moderation/payment reconciliation scope remains"
+  ]
+}

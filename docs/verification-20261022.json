@@ -1,0 +1,174 @@
+{
+  "recordedAt": "2026-10-21T15:55:38.165673+00:00",
+  "scope": "Independent admin repository runtime plus guarded v1 admin reporting APIs. No production deploy, external financial transaction or mail.",
+  "repos": {
+    "admin": {
+      "path": "/Users/ethan/repository/crefans_admin",
+      "head": "7928cb6fc70c27bbcb8f5ec4a760023a5ffda01c",
+      "branch": "feat/operator-console",
+      "dirty": true,
+      "sourceSha256": {
+        "src/components/console/Console.tsx": "2ae2b23011326599cd38f4973e46f79247030787d62cb6178da75a00c58489b3",
+        "src/lib/console-api.ts": "5ca6c239ddf7dfecf12cf429bdd76b75c8a08c2867e7ab8cb02cfd0cea2872bd",
+        "src/app/login/page.tsx": "f89566c1b07ada99b68cb73f39ca62cb77bd54402ea6f39f4b052f19752e4829",
+        "src/app/layout.tsx": "cd6663a6157814e6b23041f841660b02cb9c4227b35f6dcb3b9972f3016e6f55",
+        "src/app/globals.css": "7fe0a6d5eb32b97afc77ea7d2bcfbbf08b9bf437b164d2c9169e3fa776f78ac8",
+        "src/app/console/[[...section]]/page.tsx": "d28bab62c2137d0036b426e4340c1e752ce4b273e3f335b71f944e7d8d43d983",
+        "next.config.mjs": "e88cb2351c1bb54f6ea17f36978dfad11949985cfc5b1f2a431c1129fdf3e40f",
+        "package.json": "3cf8849e41a9492014e3302fd5f1ac1f8bc0e3462ef9ac195d89b4102e2fc846",
+        "package-lock.json": "115dcfe85b19a5d55eb31a4155ee43a07bdf5f3cc1a3632c88f26ca160cbf2e6",
+        "tests/console-api.test.cjs": "138e508c31cdc91cd8294907d80142df870fd1aa21a87c66710b069fe8abe958",
+        "e2e/console.spec.ts": "05f001388291547c29e6987acdd2c6ee72cb4fd62cbec86a5c03fdf78e036ae2",
+        "playwright.config.ts": "9e407a9d5066fc1affc3bd8940a7aeb37bbc6e30afbc1be9c7c6c15f6861b305"
+      }
+    },
+    "server": {
+      "path": "/Users/ethan/repository/crefans_server",
+      "head": "c100a3af5a5508adb0e6ba521d2e5238fb5f1ff1",
+      "branch": "feat/operations-security",
+      "dirty": true,
+      "sourceSha256": {
+        "src/platform/admin-console.ts": "1d5fc97114bdf48e65d3e39e3de91cf41fb817df10e0b54526044494b13a92a0",
+        "src/platform/admin.controller.ts": "72d2b65b6da95ef0f9523a5c372b0f62c62ece036fd671db060e772e4e2022ad",
+        "src/platform/main.ts": "4a801ff0261b75939bc6906614dee53457a4253ad8ca5e71ef893ad63e687f3b",
+        "tests/platform-admin-console.test.cjs": "4cca8377aeee5824ae49ba8180f99006284e8bcd1acc6d5dc0bc23cbaf5c71a3",
+        "tests/admin-console-server.cjs": "fcf155e7bb3cac5bf1fa2ded37ef744f448a645b37b230bec28507922570041b",
+        "prisma/schema.prisma": "9370f1e00ad355158864618cbe9590616a0440e9ff3a7e232bb5da0307d28c45"
+      }
+    },
+    "front": {
+      "path": "/Users/ethan/repository/crefans_front",
+      "head": "dc3d663e63c7b22bb57dc8c198af2ab6d963488a",
+      "branch": "feat/operations-security",
+      "dirty": true,
+      "sourceSha256": {}
+    }
+  },
+  "verification": [
+    {
+      "command": "server: npm run build",
+      "exitCode": 0,
+      "result": "Nest build PASS",
+      "completedAt": "2026-10-21T15:48:28.297478+00:00",
+      "logSha256": "7aa1638731242a1ef372b25af70d8e696bbb2cf4a43de8594e5172824ec1cad2",
+      "privateLocalLog": "/tmp/crefans-admin-api-build.log",
+      "resultExcerpt": "\n> crefans_server@1.0.0 build\n> nest build\n"
+    },
+    {
+      "command": "server: CREFANS_E2E=true node --test --test-concurrency=1 tests/platform-admin-console.test.cjs tests/platform-financial-policy.test.cjs",
+      "exitCode": 0,
+      "result": "16 PASS / 0 FAIL / 0 SKIP, isolated real MySQL DB",
+      "completedAt": "2026-10-21T15:50:34.041444+00:00",
+      "logSha256": "2be62b47a2994f3e6b17bf62999e9d62220a5378ef409f2e6deb89a60d19b5e0",
+      "privateLocalLog": "/tmp/crefans-admin-test.log",
+      "resultExcerpt": "  ...\n1..16\n# tests 16\n# suites 0\n# pass 16\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 1981.42875"
+    },
+    {
+      "command": "admin: npm run check",
+      "exitCode": 0,
+      "result": "TypeScript + API client unit tests 3 PASS",
+      "completedAt": "2026-10-21T15:55:22.253379+00:00",
+      "logSha256": "c9bce622d178c76dbb86ceb9daffcabc1eb48570b972cd12291404c2c3b33765",
+      "privateLocalLog": "/tmp/crefans-admin-check.log",
+      "resultExcerpt": "  ...\n1..3\n# tests 3\n# suites 0\n# pass 3\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 187.857375"
+    },
+    {
+      "command": "admin: npm run build:verify",
+      "exitCode": 0,
+      "result": "Next15.5.28 production build PASS (.next-build)",
+      "completedAt": "2026-10-21T15:53:46.340480+00:00",
+      "logSha256": "9f8fa7d43ede6cab89cef6bb633837e77e79b40cf430949f0e0b60ae74e653b8",
+      "privateLocalLog": "/tmp/crefans-admin-build.log",
+      "resultExcerpt": "└ ○ /users                                 137 B         103 kB\n+ First Load JS shared by all             103 kB\n  ├ chunks/255-b1e2483a7e02feee.js       46.6 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n"
+    },
+    {
+      "command": "admin: npm run test:e2e",
+      "exitCode": 0,
+      "result": "4 Chromium PASS: real API/DB auth/revenue/write/Origin, simulated API503 negative control, small viewport",
+      "completedAt": "2026-10-21T15:53:52.351290+00:00",
+      "logSha256": "79698c65cf614f4030b2349ba909254674254788cb8a7cdbc1e7958cadcc314e",
+      "privateLocalLog": "/tmp/crefans-admin-e2e.log",
+      "resultExcerpt": "[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)\n\nRunning 4 tests using 1 worker\n\n  ✓  1 e2e/console.spec.ts:5:5 › anonymous is sent to login, ordinary member is denied (2.5s)\n  ✓  2 e2e/console.spec.ts:6:5 › real login, six menus, actual database revenue, period and detail views (1.5s)\n  ✓  3 e2e/console.spec.ts:15:5 › inquiry reply persists and report resolution is audited, API failure is not a zero fallback (1.8s)\n  ✓  4 e2e/console.spec.ts:20:5 › small viewport preserves navigation and zero data state (988ms)\n\n  4 passed (11.8s)"
+    },
+    {
+      "command": "git diff --check (admin/server)",
+      "exitCode": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "front: git diff --name-only -- app components features lib types",
+      "exitCode": 0,
+      "result": "empty; service/preview runtime source unchanged"
+    },
+    {
+      "command": "curl local admin /login, /api/v1/admin/me and service3010/service/feed",
+      "exitCode": 0,
+      "result": "200 / 401 / 200 respectively"
+    },
+    {
+      "command": "front: npm run docs:contracts && npm run docs:record && npm run check:docs",
+      "exitCode": 0,
+      "result": "PASS; 56 documents, 91 routes, snapshot-only document freshness; not product test proof"
+    }
+  ],
+  "securityDependencyAudit": {
+    "runtime": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "allIncludingDev": {
+      "info": 0,
+      "low": 0,
+      "moderate": 2,
+      "high": 8,
+      "critical": 0,
+      "total": 10
+    },
+    "commands": [
+      "npm audit --omit=dev --json (exit0)",
+      "npm audit --json (exit1; remaining development transitive advisories)"
+    ],
+    "note": "No claim of vulnerability-free deployment. Unused legacy dependencies remain. Next15.5.28 and PostCSS8.5.31 override verified by build/E2E."
+  },
+  "negativeControls": [
+    "anonymous401, fan/inactive admin403 on every new route",
+    "MODERATOR403 on financial endpoints",
+    "invalid date/SQL payload/repeated params/page/overlong range400",
+    "API503 displays error and no fake zero",
+    "untrusted Origin403 with authenticated session",
+    "two concurrent report writes produce201 and409, only one audit event",
+    "failed refresh/malformed response are errors; parallel401 shares one refresh"
+  ],
+  "revenueBasis": {
+    "currency": "KRW",
+    "timezone": "Asia/Seoul",
+    "basis": "approval-cohort-current-ledger",
+    "dateField": "CheckoutOrder.paid_at",
+    "refunds": "current ledger reversal attributed to original approval period",
+    "fees": "before PG costs/tax; not profit",
+    "environment": "test/live not distinguished by current ledger; may include test payments",
+    "maxDays": 366,
+    "creatorPageSize": 20
+  },
+  "screenshots": {
+    "revenue-desktop.png": "9e444a68d973e8f104c0eb02315ffe2f53e2fc30787e991c6b815c6a5ebabb03",
+    "revenue-mobile.png": "978d3ac53e14a0fca93926f11ed2e7cad078ca68c11166f66fbb4187338bcec1"
+  },
+  "initialFailures": [
+    "Next14 initial build failed explicit-any lint; annotated the intentionally dynamic table record and rebuilt.",
+    "Initial E2E2 failures: generic alert locator also matched Next announcer. Scoped error alert locator; all4 tests rerun PASS.",
+    "Dependency audit detected old Next vulnerabilities; updated15.5.28 and same-major PostCSS override, reran build and browser tests."
+  ],
+  "limitations": [
+    "No operator production deployment or live operator role assignment.",
+    "No actual PG settlement reconciliation/payment/refund/remittance or external mail/Telegram.",
+    "No member suspension, content hide/restore, admin protected-media inspection, or granular account roles UI in initial release.",
+    "No refund-date cashflow, tax accounting or profit statement; no PG test/live split.",
+    "Full previous162-test suite not rerun; targeted tests + real-main E2E cover this change.",
+    "Admin docs are outside existing front/server document checker inventory; independently hashed here."
+  ]
+}
