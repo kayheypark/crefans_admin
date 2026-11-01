@@ -10,7 +10,7 @@ import {ConfirmDialog} from './TypedConfirm';
 type Person={id:string;nickname:string;email:string};
 type Referral={id:string;referrer:Person;member:Person;status:string;rewardQuantity:number;source:string|null;dueAt:string|null;rewardedAt:string|null;clawedBackAt:string|null;createdAt:string};
 type List={enabled:boolean;summary:Record<string,{count:number;beans:number}>;items:Referral[];total:number;page:number;pageSize:number};
-const statusNames:Record<string,string>={pending:'첫 결제 전',qualified:'확정 대기(7일)',granted:'지급 완료',clawed_back:'회수',capped:'월 상한 초과'};
+const statusNames:Record<string,string>={pending:'첫 결제 전',qualified:'확정 대기(7일)',granted:'지급 완료',clawed_back:'회수',capped:'월 상한 초과',forfeited:'소멸'};
 const sources:Record<string,string>={checkout:'멤버십',bean_charge:'콩 충전'};
 const day=(v:string|null)=>v?new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(v)):'-';
 const person=(p:Person)=><span>{p.nickname}<br/><small className="muted">{p.email||p.id}</small></span>;
@@ -21,7 +21,7 @@ export function Referrals({canUpdate}:{canUpdate:boolean}){
  const enabled=state.data?.enabled===true;
  async function toggle(){if(busy)return;setBusy(true);setMessage('');try{const r=await api<{message:string}>('/admin/referrals/settings',{enabled:!enabled},'PUT');setMessage(r.message);setConfirming(false);state.reload();}catch(e){setMessage(e instanceof Error?e.message:'저장하지 못했습니다.');}finally{setBusy(false);}}
  return <section className="referrals"><h2>레퍼럴 관리</h2>
-  <div className="notice"><p>직접 초대한 회원에게만, 초대받은 회원의 첫 실결제 7일 뒤(환불되지 않은 경우) 출금 가능한 프로모션콩 100개를 지급합니다. 추천인당 한 달 최대 10건, 환불되면 회수합니다. 테스트 결제는 지급하지 않습니다.</p></div>
+  <div className="notice"><p>직접 초대한 회원에게만, 초대받은 회원의 첫 실결제 7일 뒤(환불되지 않은 경우) 후원에만 쓸 수 있는 프로모션콩 100개(출금 불가)를 지급합니다. 추천인당 한 달 최대 10건, 일부라도 환불되면 남은 보상을 회수하고(이미 후원에 쓴 몫은 회사 부담), 지급 시점에 비활성인 추천인은 소멸 처리합니다. 테스트 결제는 지급하지 않습니다.</p></div>
   {state.data&&<div className="actions referral-switch"><strong>친구 초대 보상: {enabled?'켜짐':'꺼짐'}</strong>{canUpdate&&<button type="button" disabled={busy} onClick={()=>setConfirming(true)}>{enabled?'끄기':'켜기'}</button>}</div>}
   {message&&<p role="status" className="muted">{message}</p>}
   {confirming&&<ConfirmDialog title={enabled?'친구 초대 보상을 끌까요?':'친구 초대 보상을 켤까요?'} onCancel={()=>{if(!busy)setConfirming(false);}}>{enabled?<p>새 초대 가입과 새 보상 자격이 멈춥니다. 이미 확정 대기 중인 보상도 지급되지 않습니다.</p>:<p>레퍼럴 링크로 운영자 초대 없이 가입할 수 있게 되고, 첫 실결제 7일 뒤 출금 가능한 콩이 지급됩니다. 약관·처리방침 개정본 시행 후에 켜세요.</p>}<div className="actions"><button type="button" disabled={busy} onClick={()=>setConfirming(false)}>취소</button><button type="button" disabled={busy} onClick={()=>void toggle()}>{enabled?'끄기':'켜기'}</button></div></ConfirmDialog>}
