@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useRef,useState,type FormEvent} from 'react';
+import {useRef,useState,type FormEvent} from 'react';
 import {api} from '@/lib/console-api';
 import {State,useData} from './ConsoleData';
 import {useSnackbar} from './Snackbar';
@@ -11,8 +11,9 @@ const previewOrder=['라이프스타일','뷰티','코스프레','피트니스',
 export function Categories({canCreate,canUpdate=false}:{canCreate:boolean;canUpdate?:boolean}){
  const state=useData<Category[]>('/admin/categories'),snackbar=useSnackbar();
  const [name,setName]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),submitting=useRef(false);
- const [ordered,setOrdered]=useState<Category[]>([]),[editing,setEditing]=useState<Category|null>(null);
- useEffect(()=>{if(state.data)setOrdered(state.data);},[state.data]);
+ const [ordered,setOrdered]=useState<Category[]>([]),[editing,setEditing]=useState<Category|null>(null),[synced,setSynced]=useState<Category[]|null>(null);
+ // Loading rule: rows appear in the same render as the response (an effect left one frame of the empty message).
+ if(state.data&&state.data!==synced){setSynced(state.data);setOrdered(state.data);}
  const changed=!!state.data&&ordered.some((row,i)=>row.id!==state.data?.[i]?.id);
  async function run(work:()=>Promise<void>){
   if(submitting.current)return;submitting.current=true;setBusy(true);setError('');
