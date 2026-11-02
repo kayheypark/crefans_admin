@@ -41,3 +41,5 @@
 - 새 작업은 최신 `origin/prod`에서 `feat/<작업명>` 생성 → `dev` 통합·검증 → `prod` 승격한다. `dev`에서 새 작업을 분기하지 않는다.
 - dev/prod 직접 기능 개발·prod 직행·force push 금지. 기본 PR, 사용자 직접 통합 요청은 같은 순서의 로컬 merge와 일반 push 허용.
 - 실행 방법·증거 기준은 `docs/branch-workflow.md`. prod 반영과 운영 배포는 별개다.
+
+- 예약 핸들 관리는 `/console/reserved-handles`, 독립 `reserved-handles` 권한을 사용한다. 후보는 차단하지 않고 예약 중만 신규 취득을 막으며 기존 보유자 유지·이전 핸들 보호를 명시한다. 삭제는 공통 TypedConfirmDialog와 서버 정확 입력 검사, 변경 사유·버전·이력을 함께 사용한다.

@@ -1,3 +1,11 @@
+## 2026-11-03 예약 핸들 관리 — 로컬 완료·미배포
+- origin/prod602cecf → feat/reserved-handles, 서버 짝 crefans_server-reserved-handles(d4238d9). /console/reserved-handles 메뉴·운영자 권한표 연결. 기존 콘솔 필터·표/모바일 가로 스크롤·portal 모달·스낵바 재사용.
+- 승인된 초기103개는 서버 migration에서 예약 중으로 저장. 후보/예약 중/삭제됨, 검색·20개 페이지·사용 여부 표시, 추가·편집·예약/해제·삭제·복구·처리자 이름/시각/사유/버전 이력. 삭제는 사유+핸들 직접 입력이 필요하며 입력 미완성 상태에도 취소 가능. 공유 TypedConfirmDialog에 confirmDisabled 옵션 추가(기본false).
+- 합격 조건을 실제 확인: npm run check 타입+11단위 PASS, npm run build:verify 12페이지 PASS(기존 Brand/Categories img 경고3개 유지). PC Chromium2·iPhone13 WebKit2 총4 E2E PASS. 생애주기2건은 격리 실제 API/DB, 읽기/무권한2건은 명시적 API 대역. 페이지·등록·새로고침 보존·예약/삭제/복구·서버 충돌·이력·권한·빈 결과·문서 가로 넘침 없음 확인.
+- 최초4건 실패: 상태 select의 접근성 이름이 옵션까지 합쳐져 aria-label을 명시하고 권한 오류 검사는 Next route announcer를 제외한 main alert로 좁혔다. 수정 후4/4 통과. PC·모바일 목록/편집/삭제/이력/빈 결과 캡처 검토. 모바일 실기기 검증은 미실행.
+- 증거: [검증 기록](docs/reserved-handles-20261103.json), 상세 .local/reserved-handles-20261103/, test-results/reserved-handles/. 서버 빌드·예약/기존 핸들/OpenAPI24건 통과 및 예약 차단 무효화 대조6실패→복원24통과.
+- 다음: 요청 시 서버 DB migration·API/worker와 함께 dev→prod 검증 후 배포. 현재 feature 커밋 준비, 미푸시·미통합·미배포이며 기존 작업 보존.
+
 # 진행 상태
 
 ## 2026-11-01 저녁 /pilot-work 결정 동기화 (커밋 완료·배포 대기)
