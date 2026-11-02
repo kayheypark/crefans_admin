@@ -1,7 +1,7 @@
 import {defineConfig} from '@playwright/test';
 import {randomBytes} from 'node:crypto';
 import path from 'node:path';
-const server=path.resolve('../crefans_server');
+const server=path.resolve(process.env.CREFANS_SERVER_DIR||'../crefans_server');
 process.env.ADMIN_E2E_PASSWORD=process.env.ADMIN_E2E_PASSWORD||randomBytes(24).toString('base64url');
 process.env.ADMIN_E2E_EMAIL=process.env.ADMIN_E2E_EMAIL||`admin-${randomBytes(8).toString('hex')}@console-test.invalid`;
 export default defineConfig({testDir:'./e2e',workers:1,fullyParallel:false,timeout:60000,expect:{timeout:15000},forbidOnly:!!process.env.CI,retries:0,reporter:[['list'],['html',{open:'never'}]],use:{baseURL:'http://127.0.0.1:3003',trace:'retain-on-failure',screenshot:'only-on-failure'},webServer:[

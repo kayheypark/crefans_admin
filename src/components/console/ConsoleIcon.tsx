@@ -1,4 +1,5 @@
 const paths:Record<string,string[]>={
+ 'reserved-handles':['M5 10h14v11H5z','M8 10V7a4 4 0 0 1 8 0v3','M12 14v3'],
  advertising:['M3 10v4h4l9 5V5L7 10H3','M7 14l2 7h3l-2-6','M20 9v6'],
  overview:['M4 11 12 4l8 7','M6 10v10h12V10'],
  invites:['M4 6h16v12H4z','m4 7 8 6 8-6'],

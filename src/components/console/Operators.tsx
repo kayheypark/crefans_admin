@@ -13,6 +13,7 @@ export const permissionMenus:[string,string,Record<string,string>][]=[
  ['advertising','광고상품',{view:'상품·주문 조회',create:'상품 등록',update:'상품·노출·판매 수정',delete:'상품 소프트 삭제'}],
  ['overview','대시보드',{view:'지표 조회'}],
  ['members','회원·크리에이터',{view:'목록·개별 조건·제한 이력 조회',update:'인증 배지·광고 노출·이용 제한·개별 조건 변경(조건은 운영 설정 변경 권한도 필요)'}],
+ ['reserved-handles','예약 핸들 관리',{view:'목록·사용 여부·변경 이력 조회',create:'후보·예약 등록',update:'후보 수정·예약·해제·복구',delete:'예약 핸들 삭제'}],
  ['invites','초대 회원',{view:'초대 목록 조회',create:'초대 등록',update:'초대 메모·조건 수정',delete:'초대 취소'}],
  ['referrals','레퍼럴 관리',{view:'레퍼럴 목록 조회',create:'회원 레퍼럴 링크 생성',update:'친구 초대 보상 켜기·끄기'}],
  ['content','콘텐츠·신고',{view:'게시물·신고·활동 분야·조치 이력 조회',create:'활동 분야 추가',update:'신고 처리·게시물 숨김·활동 분야 상태 변경'}],

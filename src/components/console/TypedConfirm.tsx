@@ -16,7 +16,7 @@ export function ConfirmDialog({title,onCancel,children}:{title:string;onCancel:(
  * turns on. Cancel has default focus so Enter never confirms by accident. The server should check the
  * same phrase too; `onConfirm` receives the typed value to send along.
  */
-export function TypedConfirmDialog({title,phrase,actionLabel,busyLabel='처리 중…',busy=false,error,onCancel,onConfirm,children}:{title:string;phrase:string;actionLabel:string;busyLabel?:string;busy?:boolean;error?:string;onCancel:()=>void;onConfirm:(typed:string)=>void;children?:React.ReactNode}){
+export function TypedConfirmDialog({title,phrase,actionLabel,busyLabel='처리 중…',busy=false,confirmDisabled=false,error,onCancel,onConfirm,children}:{title:string;phrase:string;actionLabel:string;busyLabel?:string;busy?:boolean;confirmDisabled?:boolean;error?:string;onCancel:()=>void;onConfirm:(typed:string)=>void;children?:React.ReactNode}){
  const [typed,setTyped]=useState(''),help=useId(),matched=typed===phrase;
  const particle=objectParticle(phrase).slice(phrase.length);
  return <ConfirmDialog title={title} onCancel={()=>{if(!busy)onCancel();}}>
@@ -24,6 +24,6 @@ export function TypedConfirmDialog({title,phrase,actionLabel,busyLabel='처리 �
   <label><span>계속하려면 <strong>{phrase}</strong>{particle} 그대로 입력하세요</span><input value={typed} onChange={e=>setTyped(e.target.value)} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} aria-describedby={help}/></label>
   <p id={help} className="muted">띄어쓰기까지 정확히 같아야 버튼이 켜집니다.</p>
   {error&&<p role="alert" className="error">{error}</p>}
-  <div className="actions dialog-actions"><button type="button" autoFocus onClick={onCancel} disabled={busy}>취소</button><button type="button" className="primary" disabled={busy||!matched} onClick={()=>{if(matched)onConfirm(typed);}}>{busy?busyLabel:actionLabel}</button></div>
+  <div className="actions dialog-actions"><button type="button" autoFocus onClick={onCancel} disabled={busy}>취소</button><button type="button" className="primary" disabled={busy||confirmDisabled||!matched} onClick={()=>{if(matched&&!busy&&!confirmDisabled)onConfirm(typed);}}>{busy?busyLabel:actionLabel}</button></div>
  </ConfirmDialog>;
 }
