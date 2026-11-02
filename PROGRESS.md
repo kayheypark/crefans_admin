@@ -709,3 +709,7 @@
 ### 원격 통합 완료 확인
 - dev→prod 승격 및 dev fast-forward 동기화 완료. 최초 검증 SHA `3468ab65a3317abca51cc8582c93a8be9b122ce6`: 로컬 dev/prod와 origin/dev/origin/prod 동일, 미커밋 없음 확인. 본 완료 기록도 같은 작업 브랜치→dev→prod 순서로 통합한다.
 - 최종 검사: 프론트488/관리자11 단위와 타입·백엔드빌드 통과, 문서75개 계약/링크 검사 및 검사기 대조검사 통과. 문서 증거는 snapshot-only로 전체 제품 QA 증명이 아님. 다음 새 작업은 최신 origin/prod에서 새 feat 브랜치를 만든다. 이전 작업트리는 보존했으며 그 위치에서 후속 작업할 때도 이 지침을 적용한다.
+
+## 2026-11-03 미배포 콘솔 통합·검증
+- origin/dev602cecf에 예약핸들 관리91bc8cb와 콩 후원·출금 빈 상태2448f72를 통합. 기존 미커밋 작업이 있는 주 작업트리는 보존. AGENTS 규약 유지.
+- npm run check: TypeScript 및 단위13건 통과. 과거 실제 격리API 예약핸들 E2E와 빈 표 E2E 증거는 각 커밋의 docs JSON 참조. 운영은 기존referral-20261102이며 API 예약 핸들 migration과 함께 배포 예정.
