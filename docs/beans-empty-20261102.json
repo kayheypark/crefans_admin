@@ -1,0 +1,156 @@
+{
+  "verifiedAt": "2026-11-02T14:19:24.784569+00:00",
+  "repository": "crefans_admin",
+  "worktree": "/Users/ethan/repository/crefans_admin-beans-empty",
+  "branch": "feat/beans-empty-states",
+  "baselineCommit": "602cecfa7daba567756d2a3a1146877f9616a0fe",
+  "statusAtVerification": [
+    " M src/components/console/Beans.tsx",
+    "?? e2e/beans-empty.config.ts",
+    "?? e2e/beans-empty.spec.ts",
+    "?? src/components/console/TableContent.tsx",
+    "?? tests/table-content.test.cjs"
+  ],
+  "environment": {
+    "os": "macOS-15.2-arm64-arm-64bit-Mach-O",
+    "node": "v22.7.0",
+    "framework": "Next.js 15.5.24; React 18; local dev browser API fixtures"
+  },
+  "requirements": [
+    "Every table rendered on /console/beans has an explicit successful-empty notice.",
+    "Existing centered .empty style; no mobile horizontal overflow for empty states.",
+    "Initial/pending/error states do not falsely report no data; prior nonempty rows survive refresh.",
+    "Missing optional aggregates remain unavailable, not zero or empty; existing zero-valued groups remain rows.",
+    "Later empty pages identify current page; permissions and financial mutations unchanged."
+  ],
+  "inventory": [
+    {
+      "label": "미수금",
+      "count": "state.data.length",
+      "pending": "state.loading||!!state.error",
+      "message": "\"미수금이 없습니다.\""
+    },
+    {
+      "label": "충전 집계",
+      "count": "sum.chargeGroups.length",
+      "pending": "data.loading||!!data.error",
+      "message": "\"충전 집계 내역이 없습니다.\""
+    },
+    {
+      "label": "후원 유형별 사용량",
+      "count": "sum.tipSourceGroups?.length??0",
+      "pending": "data.loading||!!data.error",
+      "message": "{sum.tipSourceGroups?'후원 유형별 사용 내역이 없습니다.':'후원 유형별 집계 정보를 확인할 수 없습니다.'}"
+    },
+    {
+      "label": "출금 집계",
+      "count": "sum.payoutGroups.length",
+      "pending": "data.loading||!!data.error",
+      "message": "\"출금 집계 내역이 없습니다.\""
+    },
+    {
+      "label": "출금 재원별 집계",
+      "count": "sum.payoutFundingGroups?.length??0",
+      "pending": "data.loading||!!data.error",
+      "message": "{sum.payoutFundingGroups?'출금 재원별 집계 내역이 없습니다.':'출금 재원 집계를 확인할 수 없습니다.'}"
+    },
+    {
+      "label": "충전 주문·입금 대사",
+      "count": "data.data.charges.length",
+      "pending": "data.loading||!!data.error",
+      "message": "{page>1?'현재 페이지에 충전 주문이 없습니다.':'충전 주문이 없습니다.'}"
+    },
+    {
+      "label": "후원 이동 내역",
+      "count": "data.data.tips.length",
+      "pending": "data.loading||!!data.error",
+      "message": "{page>1?'현재 페이지에 후원 이동 내역이 없습니다.':'후원 이동 내역이 없습니다.'}"
+    },
+    {
+      "label": "콩 출금 신청",
+      "count": "data.data.payouts.length",
+      "pending": "data.loading||!!data.error",
+      "message": "{page>1?'현재 페이지에 콩 출금 신청 내역이 없습니다.':'콩 출금 신청 내역이 없습니다.'}"
+    },
+    {
+      "label": "회원 지갑 이동 내역",
+      "count": "wallet.data.entries.length",
+      "pending": "wallet.loading||!!wallet.error",
+      "message": "{walletPage>1?'현재 페이지에 콩 이동 내역이 없습니다.':'콩 이동 내역이 없습니다.'}"
+    }
+  ],
+  "inventoryCheck": "TypeScript AST visits every table in Beans.tsx and requires a TableContent ancestor, count/pending/message props and one of the exact 9 accessible labels.",
+  "excluded": [
+    "ManualPayouts.tsx is rendered on the separate revenue page, not /console/beans.",
+    "Stock metrics, tip totals paragraph and wallet source-lot paragraphs are not tables.",
+    "No backend, financial policy, permission policy, production API or deployment changes."
+  ],
+  "sourceSha256": {
+    "src/components/console/Beans.tsx": "422f11aabdd97a4c2442a1b1696b83e3695209afa363e67a95cc0619500e50ef",
+    "src/components/console/TableContent.tsx": "cfcaf9deed6d18833b9137ccf33d1acc6e9b244bf43419037d3e4ba4735cd091",
+    "tests/table-content.test.cjs": "1f0b2909deab1e4c453cf473428c2281fe73b89f04e16fec7a00bfb682dcea2f",
+    "e2e/beans-empty.spec.ts": "dffbf3adb8f866272b2779f188244da6e8582924e255a34ff286569f575950be",
+    "e2e/beans-empty.config.ts": "5289657afbd17fa04245d098defc90ea911627368a4cc0619af846fba3db69a5"
+  },
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "log": ".local/beans-empty-20261102/check-final.log",
+      "logCreatedAt": "2026-11-02T14:13:20.853893+00:00",
+      "logUpdatedAt": "2026-11-02T14:13:23.708431+00:00",
+      "result": "TypeScript PASS; unit tests 13/13 PASS"
+    },
+    {
+      "command": "npx playwright test --config=e2e/beans-empty.config.ts",
+      "exitCode": 0,
+      "log": ".local/beans-empty-20261102/browser.log",
+      "logCreatedAt": "2026-11-02T14:13:34.571219+00:00",
+      "logUpdatedAt": "2026-11-02T14:15:47.305315+00:00",
+      "result": "PC Chromium 5/5, mobile WebKit iPhone 13 viewport 5/5 PASS"
+    },
+    {
+      "command": "npx playwright test --config=e2e/beans-empty.config.ts --grep 'all nine|populated tables'",
+      "exitCode": 0,
+      "log": ".local/beans-empty-20261102/screenshots.log",
+      "logCreatedAt": "2026-11-02T14:16:50.834458+00:00",
+      "logUpdatedAt": "2026-11-02T14:17:00.883889+00:00",
+      "result": "Final top-of-page screenshots: PC/mobile 4/4 PASS"
+    },
+    {
+      "command": "npm run build:verify",
+      "exitCode": 0,
+      "log": ".local/beans-empty-20261102/build.log",
+      "logCreatedAt": "2026-11-02T14:16:15.518970+00:00",
+      "logUpdatedAt": "2026-11-02T14:16:24.394320+00:00",
+      "result": "Next.js build PASS; static pages 12/12; three existing no-img-element warnings in Brand/Categories"
+    }
+  ],
+  "negativeControl": {
+    "startedAt": "2026-11-02T14:14:05.285746+00:00",
+    "finishedAt": "2026-11-02T14:14:05.531630+00:00",
+    "command": "node --test tests/table-content.test.cjs (baseline Beans.tsx in isolated directory)",
+    "exitCode": 1,
+    "expected": "inventory test rejects original unwrapped tables; behavior test passes"
+  },
+  "initialFailure": {
+    "result": "First browser run 6 passed / 4 failed",
+    "cause": "Test harness only: React dev StrictMode initiated a second request; first-only delay immediately returned success for that request. Also the loading veil parent has height:0; the visible spinner child is the proper target.",
+    "fix": "Delay all initial requests until explicit release, mark successful retry separately, and assert spinner child visibility. Rerun 10/10 passed.",
+    "log": ".local/beans-empty-20261102/browser-first.log"
+  },
+  "screenshots": {
+    "pc-empty": ".local/beans-empty-20261102/pc-empty.png",
+    "pc-populated": ".local/beans-empty-20261102/pc-populated.png",
+    "mobile-empty": ".local/beans-empty-20261102/mobile-empty.png",
+    "mobile-populated": ".local/beans-empty-20261102/mobile-populated.png"
+  },
+  "manualVisualReview": "PC/mobile empty-state screenshots inspected: consistent centered panels, legible text, no clipped empty messages. Populated tables retain horizontal scrolling.",
+  "limitations": [
+    "Browser API responses are synthetic fixtures; no authenticated production API tested.",
+    "Mobile viewport WebKit is not a physical iPhone.",
+    "Full backend/database financial E2E not rerun for this display-only change.",
+    "Not merged into dev/prod, pushed, or deployed."
+  ],
+  "evidenceAfterCommit": ".local/beans-empty-20261102/final-state.json"
+}
