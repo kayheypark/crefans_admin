@@ -4,6 +4,7 @@ async function fixture(page:Page,permissions:Record<string,Record<string,boolean
  await page.route('**/api/v1/admin/**',async route=>{const url=new URL(route.request().url()),method=route.request().method(),body=method==='GET'?null:route.request().postDataJSON();calls.push({method,path:url.pathname,query:url.search,body});let data:any={};
   if(url.pathname.endsWith('/me'))data={id:'operator',name:'검수',role:'ADMIN',permissions};
   else if(url.pathname.endsWith('/referrals/settings')){enabled=body.enabled;data={enabled,message:enabled?'친구 초대 보상을 켰습니다.':'친구 초대 보상을 껐습니다.'};}
+  else if(url.pathname.endsWith('/revoke'))data={message:'남은 보상 콩을 회수했습니다.'};
   else if(url.pathname.endsWith('/referrals'))data={enabled,summary:{pending:{count:1,beans:0},qualified:{count:0,beans:0},granted:{count:1,beans:100},clawed_back:{count:0,beans:0},capped:{count:0,beans:0}},items:[{id:'r1',referrer:{id:'m1',nickname:'하늘',email:'sky@example.invalid'},member:{id:'m2',nickname:'바다',email:'sea@example.invalid'},status:'granted',rewardQuantity:100,source:'bean_charge',dueAt:null,rewardedAt:'2026-11-01T00:00:00Z',clawedBackAt:null,createdAt:'2026-10-20T00:00:00Z'}],total:1,page:1,pageSize:20};
   else if(url.pathname.endsWith('/referral'))data={code:'00000000-0000-4000-8000-000000000001',link:'https://crefans.com/service/signup?ref=00000000-0000-4000-8000-000000000001',enabled,memberActive:true};
   else if(url.pathname.endsWith('/members'))data={items:[{id:'m1',nickname:'하늘',email:'sky@example.invalid',creator:null,enabled:true,status:'CONFIRMED',created_at:'2026-10-29T00:00:00Z'}],total:1,page:1};
@@ -32,3 +33,15 @@ test('레퍼럴 링크 복사: 성공은 하단 스낵바, 비활성 안내 보�
  await page.getByRole('button',{name:'알림 닫기'}).click();await expect(snack).toHaveCount(0);await copy.click();await expect(snack).toBeVisible();await expect(snack).toHaveCount(0,{timeout:6000});
  await page.evaluate(()=>{(window as any).denyCopy=true;});await copy.click();await expect(page.locator('.referral-link').getByRole('alert')).toContainText('복사하지 못했습니다.');await expect(snack).toHaveCount(0);
 });
+
+test('부정 초대 회수: 사유를 적어야 회수되고, 권한이 없으면 버튼이 없다 (API 대역)',async({page},info)=>{
+ // 2026-11-02 user decision: the console must be able to exclude or reclaim before the switch is turned on.
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));const calls=await fixture(page,full);await page.goto('/console/referrals');
+ const row=page.getByRole('row').filter({hasText:'바다'});await row.getByRole('button',{name:'보상 회수',exact:true}).click();
+ const dialog=page.getByRole('dialog');await expect(dialog).toContainText('아직 쓰지 않은 만큼을 회사로 되돌립니다');
+ const confirm=dialog.getByRole('button',{name:'회수',exact:true});await expect(confirm).toBeDisabled();
+ await dialog.getByLabel('사유(운영 기록)').fill('같은 기기 다중 가입');await page.screenshot({path:info.outputPath('referral-revoke.png')});await confirm.click();
+ await expect(page.getByText('남은 보상 콩을 회수했습니다.')).toBeVisible();
+ expect(calls.find(c=>c.method==='POST'&&c.path.endsWith('/referrals/r1/revoke'))?.body).toEqual({reason:'같은 기기 다중 가입'});expect(errors).toEqual([]);
+});
+test('회수 권한(referrals.update)이 없으면 처리 열이 없다 (API 대역)',async({page})=>{await fixture(page,{referrals:{view:true},members:{view:true}});await page.goto('/console/referrals');await expect(page.getByRole('cell',{name:/바다/})).toBeVisible();await expect(page.getByRole('button',{name:/보상 (회수|제외)/})).toHaveCount(0);});
