@@ -1,4 +1,22 @@
+## 2026-11-03 예약 핸들 관리 — 로컬 완료·미배포
+- origin/prod602cecf → feat/reserved-handles, 서버 짝 crefans_server-reserved-handles(d4238d9). /console/reserved-handles 메뉴·운영자 권한표 연결. 기존 콘솔 필터·표/모바일 가로 스크롤·portal 모달·스낵바 재사용.
+- 승인된 초기103개는 서버 migration에서 예약 중으로 저장. 후보/예약 중/삭제됨, 검색·20개 페이지·사용 여부 표시, 추가·편집·예약/해제·삭제·복구·처리자 이름/시각/사유/버전 이력. 삭제는 사유+핸들 직접 입력이 필요하며 입력 미완성 상태에도 취소 가능. 공유 TypedConfirmDialog에 confirmDisabled 옵션 추가(기본false).
+- 합격 조건을 실제 확인: npm run check 타입+11단위 PASS, npm run build:verify 12페이지 PASS(기존 Brand/Categories img 경고3개 유지). PC Chromium2·iPhone13 WebKit2 총4 E2E PASS. 생애주기2건은 격리 실제 API/DB, 읽기/무권한2건은 명시적 API 대역. 페이지·등록·새로고침 보존·예약/삭제/복구·서버 충돌·이력·권한·빈 결과·문서 가로 넘침 없음 확인.
+- 최초4건 실패: 상태 select의 접근성 이름이 옵션까지 합쳐져 aria-label을 명시하고 권한 오류 검사는 Next route announcer를 제외한 main alert로 좁혔다. 수정 후4/4 통과. PC·모바일 목록/편집/삭제/이력/빈 결과 캡처 검토. 모바일 실기기 검증은 미실행.
+- 증거: [검증 기록](docs/reserved-handles-20261103.json), 상세 .local/reserved-handles-20261103/, test-results/reserved-handles/. 서버 빌드·예약/기존 핸들/OpenAPI24건 통과 및 예약 차단 무효화 대조6실패→복원24통과.
+- 다음: 요청 시 서버 DB migration·API/worker와 함께 dev→prod 검증 후 배포. 현재 feature 커밋 준비, 미푸시·미통합·미배포이며 기존 작업 보존.
+
 # 진행 상태
+
+## 2026-11-02 콩 후원·출금 표 9개 no-data 안내 (로컬 완료·미배포)
+- 요청/합격 기준: `/console/beans`에 포함된 모든 표에서 성공한 빈 응답을 기존 가운데 정렬 `.empty` 디자인으로 표시한다. 로딩·오류·집계 미제공을 빈 내역과 구분하고 PC·모바일에서 확인한다.
+- 범위: 충전 집계, 후원 유형별 사용량, 출금 집계, 출금 재원별 집계, 충전 주문·입금 대사, 후원 이동, 콩 출금 신청, 미수금, 회원 지갑 이동 이력 등 9개. 다른 매출·정산 페이지의 ManualPayouts와 비표 형태 지표는 제외한다.
+- 구현: `TableContent`로 빈 상태를 통일하고 모든 표에 접근 가능한 이름을 추가했다. 기존 데이터가 있으면 갱신 중에도 행을 유지한다. 2페이지 이후 빈 내역은 ‘현재 페이지’로 명시하며, 선택적 집계 필드 미제공은 ‘확인할 수 없습니다’로 구분한다. 금액·지급·환불·권한·API는 변경하지 않았다.
+- 검증: `npm run check` TypeScript·13/13 단위 통과, PC Chromium/모바일 WebKit(iPhone 13 화면) 대역 API 브라우저 10/10 통과, 최종 캡처 재검사 4/4 통과, `npm run build:verify` 12페이지 빌드 통과. 기존 Brand/Categories img 경고 3건 유지. 원본 Beans 사본은 표 누락 검사에서 실패하는 대조 확인. 실제 운영 데이터 조작 0건이며 물리 iPhone·운영 인증 금융 검증은 하지 않았다.
+- 초기 브라우저 실패 4건은 StrictMode 중복 조회 대역과 높이 0 스피너 부모 선택 오류를 보정 후 통과. 실패 로그를 보존했다. PC·모바일 no-data 캡처 육안 확인 완료.
+- 증거: `docs/beans-empty-20261102.json`, `.local/beans-empty-20261102/`의 로그·캡처·대조 결과·커밋 후 상태. 기준 origin/prod `602cecfa7daba567756d2a3a1146877f9616a0fe`, 작업 `feat/beans-empty-states`, 작업트리 `/Users/ethan/repository/crefans_admin-beans-empty`. 주 체크아웃의 기존 미커밋 PROGRESS는 보존했다.
+- 남은 작업: 사용자 운영 반영 요청 시 dev 통합 검증 → prod 승격 → 배포. 이번 요청은 개선이며 배포는 실행하지 않았다.
+
 
 ## 2026-11-01 저녁 /pilot-work 결정 동기화 (커밋 완료·배포 대기)
 - 결정(클릭 답): 보상 출금 불가·남은 만큼 회수·일부 환불 전체 회수(약관 명시 예정)·비활성 소멸·상한 초과 종결·내역 고지·부정 문구 완화, 원천징수는 회사가 플랫폼 수수료 안에서 부담, 가이드 틀린3+누락5, SEO 새 주소+301·www→apex, 로딩 일괄 정리, 업로드 상한+감시, 재시도+안내, 오프사이트 백업 나중에, 관리자 수수료 그대로.
@@ -691,3 +709,7 @@
 ### 원격 통합 완료 확인
 - dev→prod 승격 및 dev fast-forward 동기화 완료. 최초 검증 SHA `3468ab65a3317abca51cc8582c93a8be9b122ce6`: 로컬 dev/prod와 origin/dev/origin/prod 동일, 미커밋 없음 확인. 본 완료 기록도 같은 작업 브랜치→dev→prod 순서로 통합한다.
 - 최종 검사: 프론트488/관리자11 단위와 타입·백엔드빌드 통과, 문서75개 계약/링크 검사 및 검사기 대조검사 통과. 문서 증거는 snapshot-only로 전체 제품 QA 증명이 아님. 다음 새 작업은 최신 origin/prod에서 새 feat 브랜치를 만든다. 이전 작업트리는 보존했으며 그 위치에서 후속 작업할 때도 이 지침을 적용한다.
+
+## 2026-11-03 미배포 콘솔 통합·검증
+- origin/dev602cecf에 예약핸들 관리91bc8cb와 콩 후원·출금 빈 상태2448f72를 통합. 기존 미커밋 작업이 있는 주 작업트리는 보존. AGENTS 규약 유지.
+- npm run check: TypeScript 및 단위13건 통과. 과거 실제 격리API 예약핸들 E2E와 빈 표 E2E 증거는 각 커밋의 docs JSON 참조. 운영은 기존referral-20261102이며 API 예약 핸들 migration과 함께 배포 예정.
