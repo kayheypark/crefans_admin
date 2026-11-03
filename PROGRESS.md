@@ -1,3 +1,9 @@
+## 2026-11-04 미배포 광고상품·미니멀 워터마크 운영 배포 완료
+- dev→prod front615ee06/serveraf99bc3/admin0011cca. 운영 front/api/worker/admin minimal-bundle-20261104. 기본상품 특가제외·제목18px, 콘솔/프론트 상품명 동일 형식, 미니멀 워터마크40%/2%/3%/외곽선없음 반영. DB migration 없음·DB/proxy 유지·기존미디어 재변환 없음.
+- front운영빌드·admin운영빌드 통과, 소스해시/운영키·배포6서비스 running/restarts0/OOMfalse. 배포공용preview PC Chromium/iPhone WebKit 기본4+특가4·중복없음·제목18px·상품명·안내열기닫기·팬이동 통과. API운영이미지 격리컨테이너 실사진 렌더링565변경픽셀(119~183), 영상미니멀인자 확인. 이전로컬 영상/사진4·프론트9·콘솔14 통과. 실계정콘솔/실업로드/실PG 미검증.
+- 최초배포스크립트 로컬문법검사 줄바꿈오류로 SSH전중단, 수정후 배포성공. 복구이미지3개1.14GB·설정6파일 로컬전용보관 및 OCI/tag/blob·파일SHA검증. 완료후 이전3이미지·이번임시3폴더만 제거. 운영 여유12816658432bytes. 복구 /Users/ethan/crefans-recovery/20261104/minimal-bundle.
+- 증거 front docs/audit/minimal-bundle-20261104.json 및 .local/minimal-bundle-release/. 운영 runtime은 위 소스커밋이며 이후 문서커밋은 런타임 변경 아님. 아래 미배포 기록은 해결된 이력.
+
 ## 2026-11-04 광고상품명 프론트 표기 통일 (미배포)
 - 최신 origin/prod에서 feat/advertising-product-names. 목록·수정폼 초기값·저장 payload·삭제 확인에 advertisingTitle 사용. 기간2배 기존 이름은 총기간을 반씩 나눈 주목할 크리에이터 (n일+n일), 기존 괄호 이름은 앞 공백 통일. 일반/사용자 지정 이름 유지. 가격·기간·이력 변경 없음. 운영 DB 일괄 수정 없음, 폼 저장 시 이름 반영.
 - npm run check 종료0: 타입검사+단위14 통과. 총2/4/6/14/60일, 일반 이름/홀수기간 보존 검증. 콘솔 실운영 브라우저 미검증·미배포. 프론트 짝 crefans_front-kakao-identity에도 괄호 앞 공백 반영.
