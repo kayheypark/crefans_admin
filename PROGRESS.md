@@ -1,3 +1,7 @@
+## 2026-11-04 광고상품명 프론트 표기 통일 (미배포)
+- 최신 origin/prod에서 feat/advertising-product-names. 목록·수정폼 초기값·저장 payload·삭제 확인에 advertisingTitle 사용. 기간2배 기존 이름은 총기간을 반씩 나눈 주목할 크리에이터 (n일+n일), 기존 괄호 이름은 앞 공백 통일. 일반/사용자 지정 이름 유지. 가격·기간·이력 변경 없음. 운영 DB 일괄 수정 없음, 폼 저장 시 이름 반영.
+- npm run check 종료0: 타입검사+단위14 통과. 총2/4/6/14/60일, 일반 이름/홀수기간 보존 검증. 콘솔 실운영 브라우저 미검증·미배포. 프론트 짝 crefans_front-kakao-identity에도 괄호 앞 공백 반영.
+
 ## 2026-11-03 기간 2배 광고 이벤트 상품 — 운영 배포·4종 등록 완료
 - 사용자 확정: 일반1/3/7/30일 유지, 이벤트2/6/14/60일=3,900/11,700/27,300/117,000원(VAT 포함). 같은 기간 기준가7,800/23,400/54,600/234,000원 대비50%. 기간은 이미 혜택을 포함한 총기간이며 재차2배/기존 구매 소급 적용하지 않는다.
 - feat/advertising-event-products→dev 통합·검증→prod. 기능 승격 server01bec50/front532796c/admin803d8fc. 운영은 API·worker·front·admin advertising-event-20261103. DB 백업 후 추가형 migration20261103180000_ad_product_comparison_price 적용(운영 총51개). 프론트 파일해시·API/worker 소스/Prisma·공개4경로200·기존상품 불변·설정 보존·DB/proxy 컨테이너 불변 검증.

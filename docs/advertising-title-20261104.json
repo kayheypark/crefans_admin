@@ -1,0 +1,13 @@
+{
+  "time": "2026-11-04T06:47:00.217141+09:00",
+  "baseCommit": "7ca235c4b61a29c909887f73346e5bd0d73e3238",
+  "state": "uncommitted; not deployed",
+  "command": "npm run check",
+  "exitCode": 0,
+  "result": "typecheck and 14 unit tests pass; no live console/browser validation",
+  "files": {
+    "src/components/console/Advertising.tsx": "54723381890d237cca673e36943beeee7e5ae77de4fdee3c4cc6e31a655e7009",
+    "src/lib/advertising-title.ts": "8829ac7123da9f6a1a7bdd975fb563edf8f662e152b75947405af2cb7989a03b",
+    "tests/advertising-title.test.cjs": "b20f90a6ca4e8ef6ceaebabc20d02d1cd126b40a1ae4c1ec5b5b270ffd3f3787"
+  }
+}
