@@ -1,0 +1,2 @@
+import {defineConfig,devices} from '@playwright/test';
+export default defineConfig({testDir:'./e2e',testMatch:'authenticator-launch.spec.ts',workers:1,reporter:'list',use:{baseURL:'http://127.0.0.1:3046'},projects:[{name:'desktop',use:{browserName:'chromium'}},{name:'iphone',use:{...devices['iPhone 13'],browserName:'webkit'}}],webServer:{command:'NEXT_DIST_DIR=.next-authenticator npx next dev -H 127.0.0.1 -p 3046',url:'http://127.0.0.1:3046/login',reuseExistingServer:false,timeout:120000}});
