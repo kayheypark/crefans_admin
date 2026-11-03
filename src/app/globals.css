@@ -295,6 +295,13 @@ button.danger{color:var(--danger)}
 .category-toolbar{margin:20px 0 12px}.category-order{flex-wrap:nowrap}.category-order button{min-width:44px;min-height:44px;padding:4px 10px;font-size:20px}
 .category-order span{min-width:22px}.category-icon{width:32px;height:32px;object-fit:contain;vertical-align:middle}.category-table td:nth-child(3){min-width:100px}
 .category-icon-preview{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border:1px solid var(--border);border-radius:12px}.category-icon-preview img{width:80px;height:80px;object-fit:contain}
+.category-drag-help{margin:0 0 12px;font-size:12px}
+.category-table td{vertical-align:middle}
+.category-order .category-drag-handle{display:inline-flex;align-items:center;justify-content:center;padding:8px;border-color:transparent;background:transparent;color:var(--text-3);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.category-order .category-drag-handle:hover:not(:disabled){background:var(--brand-soft);color:var(--brand)}
+.category-order .category-drag-handle:disabled{cursor:default;touch-action:auto}
+.category-table .category-row-dragging{position:relative;z-index:1;background:var(--brand-soft);box-shadow:0 2px 8px #00000014}
+.category-row-dragging .category-drag-handle{cursor:grabbing;color:var(--brand)}
 
 /* Referral management uses the existing console surfaces, metrics and controls. */
 .referral-intro{margin:-2px 0 20px;color:var(--text-3);font-size:13px}
