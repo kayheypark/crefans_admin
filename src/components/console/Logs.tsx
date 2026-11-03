@@ -1,4 +1,5 @@
 'use client';
+import {EmptyState} from './EmptyState';
 import {useRef,useState} from 'react';
 import {useData,State} from './ConsoleData';
 import {ConfirmDialog} from './TypedConfirm';
@@ -25,7 +26,7 @@ export function Logs(){
  </form>
  <p className="notice">한국 시간 기준 · 최대 366일 · 비밀값과 본문은 기록하지 않습니다. 동일 요청·대상·배치 기록은 상세에서 확인할 수 있습니다.</p>
  <State {...state}/>
- {state.data&&<>{state.data.items.length?<div className="table-wrap"><table className="log-table"><thead><tr>{['시각','분류','수준','이벤트','접속 IP','상태','소요','상세'].map(v=><th key={v}>{v}</th>)}</tr></thead><tbody>{state.data.items.map(row=><tr key={row.id}><td>{date(row.at)}</td><td>{categories[row.category]||row.category}</td><td><span className={'log-level '+row.level}>{levels[row.level]||row.level}</span></td><td><code>{row.action}</code></td><td>{row.ip||'시스템'}</td><td>{row.status??'—'}</td><td>{row.durationMs===null?'—':row.durationMs+'ms'}</td><td><button onClick={e=>{e.currentTarget.focus({preventScroll:true});setSelected(row.id);}} aria-label={`${row.action} 상세`}>상세</button></td></tr>)}</tbody></table></div>:<p className="empty">조건에 맞는 로그가 없습니다.</p>}
+ {state.data&&<>{state.data.items.length?<div className="table-wrap"><table className="log-table"><thead><tr>{['시각','분류','수준','이벤트','접속 IP','상태','소요','상세'].map(v=><th key={v}>{v}</th>)}</tr></thead><tbody>{state.data.items.map(row=><tr key={row.id}><td>{date(row.at)}</td><td>{categories[row.category]||row.category}</td><td><span className={'log-level '+row.level}>{levels[row.level]||row.level}</span></td><td><code>{row.action}</code></td><td>{row.ip||'시스템'}</td><td>{row.status??'—'}</td><td>{row.durationMs===null?'—':row.durationMs+'ms'}</td><td><button onClick={e=>{e.currentTarget.focus({preventScroll:true});setSelected(row.id);}} aria-label={`${row.action} 상세`}>상세</button></td></tr>)}</tbody></table></div>:<EmptyState>조건에 맞는 로그가 없습니다.</EmptyState>}
  <div className="pager"><span>총 {state.data.total.toLocaleString()}건</span><button disabled={page<=1} onClick={()=>setPage(v=>v-1)}>이전</button><span>{page} / {Math.max(1,Math.ceil(state.data.total/state.data.pageSize))}</span><button disabled={page*state.data.pageSize>=state.data.total} onClick={()=>setPage(v=>v+1)}>다음</button></div></>}
  {selected&&<LogDetail id={selected} onClose={()=>setSelected(null)} onSelect={setSelected}/>}
  </>;

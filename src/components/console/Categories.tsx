@@ -1,4 +1,5 @@
 'use client';
+import {EmptyState} from './EmptyState';
 import {useId,useLayoutEffect,useRef,useState,type FormEvent,type SetStateAction} from 'react';
 import {DndContext,KeyboardSensor,PointerSensor,closestCenter,useSensor,useSensors,type DragEndEvent,type KeyboardCoordinateGetter,type PointerSensorProps} from '@dnd-kit/core';
 import {SortableContext,arrayMove,sortableKeyboardCoordinates,useSortable,verticalListSortingStrategy} from '@dnd-kit/sortable';
@@ -116,7 +117,7 @@ export function Categories({canCreate,canUpdate=false}:{canCreate:boolean;canUpd
    onDragOver:({active,over})=>over?`${categoryName(active.id)}, ${position(over.id)}번째 위치입니다.`:undefined,
    onDragEnd:({active,over})=>!over?'순서 이동을 취소했습니다.':active.id===over.id?'순서를 변경하지 않았습니다.':`${categoryName(active.id)} 순서를 ${position(over.id)}번째로 이동했습니다. 순서 저장을 눌러 반영해 주세요.`,
    onDragCancel:()=> '순서 이동을 취소했습니다.'
-  }}}><div className="table-wrap"><table ref={tableRef} className="category-table" aria-label="활동 분야 목록"><thead><tr><th>순서</th><th>아이콘</th><th>분야 이름</th><th>상태</th>{canUpdate&&<th>관리</th>}</tr></thead><SortableContext items={ordered.map(row=>row.id)} strategy={verticalListSortingStrategy}><tbody>{ordered.map((category,index)=><CategoryRow key={category.id} category={category} index={index} count={ordered.length} canUpdate={canUpdate} dragDisabled={dragDisabled} controlsDisabled={controlsDisabled} editDisabled={locked} motionOrigins={motionOrigins} onMove={move} onEdit={row=>{setEditing({...row});setError('');}}/>)}</tbody></SortableContext></table></div></DndContext>:<p className="empty">등록된 활동 분야가 없습니다.</p>)}
+  }}}><div className="table-wrap"><table ref={tableRef} className="category-table" aria-label="활동 분야 목록"><thead><tr><th>순서</th><th>아이콘</th><th>분야 이름</th><th>상태</th>{canUpdate&&<th>관리</th>}</tr></thead><SortableContext items={ordered.map(row=>row.id)} strategy={verticalListSortingStrategy}><tbody>{ordered.map((category,index)=><CategoryRow key={category.id} category={category} index={index} count={ordered.length} canUpdate={canUpdate} dragDisabled={dragDisabled} controlsDisabled={controlsDisabled} editDisabled={locked} motionOrigins={motionOrigins} onMove={move} onEdit={row=>{setEditing({...row});setError('');}}/>)}</tbody></SortableContext></table></div></DndContext>:<EmptyState>등록된 활동 분야가 없습니다.</EmptyState>)}
   {editing&&<ConfirmDialog title="활동 분야 편집" onCancel={()=>{if(!busy){setEditing(null);setError('');}}}><form className="editor" onSubmit={save}>
    <label>분야 이름<input required maxLength={40} value={editing.name} disabled={busy} onChange={e=>setEditing({...editing,name:e.target.value})}/></label>
    <label className="check"><input type="checkbox" checked={editing.active} disabled={busy} onChange={e=>setEditing({...editing,active:e.target.checked})}/>사용 중</label>

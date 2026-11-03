@@ -1,12 +1,14 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),ts=require('typescript'),React=require('react');
 const {renderToStaticMarkup}=require('react-dom/server');
-const path='src/components/console/TableContent.tsx';
-const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
-const loaded={exports:{}};new Function('require','module','exports',code)(require,loaded,loaded.exports);
-const {TableContent}=loaded.exports;
+function load(path,dependencies={}){
+ const code=ts.transpileModule(fs.readFileSync(path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+ const loaded={exports:{}};new Function('require','module','exports',code)(name=>dependencies[name]||require(name),loaded,loaded.exports);
+ return loaded.exports;
+}
+const {TableContent}=load('src/components/console/TableContent.tsx',{'./EmptyState':load('src/components/console/EmptyState.tsx')});
 const render=props=>renderToStaticMarkup(React.createElement(TableContent,{emptyMessage:'출금 내역이 없습니다.',children:React.createElement('table',null,React.createElement('tbody',null,React.createElement('tr',null,React.createElement('td',null,'기존 내역')))),...props}));
 test('empty tables show the shared no-data style only after completion',()=>{
- assert.equal(render({count:0}),'<p class="empty">출금 내역이 없습니다.</p>');
+ const empty=render({count:0});assert.match(empty,/<div class="empty">/);assert.match(empty,/<svg[^>]*aria-hidden="true"/);assert.match(empty,/<p>출금 내역이 없습니다\.<\/p>/);
  assert.equal(render({count:0,pending:true}),'');
  for(const pending of [true,false]){const html=render({count:1,pending});assert.match(html,/<table>/);assert.match(html,/기존 내역/);assert.doesNotMatch(html,/없습니다/);}
 });
