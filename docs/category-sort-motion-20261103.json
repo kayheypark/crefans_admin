@@ -1,0 +1,221 @@
+{
+  "task": "활동 분야 수직 정렬 애니메이션",
+  "verified_at": "2026-11-03T00:57:32.555671+00:00",
+  "repository": "crefans_admin",
+  "working_directory": "/Users/ethan/repository/crefans_admin-reserved-handles",
+  "base_commit": "a234cfdc2d1ea28a1c1038d9e9fd4150f5d14b7b",
+  "branch": "feat/category-sort-motion",
+  "state_at_verification": [
+    "M AGENTS.md",
+    " M PROGRESS.md",
+    " M e2e/category-drag.spec.ts",
+    " M src/components/console/Categories.tsx"
+  ],
+  "source_files": [
+    {
+      "path": "src/components/console/Categories.tsx",
+      "sha256": "2ce226fa5ba10d3269dc765d2d1fea114fe33fcc3349172daebc68bdfe6d04bb",
+      "created_at": "2026-11-03T00:45:39.148110+00:00",
+      "modified_at": "2026-11-03T00:54:15.562724+00:00"
+    },
+    {
+      "path": "e2e/category-drag.spec.ts",
+      "sha256": "38be8585886b00a644015c30ea8911477c2598c8a0e3f7c51616b011b90710b7",
+      "created_at": "2026-11-03T00:45:39.146844+00:00",
+      "modified_at": "2026-11-03T00:53:07.203846+00:00"
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "dc62f12263583fd824e0b999d99fedb247f113b5389ee0fe87f9c37e320fac19",
+      "created_at": "2026-11-03T00:45:39.147933+00:00",
+      "modified_at": "2026-11-03T00:45:39.148032+00:00"
+    },
+    {
+      "path": "playwright.category-drag.config.ts",
+      "sha256": "081a30bf2792e7b80eb582308da083b69d2c5fed039bb9a82a83f7031c0bec5d",
+      "created_at": "2026-11-03T00:45:39.147831+00:00",
+      "modified_at": "2026-11-03T00:45:39.147882+00:00"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "3fddc22a4ce729eaf8b87c098d5ab4e91cf8d67753ed7568b419caaa9a06cba4",
+      "created_at": "2026-11-03T00:45:39.145938+00:00",
+      "modified_at": "2026-11-03T00:56:59.405374+00:00"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "b0ababdbcd284663b244a0a512bcec50d3a4f1b4a60121c9cd846e05867726dc",
+      "created_at": "2026-11-03T00:45:39.146081+00:00",
+      "modified_at": "2026-11-03T00:56:59.424584+00:00"
+    }
+  ],
+  "environment": {
+    "os": "macOS",
+    "node": "22.7.0",
+    "next": "15.5.28",
+    "react": "18.3.1",
+    "playwright": "1.64.0",
+    "url": "http://127.0.0.1:3044",
+    "data": "모든 관리자 API 대역. 운영 계정/DB 접근 없음"
+  },
+  "acceptance": [
+    {
+      "requirement": "드래그 주변 행, 드롭·취소, 버튼·목업 순서·되돌리기 240ms 수직 전환",
+      "result": "PASS: 30 animation-frame samples; drop y171→166.35→162.63→155, cancellation y232→209.5→191.74→155; horizontal displacement <1px"
+    },
+    {
+      "requirement": "중간 위치를 가진 이동과 연속 조작 후 올바른 최종 순서, transform 잔류 없음",
+      "result": "PASS: desktop Chromium/mobile Chromium/mobile WebKit"
+    },
+    {
+      "requirement": "동작 줄이기 설정에서는 즉시 이동",
+      "result": "PASS: all three projects; all post-click frame positions equal final position, no residual animation/transform"
+    },
+    {
+      "requirement": "세로 터치/자동 스크롤, 가로 자동스크롤 차단, 일반 스크롤, 키보드/화살표/portal 유지",
+      "result": "PASS: applicable previous interaction cases"
+    },
+    {
+      "requirement": "명시적 저장/409 충돌/expectedIds/조회 권한 유지",
+      "result": "PASS using API stubs; unchanged backend contract"
+    }
+  ],
+  "checks": [
+    {
+      "command": "npm exec playwright test -- --config=playwright.category-drag.config.ts --project=desktop-chromium --grep \"motion: arrows\" --reporter=list --output=.local/category-sort-motion-20261103/baseline",
+      "exit_code": 1,
+      "result": "Expected baseline failure: no intermediate row position on arrow move",
+      "log": {
+        "path": ".local/category-sort-motion-20261103/baseline.log",
+        "sha256": "17a0db3771fb58447afc4967e5001a9c07b214533f5e94a7e8fdcf40642e3c9a",
+        "created_at": "2026-11-03T00:53:21.069102+00:00",
+        "modified_at": "2026-11-03T00:53:28.332687+00:00"
+      }
+    },
+    {
+      "command": "npm run check",
+      "exit_code": 0,
+      "result": "TypeScript + 13 unit tests PASS",
+      "log": {
+        "path": ".local/category-sort-motion-20261103/check.log",
+        "sha256": "dc86a914ca8138324d7495eeb7f2cb82ecef694dbef4bb94b5f9d7cea688caa6",
+        "created_at": "2026-11-03T00:54:21.811597+00:00",
+        "modified_at": "2026-11-03T00:54:25.012739+00:00"
+      }
+    },
+    {
+      "command": "PLAYWRIGHT_JSON_OUTPUT_NAME=.local/category-sort-motion-20261103/results.json npm exec playwright test -- --config=playwright.category-drag.config.ts --reporter=list,json --output=.local/category-sort-motion-20261103/results",
+      "exit_code": 0,
+      "result": {
+        "startTime": "2026-11-03T00:55:19.893Z",
+        "duration": 35850.933999999994,
+        "expected": 18,
+        "skipped": 9,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "notes": "18 applicable PASS, 9 device-inapplicable skips, no failures/flaky",
+      "log": {
+        "path": ".local/category-sort-motion-20261103/ui-final.log",
+        "sha256": "6494e94306438a64cddabc664b1c18cbcf10668d04235ad744ff925aad952211",
+        "created_at": "2026-11-03T00:55:19.317921+00:00",
+        "modified_at": "2026-11-03T00:55:55.744478+00:00"
+      },
+      "report": {
+        "path": ".local/category-sort-motion-20261103/results.json",
+        "sha256": "8225252e54052b55c009b1acd8607bf09ad392d4c6b4ea496cd193e3d15087ce",
+        "created_at": "2026-11-03T00:55:55.745781+00:00",
+        "modified_at": "2026-11-03T00:55:55.745956+00:00"
+      }
+    },
+    {
+      "command": "npm run build:verify",
+      "exit_code": 0,
+      "result": "PASS; existing native img optimization lint warnings in Brand/Categories",
+      "log": {
+        "path": ".local/category-sort-motion-20261103/build.log",
+        "sha256": "8a0b519c48a6b0892f86f6d88e36cd686116136eb929c8193ee7533eefc248fc",
+        "created_at": "2026-11-03T00:56:22.096070+00:00",
+        "modified_at": "2026-11-03T00:56:36.102247+00:00"
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "frame_evidence": [
+    {
+      "path": ".local/category-sort-motion-20261103/mobile-chromium-motion-frames.json",
+      "sha256": "e3593589d314209f302203ca61b73c62de1c95715f1421890caae0e9e32b02ef",
+      "created_at": "2026-11-03T00:56:32.616068+00:00",
+      "modified_at": "2026-11-03T00:56:32.616105+00:00"
+    },
+    {
+      "path": ".local/category-sort-motion-20261103/desktop-chromium-motion-frames.json",
+      "sha256": "2cc446bac84fc6d551eeecf1851555bbdc0ffeea23716380664e38103e7a0a79",
+      "created_at": "2026-11-03T00:56:32.615675+00:00",
+      "modified_at": "2026-11-03T00:56:32.615750+00:00"
+    },
+    {
+      "path": ".local/category-sort-motion-20261103/mobile-webkit-motion-frames.json",
+      "sha256": "e1f32650f5b07fbe44e4e099528d3bff19a5b8e9d3f6f4ec8bc5aa2559807753",
+      "created_at": "2026-11-03T00:56:32.616256+00:00",
+      "modified_at": "2026-11-03T00:56:32.616288+00:00"
+    },
+    {
+      "path": ".local/category-sort-motion-20261103/desktop-chromium-drop-frames.json",
+      "sha256": "f30c810423df0592b7e5f09abf306c655f207ec5a5e9bea23d64ab2061ba7006",
+      "created_at": "2026-11-03T00:56:32.615876+00:00",
+      "modified_at": "2026-11-03T00:56:32.615923+00:00"
+    }
+  ],
+  "visual_review": [
+    {
+      "path": ".local/category-sort-motion-20261103/results/category-drag-touch-sized--517e9-and-portal-editor-on-mobile-mobile-chromium/mobile-layout.png",
+      "sha256": "8d34574560d605be911ab5ca0c9d053eb473b5cb8cc379db48912b3e0c5f47a6",
+      "created_at": "2026-11-03T00:55:41.345751+00:00",
+      "modified_at": "2026-11-03T00:55:41.345867+00:00"
+    },
+    {
+      "path": ".local/category-sort-motion-20261103/results/category-drag-touch-sized--517e9-and-portal-editor-on-mobile-mobile-webkit/mobile-layout.png",
+      "sha256": "44913b23ff787694776a9473265206bf5c3fb10b88b924a85b8f77074e035778",
+      "created_at": "2026-11-03T00:55:50.256840+00:00",
+      "modified_at": "2026-11-03T00:55:50.256923+00:00"
+    },
+    {
+      "path": ".local/category-sort-motion-20261103/results/category-drag-mouse-drag-s-67592-persists-the-complete-order-desktop-chromium/desktop-saved.png",
+      "sha256": "1f311fdb82fbb08ad78b5e9bdfc6bbef6cc09636bac2a2eb7411727cd15b8de6",
+      "created_at": "2026-11-03T00:55:26.536918+00:00",
+      "modified_at": "2026-11-03T00:55:26.537027+00:00"
+    }
+  ],
+  "research_checked_on": "2026-11-03",
+  "sources": [
+    {
+      "url": "https://vuejs.org/guide/built-ins/transition-group.html",
+      "application": "Use stable category keys and animate previous-to-next layout positions in React; no Vue dependency."
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/API/Element/animate",
+      "application": "Use element animation keyframes for measured vertical delta; cancel old animation on interruption/unmount; default fill leaves no transform."
+    },
+    {
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
+      "application": "Existing global CSS suppresses dnd transitions; explicit matchMedia guard also suppresses WAAPI animation."
+    },
+    {
+      "url": "https://dndkit.com/legacy/presets/sortable/overview/",
+      "application": "Keep existing versioned sortable sensor/transform behavior. Dnd handles gap movement; local FLIP exclusively handles committed order changes, avoiding duplicated table overlay/transform ownership."
+    }
+  ],
+  "limitations": [
+    "APIs are simulated; not real production persistence verification.",
+    "No physical iPhone or live screen-reader session.",
+    "Preference change cancellation has source review; automated reduced-motion case starts with reduce enabled.",
+    "No production deployment or full admin regression suite."
+  ],
+  "git_workflow": "origin/prod → feat/category-sort-motion → integration from origin/dev → release from origin/prod. Final refs and clean state recorded in .local/category-sort-motion-20261103/integration.json",
+  "runtime_deployment": "not_deployed"
+}

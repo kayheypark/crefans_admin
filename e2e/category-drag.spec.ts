@@ -140,3 +140,59 @@ test('read-only operators have no drag, move or save actions',async({page})=>{
  await expect(page.locator('.category-drag-handle')).toHaveCount(0);await expect(rows(page).getByRole('button')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'순서 저장',exact:true})).toHaveCount(0);expect(writes).toHaveLength(0);verify();
 });
+
+// Sample rendered positions, not just a configured CSS duration. Relative table
+// coordinates exclude normal viewport scrolling when a toolbar changes height.
+async function sampleMove(page:Page,button:string,repeat=false){
+ return page.locator('.category-table').evaluate(async(table,{button,repeat})=>{
+  const row=Array.from(table.querySelectorAll('tbody tr')).find(row=>row.children[2].textContent==='일상')!;
+  const position=()=>({x:row.getBoundingClientRect().left-table.getBoundingClientRect().left,y:row.getBoundingClientRect().top-table.getBoundingClientRect().top});
+  const click=()=>{const target=Array.from(document.querySelectorAll<HTMLButtonElement>('#categories button')).find(node=>(node.getAttribute('aria-label')||node.textContent)===button)!;target.click();};
+  const samples=[position()];click();
+  for(let i=0;i<30;i++){await new Promise(requestAnimationFrame);samples.push(position());if(repeat&&i===4)click();}
+  return {samples,running:row.getAnimations().length,transform:getComputedStyle(row).transform};
+ },{button,repeat});
+}
+function expectSmooth(samples:{x:number;y:number}[]){
+ const start=samples[0],end=samples.at(-1)!,low=Math.min(start.y,end.y),high=Math.max(start.y,end.y);
+ expect(high-low).toBeGreaterThan(10);
+ expect(samples.some(point=>point.y>low+2&&point.y<high-2)).toBe(true);
+ expect(samples.every(point=>Math.abs(point.x-start.x)<1)).toBe(true);
+}
+
+test('motion: arrows, revert, preset and interrupted moves animate without residual transforms',async({page},info)=>{
+ const {writes,verify}=await setup(page);
+ const down=await sampleMove(page,'일상 아래로');expectSmooth(down.samples);expect(down.running).toBe(0);
+ const revert=await sampleMove(page,'순서 되돌리기');expectSmooth(revert.samples);expect(await order(page)).toEqual(names);
+ const rapid=await sampleMove(page,'일상 아래로',true);expectSmooth(rapid.samples);expect(rapid.running).toBe(0);expect(rapid.transform).toBe('none');
+ expect(await order(page)).toEqual(['아트','음악','일상',...names.slice(3)]);
+ const preset=await sampleMove(page,'목업 순서로 정렬');expectSmooth(preset.samples);expect(preset.running).toBe(0);
+ expect(await order(page)).toEqual(['라이프스타일','뷰티','코스프레','피트니스','음악','여행','게임','아트','일상']);
+ await info.attach('motion-frames.json',{body:JSON.stringify({down,revert,rapid,preset},null,2),contentType:'application/json'});
+ expect(writes).toHaveLength(0);verify();
+});
+
+test('motion: reduced motion changes order immediately without animation',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});const {verify}=await setup(page);
+ const result=await sampleMove(page,'일상 아래로');const target=result.samples.at(-1)!.y;
+ expect(result.samples.slice(1).every(point=>Math.abs(point.y-target)<1)).toBe(true);
+ expect(result.running).toBe(0);expect(result.transform).toBe('none');
+ expect(await order(page)).toEqual(['아트','일상',...names.slice(2)]);verify();
+});
+
+test('motion: pointer drop and cancellation settle from the actual dragged position',async({page,isMobile},info)=>{
+ test.skip(isMobile,'Precise pointer offsets are checked at desktop size; touch sorting has a separate scenario.');
+ const {verify}=await setup(page),results=[];
+ for(const cancel of [false,true]){
+  const box=await beginMouse(page,'일상');const target=(await handle(page,cancel?'게임':'음악').boundingBox())!;
+  await page.mouse.move(box.x+box.width/2,target.y+target.height/2+16,{steps:10});
+  const samplesPromise=page.locator('.category-row-dragging').evaluate(async row=>{
+   const table=row.closest('table')!,position=()=>({x:row.getBoundingClientRect().left-table.getBoundingClientRect().left,y:row.getBoundingClientRect().top-table.getBoundingClientRect().top});
+   const samples=[position()];for(let i=0;i<30;i++){await new Promise(requestAnimationFrame);samples.push(position());}return samples;
+  });
+  if(cancel)await page.keyboard.press('Escape');else await page.mouse.up();
+  const samples=await samplesPromise;expectSmooth(samples);results.push({cancel,samples});
+  await page.mouse.up();expect(await order(page)).toEqual(['아트','음악','일상',...names.slice(3)]);
+ }
+ await info.attach('drop-frames.json',{body:JSON.stringify(results,null,2),contentType:'application/json'});verify();
+});

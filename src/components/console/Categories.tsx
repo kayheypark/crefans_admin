@@ -1,5 +1,5 @@
 'use client';
-import {useId,useRef,useState,type FormEvent} from 'react';
+import {useId,useLayoutEffect,useRef,useState,type FormEvent,type SetStateAction} from 'react';
 import {DndContext,KeyboardSensor,PointerSensor,closestCenter,useSensor,useSensors,type DragEndEvent,type KeyboardCoordinateGetter,type PointerSensorProps} from '@dnd-kit/core';
 import {SortableContext,arrayMove,sortableKeyboardCoordinates,useSortable,verticalListSortingStrategy} from '@dnd-kit/sortable';
 import {restrictToParentElement,restrictToVerticalAxis} from '@dnd-kit/modifiers';
@@ -12,6 +12,10 @@ import {ConfirmDialog} from './TypedConfirm';
 type Category={id:string;name:string;active:boolean;sortOrder:number;iconUrl:string|null;customIcon:boolean};
 const iconSource=(url:string)=>url.replace(/^\/api\/v1\/categories\//,'/api/v1/admin/categories/');
 const previewOrder=['라이프스타일','뷰티','코스프레','피트니스','음악','여행','게임','아트','일상'];
+const sortMotion={duration:240,easing:'cubic-bezier(0.22, 1, 0.36, 1)'};
+// Dnd-kit animates gaps during dragging; the measured FLIP below owns committed
+// reorders so buttons, drop and cancellation all start at the visible position.
+const animateLayoutChanges=()=>false;
 // Axis modifiers constrain the row, but auto-scroll uses raw sensor coordinates.
 // Lock those too so dragging near a mobile table edge never scrolls it sideways.
 class VerticalPointerSensor extends PointerSensor{
@@ -26,9 +30,21 @@ const verticalCoordinates:KeyboardCoordinateGetter=(event,args)=>{
 };
 const dragInstructions={draggable:'순서 이동 손잡이입니다. 스페이스 또는 엔터로 잡고 위아래 방향키로 이동하세요. 다시 스페이스 또는 엔터로 놓거나 Esc로 취소하세요. 변경 후 순서 저장을 눌러주세요.'};
 
-function CategoryRow({category,index,count,canUpdate,dragDisabled,controlsDisabled,editDisabled,onMove,onEdit}:{category:Category;index:number;count:number;canUpdate:boolean;dragDisabled:boolean;controlsDisabled:boolean;editDisabled:boolean;onMove:(index:number,delta:number)=>void;onEdit:(category:Category)=>void}){
- const {attributes,listeners,setNodeRef,setActivatorNodeRef,transform,transition,isDragging}=useSortable({id:category.id,disabled:dragDisabled});
- return <tr ref={setNodeRef} className={isDragging?'category-row-dragging':undefined} style={{transform:CSS.Transform.toString(transform),transition}}>
+function CategoryRow({category,index,count,canUpdate,dragDisabled,controlsDisabled,editDisabled,motionOrigins,onMove,onEdit}:{category:Category;index:number;count:number;canUpdate:boolean;dragDisabled:boolean;controlsDisabled:boolean;editDisabled:boolean;motionOrigins:Map<string,number>|null;onMove:(index:number,delta:number)=>void;onEdit:(category:Category)=>void}){
+ const {attributes,listeners,node,setNodeRef,setActivatorNodeRef,transform,transition,isDragging}=useSortable({id:category.id,disabled:dragDisabled,animateLayoutChanges,transition:sortMotion});
+ useLayoutEffect(()=>{
+  const element=node.current,previousTop=motionOrigins?.get(category.id);
+  if(!element||previousTop===undefined)return;
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reducedMotion.matches)return;
+  const top=element.getBoundingClientRect().top-element.closest('table')!.getBoundingClientRect().top,delta=previousTop-top;
+  if(Math.abs(delta)<0.5)return;
+  const animation=element.animate([{transform:`translateY(${delta}px)`},{transform:'translateY(0)'}],sortMotion);
+  const cancel=()=>{if(reducedMotion.matches)animation.cancel();};
+  reducedMotion.addEventListener('change',cancel);
+  return ()=>{animation.cancel();reducedMotion.removeEventListener('change',cancel);};
+ },[category.id,motionOrigins,node]);
+ return <tr ref={setNodeRef} data-category-id={category.id} className={isDragging?'category-row-dragging':undefined} style={{transform:CSS.Transform.toString(transform),transition}}>
   <td><div className="category-order">{canUpdate&&<button ref={setActivatorNodeRef} type="button" className="category-drag-handle" {...attributes} {...listeners} aria-label={`${category.name} 순서 이동`} aria-roledescription="순서 이동 손잡이" disabled={dragDisabled}>
    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><circle cx="8" cy="5" r="1.5"/><circle cx="16" cy="5" r="1.5"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/></svg>
   </button>}<span>{index+1}</span>{canUpdate&&<><button type="button" aria-label={`${category.name} 위로`} disabled={controlsDisabled||index===0} onClick={()=>onMove(index,-1)}>↑</button><button type="button" aria-label={`${category.name} 아래로`} disabled={controlsDisabled||index===count-1} onClick={()=>onMove(index,1)}>↓</button></>}</div></td>
@@ -39,11 +55,12 @@ function CategoryRow({category,index,count,canUpdate,dragDisabled,controlsDisabl
 export function Categories({canCreate,canUpdate=false}:{canCreate:boolean;canUpdate?:boolean}){
  const state=useData<Category[]>('/admin/categories'),snackbar=useSnackbar();
  const dragId=useId(),[activeId,setActiveId]=useState<string|null>(null);
+ const tableRef=useRef<HTMLTableElement>(null),[motionOrigins,setMotionOrigins]=useState<Map<string,number>|null>(null);
  const sensors=useSensors(useSensor(VerticalPointerSensor,{activationConstraint:{distance:{y:8}}}),useSensor(KeyboardSensor,{coordinateGetter:verticalCoordinates,scrollBehavior:'auto'}));
  const [name,setName]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),submitting=useRef(false);
  const [ordered,setOrdered]=useState<Category[]>([]),[editing,setEditing]=useState<Category|null>(null),[synced,setSynced]=useState<Category[]|null>(null);
  // Loading rule: rows appear in the same render as the response (an effect left one frame of the empty message).
- if(state.data&&state.data!==synced){setSynced(state.data);setOrdered(state.data);}
+ if(state.data&&state.data!==synced){setSynced(state.data);setOrdered(state.data);setMotionOrigins(null);}
  const changed=!!state.data&&ordered.some((row,i)=>row.id!==state.data?.[i]?.id);
  async function run(work:()=>Promise<void>){
   if(submitting.current)return;submitting.current=true;setBusy(true);setError('');
@@ -54,10 +71,15 @@ export function Categories({canCreate,canUpdate=false}:{canCreate:boolean;canUpd
   e.preventDefault();const value=name.trim();if(!canCreate||!value)return;
   await run(async()=>{await api('/admin/categories',{name:value});setName('');state.reload();snackbar('활동 분야를 추가했습니다.');});
  }
- function move(index:number,delta:number){if(!canUpdate||controlsDisabled)return;setOrdered(rows=>index>=0&&index+delta>=0&&index+delta<rows.length?arrayMove(rows,index,index+delta):rows);}
+ function reorder(next:SetStateAction<Category[]>){
+  const table=tableRef.current;
+  if(table){const top=table.getBoundingClientRect().top;setMotionOrigins(new Map(Array.from(table.tBodies[0].rows,row=>[row.dataset.categoryId!,row.getBoundingClientRect().top-top])));}
+  setOrdered(next);
+ }
+ function move(index:number,delta:number){if(!canUpdate||controlsDisabled)return;reorder(rows=>index>=0&&index+delta>=0&&index+delta<rows.length?arrayMove(rows,index,index+delta):rows);}
  function finishDrag({active,over}:DragEndEvent){
-  setActiveId(null);if(dragDisabled||!over||active.id===over.id)return;
-  setOrdered(rows=>{const from=rows.findIndex(row=>row.id===active.id),to=rows.findIndex(row=>row.id===over.id);return from<0||to<0?rows:arrayMove(rows,from,to);});
+  setActiveId(null);
+  reorder(rows=>{if(dragDisabled||!over||active.id===over.id)return rows;const from=rows.findIndex(row=>row.id===active.id),to=rows.findIndex(row=>row.id===over.id);return from<0||to<0?rows:arrayMove(rows,from,to);});
  }
  async function saveOrder(){await run(async()=>{await api('/admin/categories/order',{ids:ordered.map(r=>r.id),expectedIds:state.data?.map(r=>r.id)},'PUT');state.reload();snackbar('활동 분야 순서를 저장했습니다.');});}
  async function save(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!editing)return;await run(async()=>{await api(`/admin/categories/${editing.id}`,{name:editing.name.trim(),active:editing.active},'PUT');setEditing(null);state.reload();snackbar('활동 분야를 저장했습니다.');});}
@@ -84,17 +106,17 @@ export function Categories({canCreate,canUpdate=false}:{canCreate:boolean;canUpd
   {error&&!editing&&<p role="alert" className="error">{error}</p>}
   <State {...state}/>
   {canUpdate&&!!state.data?.length&&<div className="category-toolbar">
-   <button type="button" disabled={controlsDisabled} onClick={()=>setOrdered(rows=>[...rows].sort((a,b)=>(previewOrder.indexOf(a.name)<0?999:previewOrder.indexOf(a.name))-(previewOrder.indexOf(b.name)<0?999:previewOrder.indexOf(b.name))))}>목업 순서로 정렬</button>
+   <button type="button" disabled={controlsDisabled} onClick={()=>reorder(rows=>[...rows].sort((a,b)=>(previewOrder.indexOf(a.name)<0?999:previewOrder.indexOf(a.name))-(previewOrder.indexOf(b.name)<0?999:previewOrder.indexOf(b.name))))}>목업 순서로 정렬</button>
    <button type="button" className="primary" disabled={controlsDisabled||!changed} onClick={()=>void saveOrder()}>순서 저장</button>
-   {changed&&<><button type="button" disabled={controlsDisabled} onClick={()=>setOrdered(state.data!)}>순서 되돌리기</button><span role="status" className="muted">아직 저장하지 않은 순서입니다.</span></>}
+   {changed&&<><button type="button" disabled={controlsDisabled} onClick={()=>reorder(state.data!)}>순서 되돌리기</button><span role="status" className="muted">아직 저장하지 않은 순서입니다.</span></>}
   </div>}
   {canUpdate&&!!state.data?.length&&<p className="muted category-drag-help">손잡이를 위아래로 끌거나 화살표 버튼으로 이동한 뒤 순서를 저장해 주세요.</p>}
-  {state.data&&(ordered.length?<DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter} modifiers={[restrictToParentElement,restrictToVerticalAxis]} onDragStart={({active})=>setActiveId(String(active.id))} onDragEnd={finishDrag} onDragCancel={()=>setActiveId(null)} accessibility={{screenReaderInstructions:dragInstructions,announcements:{
+  {state.data&&(ordered.length?<DndContext id={dragId} sensors={sensors} collisionDetection={closestCenter} modifiers={[restrictToParentElement,restrictToVerticalAxis]} onDragStart={({active})=>{setMotionOrigins(null);setActiveId(String(active.id));}} onDragEnd={finishDrag} onDragCancel={()=>{reorder(rows=>rows);setActiveId(null);}} accessibility={{screenReaderInstructions:dragInstructions,announcements:{
    onDragStart:({active})=>`${categoryName(active.id)} 순서 이동 시작. ${ordered.length}개 중 ${position(active.id)}번째입니다.`,
    onDragOver:({active,over})=>over?`${categoryName(active.id)}, ${position(over.id)}번째 위치입니다.`:undefined,
    onDragEnd:({active,over})=>!over?'순서 이동을 취소했습니다.':active.id===over.id?'순서를 변경하지 않았습니다.':`${categoryName(active.id)} 순서를 ${position(over.id)}번째로 이동했습니다. 순서 저장을 눌러 반영해 주세요.`,
    onDragCancel:()=> '순서 이동을 취소했습니다.'
-  }}}><div className="table-wrap"><table className="category-table" aria-label="활동 분야 목록"><thead><tr><th>순서</th><th>아이콘</th><th>분야 이름</th><th>상태</th>{canUpdate&&<th>관리</th>}</tr></thead><SortableContext items={ordered.map(row=>row.id)} strategy={verticalListSortingStrategy}><tbody>{ordered.map((category,index)=><CategoryRow key={category.id} category={category} index={index} count={ordered.length} canUpdate={canUpdate} dragDisabled={dragDisabled} controlsDisabled={controlsDisabled} editDisabled={locked} onMove={move} onEdit={row=>{setEditing({...row});setError('');}}/>)}</tbody></SortableContext></table></div></DndContext>:<p className="empty">등록된 활동 분야가 없습니다.</p>)}
+  }}}><div className="table-wrap"><table ref={tableRef} className="category-table" aria-label="활동 분야 목록"><thead><tr><th>순서</th><th>아이콘</th><th>분야 이름</th><th>상태</th>{canUpdate&&<th>관리</th>}</tr></thead><SortableContext items={ordered.map(row=>row.id)} strategy={verticalListSortingStrategy}><tbody>{ordered.map((category,index)=><CategoryRow key={category.id} category={category} index={index} count={ordered.length} canUpdate={canUpdate} dragDisabled={dragDisabled} controlsDisabled={controlsDisabled} editDisabled={locked} motionOrigins={motionOrigins} onMove={move} onEdit={row=>{setEditing({...row});setError('');}}/>)}</tbody></SortableContext></table></div></DndContext>:<p className="empty">등록된 활동 분야가 없습니다.</p>)}
   {editing&&<ConfirmDialog title="활동 분야 편집" onCancel={()=>{if(!busy){setEditing(null);setError('');}}}><form className="editor" onSubmit={save}>
    <label>분야 이름<input required maxLength={40} value={editing.name} disabled={busy} onChange={e=>setEditing({...editing,name:e.target.value})}/></label>
    <label className="check"><input type="checkbox" checked={editing.active} disabled={busy} onChange={e=>setEditing({...editing,active:e.target.checked})}/>사용 중</label>
