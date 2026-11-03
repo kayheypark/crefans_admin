@@ -724,3 +724,10 @@
 - 검증: 타입·단위13건 PASS, PC Chromium/모바일 Chromium·WebKit의 해당 시나리오11건 PASS(기기 비해당 조합7건 제외), production build exit0. 기존 img 최적화 lint 경고 유지. PC·모바일 캡처 육안 확인. API 대역이며 실제 운영 순서나 DB는 변경하지 않음, 물리 iPhone/실스크린리더 미검증.
 - 증거: docs/category-vertical-drag-20261103.json에 요구사항·파일SHA256·명령·결과·공식 출처와 실패/수정 경계를 기록. 로그·캡처는 .local/category-vertical-drag-20261103/. dev→prod 소스 통합과 서버 배포는 구분하며, 최종 refs/clean 상태는 같은 폴더 integration.json에 보존. 이번 변경은 운영 미배포.
 - 기존 AGENTS 규약 유지 및 세로 센서·스크롤 불변식 추가. 다른 작업트리 미커밋 변경은 보존. Next 개발서버가 추가한 tsconfig include만 작업 전 파일로 복원.
+
+## 2026-11-03 활동 분야 순서 이동 애니메이션 (운영 미배포)
+- 최신 origin/prod a234cfd에서 feat/category-sort-motion 분기. Vue TransitionGroup과 같은 목록 위치 전환을 기존 React 구현에 적용했다. 드래그 중 주변 행, 놓기·취소, 위아래 버튼, 목업 순서·되돌리기에 240ms 감속 이동 적용. 현재 보이는 위치에서 시작하는 행별 FLIP/Web Animations API로 빠른 연속 조작도 연결하며 추가 의존성 없음. dnd-kit의 별도 레이아웃 애니메이션은 비활성화해 transform 충돌을 피한다.
+- 동작 줄이기 설정에서는 즉시 순서 변경. 애니메이션 중 설정 변경 시 취소하며 재조작·재드래그·목록 갱신·언마운트 시 기존 애니메이션 정리. 기존 수직 센서·손잡이 외 스크롤·키보드/화살표·명시적 저장·전체 IDs/expectedIds·권한 유지.
+- 수정 전 프레임 검사에서 화살표 이동이 중간 위치 없이 즉시 바뀌어 실패함을 확인. 수정 후 PC Chromium/모바일 Chromium·WebKit 관련 18건 PASS, 기기 비해당9건 제외. 프레임 좌표로 이동 중간값·가로 고정·드롭16px 안착·취소·연속 이동·동작 줄이기 검증. 타입·단위13건 및 production build 통과. 기존 native img lint 경고만 유지. PC/모바일 최종 캡처 육안 확인.
+- 증거 docs/category-sort-motion-20261103.json 및 .local/category-sort-motion-20261103/의 baseline.log, ui-final.log, results.json, 프레임 JSON, check.log, build.log. API는 대역으로 실제 운영 순서/DB 변경 없음. 물리 iPhone과 운영 환경 미검증. dev→prod 소스 통합 후 최종 refs/clean 상태는 같은 폴더 integration.json에 기록한다. 운영 미배포.
+- AGENTS에 이동/접근성 불변식을 추가. 다른 작업트리의 변경은 보존하고, 개발서버가 추가한 tsconfig include만 작업 전 내용으로 복원했다.
