@@ -1,0 +1,335 @@
+{
+  "task": "사용자 첨부의 회색 문서 아이콘으로 운영 콘솔 빈 상태 디자인 통일",
+  "verified_at": "2026-11-03T01:26:59.050622+00:00",
+  "repository": "/Users/ethan/repository/crefans_admin-reserved-handles",
+  "base_commit": "2483ff3da7b04e0005bc2a1c8a60ff2889753689",
+  "branch": "feat/console-empty-state",
+  "state_at_verification": [
+    "M AGENTS.md",
+    " M PROGRESS.md",
+    " M src/app/globals.css",
+    " M src/components/console/Advertising.tsx",
+    " M src/components/console/Categories.tsx",
+    " M src/components/console/Console.tsx",
+    " M src/components/console/Invites.tsx",
+    " M src/components/console/Logs.tsx",
+    " M src/components/console/ManualPayouts.tsx",
+    " M src/components/console/Moderation.tsx",
+    " M src/components/console/Referrals.tsx",
+    " M src/components/console/ReservedHandles.tsx",
+    " M src/components/console/TableContent.tsx",
+    " M tests/table-content.test.cjs",
+    "?? e2e/empty-state.config.ts",
+    "?? e2e/empty-state.spec.ts",
+    "?? src/components/console/EmptyState.tsx"
+  ],
+  "source_files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "558306d6150ba4d16545d972c3e0fdcfc8a590bbf630a60c60e83cccfb40c180",
+      "modified_at": "2026-11-03T01:25:23.899590+00:00"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "8b804b4d602b11a2b8d97e23607885ee146f2924097b368b4af16d05448cead5",
+      "modified_at": "2026-11-03T01:26:02.543885+00:00"
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "08a58718a81418c4fb19aebcb99e661fb457dfc08591b081bd146bd0819382c5",
+      "modified_at": "2026-11-03T01:21:34.198680+00:00"
+    },
+    {
+      "path": "src/components/console/Advertising.tsx",
+      "sha256": "ee65e0740ceb066361a9fd672f86ae756043df4b5b2b46916f3ff78449914218",
+      "modified_at": "2026-11-03T01:21:34.554577+00:00"
+    },
+    {
+      "path": "src/components/console/Categories.tsx",
+      "sha256": "8d633244a256a9d934013c4924ba71c73bec2d471bacab20776778d8d8b3f16b",
+      "modified_at": "2026-11-03T01:21:34.554690+00:00"
+    },
+    {
+      "path": "src/components/console/Console.tsx",
+      "sha256": "accfe88ffe73a98bb7386aec64523938954010d22a81a5ab8ac3e3c89b45500d",
+      "modified_at": "2026-11-03T01:21:34.554143+00:00"
+    },
+    {
+      "path": "src/components/console/Invites.tsx",
+      "sha256": "a55cf535eb89a6979b200384c0250bc8247c7b991a3afc484cd11aff135c394e",
+      "modified_at": "2026-11-03T01:21:34.553667+00:00"
+    },
+    {
+      "path": "src/components/console/Logs.tsx",
+      "sha256": "aedad526784b8df7c684efee0c614dad218b10513c95474df2e368d78e8180bf",
+      "modified_at": "2026-11-03T01:21:34.553320+00:00"
+    },
+    {
+      "path": "src/components/console/ManualPayouts.tsx",
+      "sha256": "75fd374cc864df9be220029fe953b26156cee9327c4d34af6ffc26923826bcb0",
+      "modified_at": "2026-11-03T01:21:34.553480+00:00"
+    },
+    {
+      "path": "src/components/console/Moderation.tsx",
+      "sha256": "e19e10e7754ea669254069291f2cba0fb722bb6b99896bdffa7e232c921eafdd",
+      "modified_at": "2026-11-03T01:21:34.553083+00:00"
+    },
+    {
+      "path": "src/components/console/Referrals.tsx",
+      "sha256": "2326f4eeb8e089fce7b43196d0007604a7b9adaad92ad6d9863921f029c1a325",
+      "modified_at": "2026-11-03T01:21:34.554279+00:00"
+    },
+    {
+      "path": "src/components/console/ReservedHandles.tsx",
+      "sha256": "432db35c145311489d31f1fc5387ef2a2d5ae24914c959919bf24c90bca656af",
+      "modified_at": "2026-11-03T01:21:34.554460+00:00"
+    },
+    {
+      "path": "src/components/console/TableContent.tsx",
+      "sha256": "5ec9bff5753de4859f2f5fbf5aa1f6668477a67ec19c8163ad28560834c5d3c5",
+      "modified_at": "2026-11-03T01:21:34.553901+00:00"
+    },
+    {
+      "path": "tests/table-content.test.cjs",
+      "sha256": "a037afb0f04f385db6ad5614812ec60aa1151a78db0d3830a04cb6f446d4534b",
+      "modified_at": "2026-11-03T01:24:37.386844+00:00"
+    },
+    {
+      "path": "e2e/empty-state.config.ts",
+      "sha256": "09c2af3f8d335fdb557f777f53f07ea7d0c3fad8b30884f1845456734c78de8b",
+      "modified_at": "2026-11-03T01:26:58.678594+00:00"
+    },
+    {
+      "path": "e2e/empty-state.spec.ts",
+      "sha256": "dc79a9cb1def94b3ef115230b7d9381737c3e3e15fde1dd556908df9fe15659c",
+      "modified_at": "2026-11-03T01:22:55.496406+00:00"
+    },
+    {
+      "path": "src/components/console/EmptyState.tsx",
+      "sha256": "2e6064f9150bb28f3c5064537cc177686edfefbff81ea10e800077ab5bced2f0",
+      "modified_at": "2026-11-03T01:21:34.178849+00:00"
+    }
+  ],
+  "environment": {
+    "node": "v22.7.0",
+    "next": "15.5.28",
+    "react": "18.3.1",
+    "playwright": "1.64.0",
+    "base_url": "http://127.0.0.1:3003",
+    "browsers": [
+      "PC Chromium 1440x1000",
+      "iPhone 13 emulated WebKit"
+    ],
+    "data": "All admin API responses mocked. No production data/session/mutations."
+  },
+  "design": {
+    "reference": "User attachment codex-clipboard-2bb68aa6-8ee3-4d14-bec2-a9556041ca9f.png",
+    "implementation": "Code-native SVG, no image-generation dependency",
+    "icon_css_px": [
+      36,
+      44
+    ],
+    "gap_px": 16,
+    "minimum_height_px": 160,
+    "vertical_padding_px": 32,
+    "text_px": 13,
+    "light_page": "#d5dae2",
+    "light_fold": "#8e97a3",
+    "dark_page": "#495363",
+    "background": "Existing surface token; no empty-state border or rounded card",
+    "text": "Default 내역이 없어요; existing contextual and unavailable-data messages retained",
+    "accessibility": "Decorative SVG aria-hidden=true, focusable=false; real text remains in DOM"
+  },
+  "inventory": {
+    "files_scanned": [
+      "src/components/console/Totp.tsx",
+      "src/components/console/Moderation.tsx",
+      "src/components/console/InfoTip.tsx",
+      "src/components/console/Dashboard.tsx",
+      "src/components/console/ConsoleData.tsx",
+      "src/components/console/Logs.tsx",
+      "src/components/console/Beans.tsx",
+      "src/components/console/ManualPayouts.tsx",
+      "src/components/console/Operators.tsx",
+      "src/components/console/Invites.tsx",
+      "src/components/console/TableContent.tsx",
+      "src/components/console/Console.tsx",
+      "src/components/console/Referrals.tsx",
+      "src/components/console/Brand.tsx",
+      "src/components/console/Snackbar.tsx",
+      "src/components/console/EmptyState.tsx",
+      "src/components/console/TypedConfirm.tsx",
+      "src/components/console/ReservedHandles.tsx",
+      "src/components/console/ConsoleIcon.tsx",
+      "src/components/console/Advertising.tsx",
+      "src/components/console/Categories.tsx"
+    ],
+    "shared_consumers": [
+      {
+        "path": "src/components/console/Moderation.tsx",
+        "usages": 1
+      },
+      {
+        "path": "src/components/console/Logs.tsx",
+        "usages": 1
+      },
+      {
+        "path": "src/components/console/ManualPayouts.tsx",
+        "usages": 2
+      },
+      {
+        "path": "src/components/console/Invites.tsx",
+        "usages": 2
+      },
+      {
+        "path": "src/components/console/TableContent.tsx",
+        "usages": 1
+      },
+      {
+        "path": "src/components/console/Console.tsx",
+        "usages": 2
+      },
+      {
+        "path": "src/components/console/Referrals.tsx",
+        "usages": 1
+      },
+      {
+        "path": "src/components/console/ReservedHandles.tsx",
+        "usages": 2
+      },
+      {
+        "path": "src/components/console/Advertising.tsx",
+        "usages": 1
+      },
+      {
+        "path": "src/components/console/Categories.tsx",
+        "usages": 1
+      }
+    ],
+    "remaining_legacy_empty_paragraphs": []
+  },
+  "acceptance": [
+    {
+      "requirement": "공통 회색 문서 아이콘·중앙 안내·여백",
+      "result": "PASS measured width36/height44/gap16/min-height160/center offset<1px/border0 in 7 console list routes on PC/mobile"
+    },
+    {
+      "requirement": "수동 지급 및 콩 테이블에도 적용",
+      "result": "PASS two manual payout placeholders and existing nine beans table empty-state tests"
+    },
+    {
+      "requirement": "데이터/오류/로딩 구분 유지",
+      "result": "PASS populated rows, zero aggregate values, missing aggregates, pending/error/retry, refresh retains rows, later empty pages"
+    },
+    {
+      "requirement": "모바일 및 다크 모드",
+      "result": "PASS bounds remain within viewport, dark fill and text tokens; screenshots manually reviewed"
+    },
+    {
+      "requirement": "콘솔 기존 빈 상태 공통화",
+      "result": "Source inventory 10 consumers, 14 render sites; TableContent fans out to 9 beans tables. No legacy p.empty remains in console components; not a claim of every business workflow tested."
+    }
+  ],
+  "checks": [
+    {
+      "command": "npm exec playwright test -- --config=e2e/empty-state.config.ts",
+      "exit_code": 0,
+      "stats": {
+        "startTime": "2026-11-03T01:23:00.515Z",
+        "duration": 33132.84,
+        "expected": 14,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "log": {
+        "path": ".local/console-empty-state-20261103/ui.log",
+        "sha256": "00634d7c26dd7fb8554ffa00ea06b552cdd1a4a497559d8599fb56a7afc7f8af",
+        "modified_at": "2026-11-03T01:23:33.648757+00:00"
+      },
+      "report": {
+        "path": ".local/console-empty-state-20261103/results.json",
+        "sha256": "476190a878170cd9d7febfe6b4b7a29b33b0e59896d02514f601f1c8860e43de",
+        "modified_at": "2026-11-03T01:23:33.650781+00:00"
+      }
+    },
+    {
+      "command": "npm run check",
+      "exit_code": 0,
+      "result": "TypeScript and 13 unit tests passed",
+      "log": {
+        "path": ".local/console-empty-state-20261103/check-verified.log",
+        "sha256": "eaea1eb679046408a92e275e6ed460fe1af7ed75d9a8e9da163b613a0c1e30a5",
+        "modified_at": "2026-11-03T01:24:40.518404+00:00"
+      }
+    },
+    {
+      "command": "npm run build:verify",
+      "exit_code": 0,
+      "result": "PASS, existing native img lint warnings only",
+      "log": {
+        "path": ".local/console-empty-state-20261103/build.log",
+        "sha256": "a9604c7a218c7fe7af7d87fa30b8dae3b926c9bdf3f9f0d34fa48fef276e1f7b",
+        "modified_at": "2026-11-03T01:24:22.467356+00:00"
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "initial_failures": [
+    {
+      "command": "npm run check",
+      "exit_code": 2,
+      "reason": "Concurrent development server rebuilt generated .next-e2e types while tsc enumerated them. Rechecked sequentially after server stopped.",
+      "log": {
+        "path": ".local/console-empty-state-20261103/check.log",
+        "sha256": "d8972de80d3a4724a3f0bc9e2a5bc62d97b211085d4900ce01050f34d4767847",
+        "modified_at": "2026-11-03T01:23:02.653463+00:00"
+      }
+    },
+    {
+      "command": "npm run check",
+      "exit_code": 1,
+      "reason": "Existing isolated TableContent unit loader did not load the new EmptyState dependency. Updated real component loader and behavior assertions, then all 13 passed.",
+      "log": {
+        "path": ".local/console-empty-state-20261103/check-final.log",
+        "sha256": "35cac881c76f846e37513a152abc1f04f0b9ba1d752d1d5e7ef609dc8cd5bef9",
+        "modified_at": "2026-11-03T01:23:57.176617+00:00"
+      }
+    }
+  ],
+  "report_path_correction": "JSON reporter originally resolved under e2e/.local; moved the existing report unchanged to root .local and made its configured path absolute. Only reporter path changed after passing browser tests, no product/scenario changes.",
+  "visual_review": [
+    {
+      "path": ".local/console-empty-state-20261103/results/empty-state-console-list-a-330bc-e-document-icon-and-spacing-mobile/advertising-empty.png",
+      "sha256": "6afb96e915b6766843ffe3b0f267c7ec447fa1958ea8cee1e559b84263caacc7",
+      "modified_at": "2026-11-03T01:23:30.243977+00:00"
+    },
+    {
+      "path": ".local/console-empty-state-20261103/results/empty-state-console-list-a-330bc-e-document-icon-and-spacing-pc/advertising-empty.png",
+      "sha256": "74d95444e418c8483e94b70cbfd6b608fe97510ef06438dffecbd80bf6297b45",
+      "modified_at": "2026-11-03T01:23:16.377502+00:00"
+    },
+    {
+      "path": ".local/console-empty-state-20261103/results/empty-state-manual-payout--e6963--use-the-same-shared-design-mobile/advertising-empty-dark.png",
+      "sha256": "4b534feefbe9710490af2894aa4349a8a7c8b57513f2332eb7a622b1fc19874e",
+      "modified_at": "2026-11-03T01:23:33.542034+00:00"
+    },
+    {
+      "path": ".local/console-empty-state-20261103/results/empty-state-manual-payout--e6963--use-the-same-shared-design-pc/advertising-empty-dark.png",
+      "sha256": "04a8667d4b9117a0cea778bcca6ea389d13f874592ccb65c1bf4b438e6459c5d",
+      "modified_at": "2026-11-03T01:23:22.170874+00:00"
+    }
+  ],
+  "limitations": [
+    "Mock API/local development browser checks, not production or physical iPhone.",
+    "No physical screen reader test.",
+    "All existing console empty render sites migrated; not every consumer business flow independently exercised.",
+    "Legacy screens and newly adding empty states where none existed were excluded.",
+    "No runtime deployment."
+  ],
+  "git_workflow": "origin/prod → feat/console-empty-state → dev integration verification → prod promotion. Final refs/clean state in .local/console-empty-state-20261103/integration.json.",
+  "runtime_deployment": "not_deployed"
+}
