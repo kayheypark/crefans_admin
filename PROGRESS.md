@@ -738,3 +738,11 @@
 - 최초 WebKit 검증에서 클릭한 버튼이 activeElement가 되지 않아 포커스 복원이 실패하여 상세 진입 시 preventScroll focus를 명시했다. 조회 실패 대역은 React StrictMode의 초기 중복 요청에 영향을 받지 않도록 명시적 재시도 전까지 오류를 반환하게 수정. 최초 실패 로그 보존. 관련12건(PC Chromium·모바일 Chromium·WebKit) 및 타입·단위13건·production build 통과. 다크 모드 전환 중간색이 캡처되지 않도록 해당 캡처는 finite animation 완료 후 촬영한다.
 - 증거 docs/log-detail-modal-20261103.json 및 .local/log-detail-modal-20261103/의 검사 로그·리포트·캡처. API 대역만 사용해 실운영 로그/회원 데이터 변경 없음. 기존 실API console.spec.ts 기대값은 dialog로 갱신했지만 전체 실API suite는 이번에 실행하지 않음. 물리 iPhone/스크린리더 미검증.
 - AGENTS 로그 상세 규약 갱신. 개발서버의 tsconfig include 부수변경만 복원하고 다른 작업트리를 보존한다. dev→prod 소스 통합 완료 상태는 같은 폴더 integration.json 참조. 이번 변경과 앞선 활동 분야 정렬/애니메이션은 운영 미배포이며 이후 배포 요청 시 함께 반영할 수 있다.
+
+## 2026-11-03 공통 모달 바깥 놓기로 인한 입력 유실 방지 (운영 미배포)
+- 최신 origin/prod 41e03f5에서 feat/modal-backdrop-pointer-guard 분기. 공통 ConfirmDialog에서 같은 주 포인터의 배경 누르기·배경 놓기를 모두 확인한 클릭/탭만 닫기로 처리한다. 내부 시작→외부 놓기, 외부 시작→내부 놓기, 우클릭·취소·다른 포인터의 놓기는 닫지 않는다. 터치 암묵적 캡처로 event.target이 원래 배경에 남을 수 있어 놓인 실제 좌표를 확인한다. 의도한 배경 클릭, X/취소/Esc, 처리 중 닫기 방지와 portal/스크롤/포커스 규칙 유지.
+- MDN click/pointerdown 및 MUI Dialog 공식 구현 조사. 현행 콘솔 모달을 쓰는 10개 소비 파일은 모두 공통 컴포넌트 경로다. 별도 레거시 AdminLogoutModal은 이미 maskClosable=false이므로 변경하지 않음. 개별 업무의 저장·삭제 API 및 운영 데이터 변경 없음.
+- 수정 전 실제 마우스 inside→outside 동작으로 모달 소멸을 재현(실패 대조). 수정 후 PC Chromium/모바일 Chromium·WebKit 관련21건 통과, 기기 비해당3건 제외. 입력 유지·배경 클릭/탭·CDP 터치 경계 이동·취소·합성 포인터 캡처/다중 포인터·기존 로그 상세/모달 레이어 검증. 타입·단위13건 및 production build 통과, 기존 img 최적화 경고 유지. PC/WebKit 모바일 캡처 확인.
+- 최초 회귀 검사 중 WebKit 마우스 버튼의 기존 비포커스 특성으로 회원 모달의 트리거 포커스 기대값만 실패. 입력 보존은 통과했으며, 포커스 검증은 키보드로 모달을 열어 시작 포커스를 명확히 하는 시나리오로 수정했다. 실제 마우스로 여는 회원 모달의 WebKit 트리거 포커스 복원 개선은 이번 범위 밖이며 기존 로그 상세의 명시적 포커스 복원 검사는 통과했다. 최초 로그 보존.
+- 증거 docs/modal-backdrop-guard-20261103.json 및 .local/modal-backdrop-guard-20261103/의 baseline/ui/check/build 로그·브라우저 리포트·캡처. API 대역 검증이며 실운영/물리 iPhone/실스크린리더 미검증. dev→prod 통합 결과와 clean 상태는 같은 폴더 integration.json에 기록한다. 운영 미배포.
+- AGENTS에 바깥 닫기 규칙을 추가하고 개발서버의 tsconfig include만 복원했다. 다른 작업트리의 변경은 보존한다.
