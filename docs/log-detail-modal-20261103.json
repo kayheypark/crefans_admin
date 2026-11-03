@@ -1,0 +1,228 @@
+{
+  "task": "운영 로그 상세를 하단 영역에서 모달로 전환",
+  "verified_at": "2026-11-03T01:08:57.025563+00:00",
+  "repository": "crefans_admin",
+  "working_directory": "/Users/ethan/repository/crefans_admin-reserved-handles",
+  "base_commit": "a218583010bed6fc4202d18b64a12b936d63c419",
+  "branch": "feat/log-detail-modal",
+  "state_at_verification": [
+    "M AGENTS.md",
+    " M PROGRESS.md",
+    " M e2e/console.spec.ts",
+    " M src/app/globals.css",
+    " M src/components/console/Logs.tsx",
+    " M src/components/console/TypedConfirm.tsx",
+    "?? e2e/log-detail.spec.ts",
+    "?? playwright.log-detail.config.ts"
+  ],
+  "source_files": [
+    {
+      "path": "src/components/console/Logs.tsx",
+      "sha256": "eddc0a74e7913b58980d298315275596b6d66ba1e019c94867fe45f2583ab355",
+      "created_at": "2026-11-02T15:34:10.908148+00:00",
+      "modified_at": "2026-11-03T01:05:29.535892+00:00"
+    },
+    {
+      "path": "src/components/console/TypedConfirm.tsx",
+      "sha256": "4b99f19e4130676181033457d520657a4b2166c6c3329d4b876d428b22cdca39",
+      "created_at": "2026-11-02T23:59:52.877466+00:00",
+      "modified_at": "2026-11-03T01:02:18.687704+00:00"
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "767559047e63f648eb3eb0e3cd6d5f388a0840e29d483dc6a4c1669b351054d6",
+      "created_at": "2026-11-03T00:45:39.147933+00:00",
+      "modified_at": "2026-11-03T01:02:19.091550+00:00"
+    },
+    {
+      "path": "e2e/log-detail.spec.ts",
+      "sha256": "d55422433ea91262022eb4f6eaa7ead68506510e45a318727316445575c375f4",
+      "created_at": "2026-11-03T01:03:31.848390+00:00",
+      "modified_at": "2026-11-03T01:07:06.955040+00:00"
+    },
+    {
+      "path": "e2e/console.spec.ts",
+      "sha256": "504ed77dc2facc193ab2965617d99474a3b333b13e72915f6251acb6a4e574c2",
+      "created_at": "2026-11-02T15:34:10.844471+00:00",
+      "modified_at": "2026-11-03T01:02:18.726709+00:00"
+    },
+    {
+      "path": "e2e/modal-layer.spec.ts",
+      "sha256": "a71166c25a139b4d2083d3db72c14a54e7c1af7528aaf72d66bac48be2efc4c6",
+      "created_at": "2026-11-02T15:34:10.845896+00:00",
+      "modified_at": "2026-11-02T15:34:10.846049+00:00"
+    },
+    {
+      "path": "playwright.log-detail.config.ts",
+      "sha256": "d7f8b9ca543dcbce86c69104a4debde422211610cfaf633dec10b1f216000965",
+      "created_at": "2026-11-03T01:03:31.826770+00:00",
+      "modified_at": "2026-11-03T01:03:31.826837+00:00"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "dae570d862afc35f15e84fd06841d291f01eabde417e6af718002ddd83a32e9f",
+      "created_at": "2026-11-03T00:58:33.749018+00:00",
+      "modified_at": "2026-11-03T01:07:35.795042+00:00"
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "daf0feecd5cbdfe162a3bea57aa6c642e4e7d1769f3e123728b5a7d0020d3375",
+      "created_at": "2026-11-03T00:58:33.749164+00:00",
+      "modified_at": "2026-11-03T01:07:35.813257+00:00"
+    }
+  ],
+  "environment": {
+    "os": "macOS",
+    "node": "22.7.0",
+    "next": "15.5.28",
+    "react": "18.3.1",
+    "playwright": "1.64.0",
+    "base_url": "http://127.0.0.1:3045",
+    "data": "All admin API responses stubbed; no real operator session, production logs or database changes."
+  },
+  "acceptance": [
+    {
+      "requirement": "상세 클릭 시 viewport modal; main 하단 상세 없음; portal은 body 직속",
+      "result": "PASS PC Chromium + mobile Chromium/WebKit"
+    },
+    {
+      "requirement": "PC 최대840px/모바일 여백16px; viewport 이내, 긴 JSON 가로 넘침 없음",
+      "result": "PASS bounds and scrollWidth assertions"
+    },
+    {
+      "requirement": "본문만 스크롤, 제목/X 유지, 배경 스크롤 잠금/복원",
+      "result": "PASS heading coordinates and scroll positions"
+    },
+    {
+      "requirement": "X/Escape/바깥 클릭 닫기 및 원래 상세 버튼 포커스 복원",
+      "result": "PASS all three projects; explicit trigger focus also handles WebKit"
+    },
+    {
+      "requirement": "관련 기록은 같은 모달에서 전환; 이전 데이터 혼재 방지; 본문 상단 이동",
+      "result": "PASS keyed detail body; timeline click, new data and scrollTop=0 assertions"
+    },
+    {
+      "requirement": "늦은 응답이 닫힌 모달을 다시 열거나 새 상세를 덮지 않음",
+      "result": "PASS gated pending response then close/open second log"
+    },
+    {
+      "requirement": "오류/재시도 모달 내부 제공; 키보드 포커스 순환",
+      "result": "PASS 503 then retry all projects; Tab/Shift+Tab at desktop"
+    },
+    {
+      "requirement": "기존 회원 이용 제한/직접 입력 삭제 모달 레이어·스크롤·취소·삭제 잠금 유지",
+      "result": "PASS existing modal-layer.spec.ts with stubbed members; no mutation requests"
+    }
+  ],
+  "checks": [
+    {
+      "command": "npm run check",
+      "exit_code": 0,
+      "result": "TypeScript + 13 unit tests PASS",
+      "log": {
+        "path": ".local/log-detail-modal-20261103/check-final.log",
+        "sha256": "d56917480cf06fa86925c26637d29c71967c5892061fc7f5e9732dac2466a63a",
+        "created_at": "2026-11-03T01:06:28.920364+00:00",
+        "modified_at": "2026-11-03T01:06:32.004540+00:00"
+      }
+    },
+    {
+      "command": "npm exec playwright test -- --config=playwright.log-detail.config.ts",
+      "exit_code": 0,
+      "result": {
+        "startTime": "2026-11-03T01:07:35.432Z",
+        "duration": 23998.186999999998,
+        "expected": 12,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "log": {
+        "path": ".local/log-detail-modal-20261103/ui-final.log",
+        "sha256": "c5658d94bc4d86f218a707399c5b6cebb097eff29dad9ed6456fd70f16aed325",
+        "created_at": "2026-11-03T01:07:34.878613+00:00",
+        "modified_at": "2026-11-03T01:07:59.430755+00:00"
+      },
+      "report": {
+        "path": ".local/log-detail-modal-20261103/results.json",
+        "sha256": "a6847a2a8c235a182dde8b8565626edafa957d2d233a026bd603a2a68d6c18bd",
+        "created_at": "2026-11-03T01:07:59.431937+00:00",
+        "modified_at": "2026-11-03T01:07:59.432131+00:00"
+      }
+    },
+    {
+      "command": "npm run build:verify",
+      "exit_code": 0,
+      "result": "PASS; pre-existing native img optimization warnings in Brand/Categories",
+      "log": {
+        "path": ".local/log-detail-modal-20261103/build.log",
+        "sha256": "127a830657c683ff7fdb8d1b56a56a2d994eb39079e043ee1c519631f9649d72",
+        "created_at": "2026-11-03T01:06:32.014259+00:00",
+        "modified_at": "2026-11-03T01:06:45.889688+00:00"
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "initial_findings": {
+    "first_run": {
+      "path": ".local/log-detail-modal-20261103/ui-first.log",
+      "sha256": "9572833b2ec8049f747527f82bb83236603e9ed52e8b8dc0b2a45bd14932fc5e",
+      "created_at": "2026-11-03T01:03:52.207704+00:00",
+      "modified_at": "2026-11-03T01:05:10.583442+00:00"
+    },
+    "report": {
+      "path": ".local/log-detail-modal-20261103/results-first.json",
+      "sha256": "9a8219cd93206cf7340465b41bff30d67142aac54f0fdbb076611380cf15b5a4",
+      "created_at": "2026-11-03T01:05:10.584953+00:00",
+      "modified_at": "2026-11-03T01:05:10.585137+00:00"
+    },
+    "product_fix": "Mobile WebKit does not always focus a clicked button. Explicit preventScroll focus before opening gives the shared dialog a reliable return target.",
+    "fixture_fix": "Return the simulated 503 until an explicit retry; counting only the first request was invalid under React development StrictMode mount replay.",
+    "capture_fix": "After emulateMedia(dark), disable finite animations for the screenshot so the button background is not captured during its 120ms color transition.",
+    "successful_interaction_run": {
+      "path": ".local/log-detail-modal-20261103/ui-interaction.log",
+      "sha256": "da3e7e51dff652fc98b7983185910122a3b6c5cdb5925387ad65067eb451c290",
+      "created_at": "2026-11-03T01:05:32.862321+00:00",
+      "modified_at": "2026-11-03T01:05:57.653446+00:00"
+    }
+  },
+  "visual_review": [
+    {
+      "path": ".local/log-detail-modal-20261103/results-interaction/log-detail-detail-opens-in-a5725-e-backdrop-restore-the-list-desktop-chromium/detail-modal.png",
+      "sha256": "7ee562608622193ccdc4e39df5270f624141cf474c9bc3bcb96d1a9d7e240462",
+      "created_at": "2026-11-03T01:05:39.462271+00:00",
+      "modified_at": "2026-11-03T01:05:39.462371+00:00"
+    },
+    {
+      "path": ".local/log-detail-modal-20261103/results-interaction/log-detail-detail-opens-in-a5725-e-backdrop-restore-the-list-mobile-webkit/detail-modal.png",
+      "sha256": "13ca7fc2dccb67a3a12d99193d557fb7ab01e4c22e60c789779fd9aafc7e3b34",
+      "created_at": "2026-11-03T01:05:53.197501+00:00",
+      "modified_at": "2026-11-03T01:05:53.197603+00:00"
+    },
+    {
+      "path": ".local/log-detail-modal-20261103/results/log-detail-failed-detail-c-8c495-ard-focus-remains-inside-it-mobile-webkit/detail-dark.png",
+      "sha256": "203700f580352893ccaf0c2f7003df0fde3302967217159bf50e7d63a5bceea1",
+      "created_at": "2026-11-03T01:07:58.271619+00:00",
+      "modified_at": "2026-11-03T01:07:58.271704+00:00"
+    }
+  ],
+  "research_checked_on": "2026-11-03",
+  "sources": [
+    {
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+      "application": "Named modal dialog, visible close control, initial focus inside, Tab containment, Escape and return focus. Shared portal preserves sticky-table isolation."
+    }
+  ],
+  "limitations": [
+    "All APIs are stubs, not real production log/auth verification.",
+    "No physical iPhone or screen-reader session.",
+    "The old real-API console.spec.ts selector/close flow was updated, but its complete suite was not executed this turn.",
+    "No production deployment."
+  ],
+  "git_workflow": "origin/prod → feat/log-detail-modal → dev integration and verification → prod promotion; final refs/clean state in .local/log-detail-modal-20261103/integration.json",
+  "runtime_deployment": "not_deployed"
+}

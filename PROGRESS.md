@@ -731,3 +731,10 @@
 - 수정 전 프레임 검사에서 화살표 이동이 중간 위치 없이 즉시 바뀌어 실패함을 확인. 수정 후 PC Chromium/모바일 Chromium·WebKit 관련 18건 PASS, 기기 비해당9건 제외. 프레임 좌표로 이동 중간값·가로 고정·드롭16px 안착·취소·연속 이동·동작 줄이기 검증. 타입·단위13건 및 production build 통과. 기존 native img lint 경고만 유지. PC/모바일 최종 캡처 육안 확인.
 - 증거 docs/category-sort-motion-20261103.json 및 .local/category-sort-motion-20261103/의 baseline.log, ui-final.log, results.json, 프레임 JSON, check.log, build.log. API는 대역으로 실제 운영 순서/DB 변경 없음. 물리 iPhone과 운영 환경 미검증. dev→prod 소스 통합 후 최종 refs/clean 상태는 같은 폴더 integration.json에 기록한다. 운영 미배포.
 - AGENTS에 이동/접근성 불변식을 추가. 다른 작업트리의 변경은 보존하고, 개발서버가 추가한 tsconfig include만 작업 전 내용으로 복원했다.
+
+## 2026-11-03 운영 로그 상세 모달 (운영 미배포)
+- 최신 origin/prod a218583에서 feat/log-detail-modal 분기. 하단 상세 section을 기존 ConfirmDialog portal로 전환. PC 최대840px, 모바일 좌우16px·화면 높이 이내, 제목/X 고정·본문만 스크롤. 속성·JSON·발송 상태·타임라인·조회 API는 유지한다.
+- 관련 기록은 같은 모달에서 keyed 본문만 교체하여 이전 기록 혼재를 방지하고 스크롤을 상단으로 초기화. 로딩/오류/재시도도 모달 안에 표시하며 닫힌 요청 응답이 다시 열거나 새 선택을 덮지 않음을 확인했다. 공통 모달에 고유 제목 ID·Tab 포커스 순환·닫기 후 포커스 복원을 추가했다. WAI-ARIA APG Dialog 지침 적용, 기존 typed-confirm 취소/삭제 잠금과 portal 레이어 유지.
+- 최초 WebKit 검증에서 클릭한 버튼이 activeElement가 되지 않아 포커스 복원이 실패하여 상세 진입 시 preventScroll focus를 명시했다. 조회 실패 대역은 React StrictMode의 초기 중복 요청에 영향을 받지 않도록 명시적 재시도 전까지 오류를 반환하게 수정. 최초 실패 로그 보존. 관련12건(PC Chromium·모바일 Chromium·WebKit) 및 타입·단위13건·production build 통과. 다크 모드 전환 중간색이 캡처되지 않도록 해당 캡처는 finite animation 완료 후 촬영한다.
+- 증거 docs/log-detail-modal-20261103.json 및 .local/log-detail-modal-20261103/의 검사 로그·리포트·캡처. API 대역만 사용해 실운영 로그/회원 데이터 변경 없음. 기존 실API console.spec.ts 기대값은 dialog로 갱신했지만 전체 실API suite는 이번에 실행하지 않음. 물리 iPhone/스크린리더 미검증.
+- AGENTS 로그 상세 규약 갱신. 개발서버의 tsconfig include 부수변경만 복원하고 다른 작업트리를 보존한다. dev→prod 소스 통합 완료 상태는 같은 폴더 integration.json 참조. 이번 변경과 앞선 활동 분야 정렬/애니메이션은 운영 미배포이며 이후 배포 요청 시 함께 반영할 수 있다.
