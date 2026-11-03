@@ -5,6 +5,7 @@ import {objectParticle} from '@/lib/korean';
 
 export function ConfirmDialog({title,onCancel,children,className=''}:{title:string;onCancel:()=>void;children:React.ReactNode;className?:string}){
  const [mounted,setMounted]=useState(false),dialog=useRef<HTMLDivElement>(null),titleId=useId();
+ const backdropPress=useRef<{pointerId:number;releasedOutside:boolean}|null>(null);
  useEffect(()=>{const trigger=document.activeElement as HTMLElement|null;setMounted(true);return()=>{if(trigger?.isConnected)trigger.focus({preventScroll:true});};},[]);
  useEffect(()=>{if(mounted&&!dialog.current?.contains(document.activeElement))dialog.current?.focus({preventScroll:true});},[mounted]);
  useEffect(()=>{
@@ -20,7 +21,17 @@ export function ConfirmDialog({title,onCancel,children,className=''}:{title:stri
   return()=>{document.body.style.overflow=body;window.removeEventListener('keydown',key);};
  },[onCancel]);
  // Table scroll containers isolate their layers; render the modal outside them.
- return mounted?createPortal(<div className="dialog-backdrop" onClick={e=>{if(e.target===e.currentTarget)onCancel();}}><div ref={dialog} className={`dialog ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}><h2 id={titleId}>{title}</h2>{children}</div></div>,document.body):null;
+ return mounted?createPortal(<div className="dialog-backdrop"
+  onPointerDownCapture={e=>{backdropPress.current=e.isPrimary&&e.button===0&&e.target===e.currentTarget?{pointerId:e.pointerId,releasedOutside:false}:null;}}
+  onPointerUpCapture={e=>{
+   const press=backdropPress.current;
+   // Touch can retain the initial target through implicit pointer capture; check the actual release location.
+   if(press&&press.pointerId===e.pointerId)press.releasedOutside=document.elementFromPoint(e.clientX,e.clientY)===e.currentTarget;
+   else backdropPress.current=null;
+  }}
+  onPointerCancelCapture={()=>{backdropPress.current=null;}}
+  onClick={e=>{const dismiss=backdropPress.current?.releasedOutside&&e.target===e.currentTarget;backdropPress.current=null;if(dismiss)onCancel();}}
+ ><div ref={dialog} className={`dialog ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}><h2 id={titleId}>{title}</h2>{children}</div></div>,document.body):null;
 }
 
 /**
