@@ -1,3 +1,18 @@
+## 2026-11-04 Google Authenticator 자동 열기 시도 구현 (미배포)
+- 사용자 Google 앱 확인 및 가능한 자동실행 시도 요청. iPhone/iPad만 googleauthenticator:// 데이터 없는 URL로 2차 인증 최초 진입 1회 시도. ref를 effect 전에 설정하여 재렌더/복구코드 복귀 시 반복하지 않음. 다른 계정 로그인 시작시 재설정. 수동 열기 링크·실패시 직접 앱 열기 안내·OTP 자동제출/복구코드 유지.
+- 현재 Google 공식 자료에서 단순 실행 스킴의 최신 호환성 보장은 확인하지 못함. 이 구현은 best-effort 실험이며 실제 앱 실행 성공 주장 불가. 실물 iPhone Chrome/Safari와 설치된 앱에서 확인 필요. 미설치면 OS 오류/확인창이 나타날 수 있음. Android는 공개 manifest가 otpauth 등록용만 노출하므로 잘못된 등록 URI 대신 기존 수동입력 유지.
+- 공식 확인 2026-11-04: https://developer.chrome.com/docs/android/intents (사용자 제스처/BROWSABLE 제한), https://raw.githubusercontent.com/google/google-authenticator/master/mobile/ios/OTPAuth-Info.plist 및 https://raw.githubusercontent.com/google/google-authenticator-android/master/java/com/google/android/apps/authenticator/AndroidManifest.xml (구형 소스, 현재 앱 지원 보장 아님).
+- npm run check 타입/단위16 통과. npx playwright test -c playwright.authenticator.config.ts PC Chromium/iPhone WebKit 2통과(API 대역): 모바일 링크·PC 제외·6자리 자동제출·실패 후 복구 전환/입력 보존. 최초 타입검사 선언순서 오류 수정, 샌드박스 bind 제한 후 승인된 로컬 실행, 최초 E2E Next route announcer 중복선택 수정 후 통과. 실제 앱 실행·실계정·운영 배포 미검증.
+- feat/mobile-authenticator-launch, prod2b9ac2c 기준. dev/prod 통합·운영배포 미실행. 다음: 실기기 실행 확인 후 필요시 스킴 조정 또는 수동안내 유지. 텔레그램 설치는 별도 승인 대기.
+
+## 2026-11-04 모바일 2차 인증 앱 실행 요청 — 앱 종류 확인 대기
+- 사용자 요청: 모바일에서 2차 인증 진입 시 Authenticator 실행. 최신 origin/prod 2b9ac2cf3318544895e97ca4b76a5724475c4a99에서 feat/mobile-authenticator-launch 분기. src/app/login/page.tsx의 TOTP_REQUIRED 전환과 입력완성 자동제출·복구코드 경로 확인. 제품 코드 변경·배포 없음.
+- Google/Microsoft/기타 인증 앱 중 어느 앱인지 질문 중. 앱마다 실행 주소가 다르며 현재 설치 앱을 웹에서 확정할 수 없다. 답변 후 해당 앱의 실제 지원 링크 확인 필요.
+- 공식 조사: https://developer.chrome.com/docs/android/intents 에서 Android Chrome은 사용자 동작 없이 JavaScript가 시작하는 외부 앱 실행을 제한함. 비동기 로그인 응답 후 자동실행 보장 불가. 지원 링크 확인 후 모바일 인증 앱 열기 버튼과 기존 수동입력·복구코드 보존 방향.
+- https://github.com/google/google-authenticator/wiki/Key-Uri-Format 의 otpauth는 비밀키 신규등록용. 기존 인증 앱을 열기 위해 로그인 화면에 OTP 비밀키를 재노출하거나 빈 등록 URI를 쓰지 않는다. 구형 공개 iOS 소스는 현재 앱의 단순실행 지원 증거가 아님.
+- https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-mobile-overview 의 msauthv2/v3는 MSAL 브로커 문맥이며 현재 서비스 TOTP 단순 앱 실행 지원과 동일시하지 않음.
+- 확인일 2026-11-04. 검사: 로그인 소스/AGENTS/현재 Git 상태 읽기, 공식문서 조회. 앱 설치·실기기 이동·회귀 테스트는 미실행. 다음: 앱 종류 답변→실행 지원 확인→필요한 최소 UI/회귀검증. 이전 백업 텔레그램 설치는 별도 서버 작업이며 추가 승인 대기 유지.
+
 ## 2026-11-04 미배포 광고상품·미니멀 워터마크 운영 배포 완료
 - dev→prod front615ee06/serveraf99bc3/admin0011cca. 운영 front/api/worker/admin minimal-bundle-20261104. 기본상품 특가제외·제목18px, 콘솔/프론트 상품명 동일 형식, 미니멀 워터마크40%/2%/3%/외곽선없음 반영. DB migration 없음·DB/proxy 유지·기존미디어 재변환 없음.
 - front운영빌드·admin운영빌드 통과, 소스해시/운영키·배포6서비스 running/restarts0/OOMfalse. 배포공용preview PC Chromium/iPhone WebKit 기본4+특가4·중복없음·제목18px·상품명·안내열기닫기·팬이동 통과. API운영이미지 격리컨테이너 실사진 렌더링565변경픽셀(119~183), 영상미니멀인자 확인. 이전로컬 영상/사진4·프론트9·콘솔14 통과. 실계정콘솔/실업로드/실PG 미검증.
