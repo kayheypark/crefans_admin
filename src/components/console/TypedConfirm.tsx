@@ -1,14 +1,26 @@
 'use client';
-import {useEffect,useId,useState} from 'react';
+import {useEffect,useId,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {objectParticle} from '@/lib/korean';
 
-export function ConfirmDialog({title,onCancel,children}:{title:string;onCancel:()=>void;children:React.ReactNode}){
- const [mounted,setMounted]=useState(false);
- useEffect(()=>setMounted(true),[]);
- useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape')onCancel();};const body=document.body.style.overflow;document.body.style.overflow='hidden';window.addEventListener('keydown',key);return()=>{document.body.style.overflow=body;window.removeEventListener('keydown',key);};},[onCancel]);
+export function ConfirmDialog({title,onCancel,children,className=''}:{title:string;onCancel:()=>void;children:React.ReactNode;className?:string}){
+ const [mounted,setMounted]=useState(false),dialog=useRef<HTMLDivElement>(null),titleId=useId();
+ useEffect(()=>{const trigger=document.activeElement as HTMLElement|null;setMounted(true);return()=>{if(trigger?.isConnected)trigger.focus({preventScroll:true});};},[]);
+ useEffect(()=>{if(mounted&&!dialog.current?.contains(document.activeElement))dialog.current?.focus({preventScroll:true});},[mounted]);
+ useEffect(()=>{
+  const key=(e:KeyboardEvent)=>{
+   if(e.key==='Escape'){e.preventDefault();onCancel();}
+   if(e.key!=='Tab'||!dialog.current)return;
+   const items=Array.from(dialog.current.querySelectorAll<HTMLElement>('button,input,select,textarea,a[href],[tabindex]')).filter(node=>node.tabIndex>=0&&!node.matches(':disabled')&&node.getClientRects().length>0);
+   const first=items[0],last=items[items.length-1],active=document.activeElement;
+   if(!first){e.preventDefault();dialog.current.focus();}
+   else if(!dialog.current.contains(active)||active===dialog.current||(e.shiftKey?active===first:active===last)){e.preventDefault();(e.shiftKey?last:first).focus();}
+  };
+  const body=document.body.style.overflow;document.body.style.overflow='hidden';window.addEventListener('keydown',key);
+  return()=>{document.body.style.overflow=body;window.removeEventListener('keydown',key);};
+ },[onCancel]);
  // Table scroll containers isolate their layers; render the modal outside them.
- return mounted?createPortal(<div className="dialog-backdrop" onClick={e=>{if(e.target===e.currentTarget)onCancel();}}><div className="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><h2 id="dialog-title">{title}</h2>{children}</div></div>,document.body):null;
+ return mounted?createPortal(<div className="dialog-backdrop" onClick={e=>{if(e.target===e.currentTarget)onCancel();}}><div ref={dialog} className={`dialog ${className}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}><h2 id={titleId}>{title}</h2>{children}</div></div>,document.body):null;
 }
 
 /**
