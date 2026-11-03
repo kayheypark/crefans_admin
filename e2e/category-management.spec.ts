@@ -5,7 +5,7 @@ test('category order, edit and icon upload persist and reach the public catalog'
  await page.goto('/login');await page.getByLabel('이메일',{exact:true}).fill(process.env.ADMIN_E2E_EMAIL!);await page.getByLabel('비밀번호',{exact:true}).fill(process.env.ADMIN_E2E_PASSWORD!);await page.getByRole('button',{name:'로그인',exact:true}).click();await expect(page).toHaveURL('/console');await page.goto('/console/settings');
  const area=page.locator('#categories');await area.getByLabel('분야 이름').fill(name);await area.getByRole('button',{name:'분야 추가',exact:true}).click();
  const row=area.getByRole('row').filter({hasText:name});await expect(row).toContainText('사용 중');
- await area.getByRole('button',{name:name+' 위로',exact:true}).click();await expect(area.getByRole('status')).toContainText('아직 저장하지 않은');await area.getByRole('button',{name:'순서 저장',exact:true}).click();await expect(area.getByRole('button',{name:'순서 저장',exact:true})).toBeDisabled();
+ await area.getByRole('button',{name:name+' 위로',exact:true}).click();await expect(area.getByRole('status').filter({hasText:'아직 저장하지 않은'})).toBeVisible();await area.getByRole('button',{name:'순서 저장',exact:true}).click();await expect(area.getByRole('button',{name:'순서 저장',exact:true})).toBeDisabled();
  const afterOrder=await area.getByRole('row').allTextContents();await page.reload();await expect(area.getByRole('row').filter({hasText:name})).toBeVisible();expect(await area.getByRole('row').allTextContents()).toEqual(afterOrder);
  await row.getByRole('button',{name:'편집'}).click();const modal=page.getByRole('dialog',{name:'활동 분야 편집'});
  await modal.getByLabel('아이콘 이미지').setInputFiles(path.resolve('public/brand/categories/travel-round-flat-v1.png'));

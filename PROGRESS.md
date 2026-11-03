@@ -717,3 +717,10 @@
 ## 2026-11-03 예약핸들·빈 콩 테이블 운영 배포
 - dev통합b43619d→prod5a290a4 승격 후 crefans-admin:all-pending-20261103 배포. 예약핸들 관리UI·후원/출금/정산 관련 테이블 누락 없는 no-data 표시 포함. 서버 예약핸들103개 및 API migration 동시 반영.
 - typecheck/13단위 통과; 이미지 원본 소스 해시 및 운영 컴파일 산출물·컨테이너 imageID 확인. 운영 로그인 경로200, restart0/OOMfalse. 상세 묶음 증거는 프론트 docs/audit/open-event-spacing-20261103.json. 운영관리자 인증 데이터 변경은 수행하지 않았으며 앞선 격리E2E 증거와 구분.
+
+## 2026-11-03 활동 분야 세로 드래그 정렬 (운영 미배포)
+- 최신 origin/prod에서 feat/category-vertical-drag 분기. PC 마우스·모바일 터치 손잡이 추가(44×44px 이상), 위아래로만 이동. 작은 수직 이동(8px) 후 시작하고 기존 화살표/되돌리기/명시적 순서 저장과 전체 IDs·expectedIds 계약을 유지한다. 이동 중 저장·편집·새로고침 잠금, 저장 실패 시 미저장 순서 보존. 키보드 Space/Enter·위아래·Esc와 한국어 상태 안내 지원.
+- dnd-kit 공식 sortable/sensor/modifier 및 WCAG 2.2 드래그 대안 지침 확인. React18 호환 stable core6.3.1/sortable10/modifiers9/utilities3.2.2 고정(공식 문서상 legacy API). 전용 손잡이만 touch-action:none, 나머지는 기본 스크롤. 최초 가장자리 회귀검사에서 표가 가로로183px 자동 스크롤됨을 검출하여 센서 원좌표까지 수직 고정. 같은 검사에서 가로0px, 세로 자동 스크롤 유지 확인.
+- 검증: 타입·단위13건 PASS, PC Chromium/모바일 Chromium·WebKit의 해당 시나리오11건 PASS(기기 비해당 조합7건 제외), production build exit0. 기존 img 최적화 lint 경고 유지. PC·모바일 캡처 육안 확인. API 대역이며 실제 운영 순서나 DB는 변경하지 않음, 물리 iPhone/실스크린리더 미검증.
+- 증거: docs/category-vertical-drag-20261103.json에 요구사항·파일SHA256·명령·결과·공식 출처와 실패/수정 경계를 기록. 로그·캡처는 .local/category-vertical-drag-20261103/. dev→prod 소스 통합과 서버 배포는 구분하며, 최종 refs/clean 상태는 같은 폴더 integration.json에 보존. 이번 변경은 운영 미배포.
+- 기존 AGENTS 규약 유지 및 세로 센서·스크롤 불변식 추가. 다른 작업트리 미커밋 변경은 보존. Next 개발서버가 추가한 tsconfig include만 작업 전 파일로 복원.

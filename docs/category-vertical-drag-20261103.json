@@ -1,0 +1,204 @@
+{
+  "task": "활동 분야 PC·모바일 세로 드래그 정렬",
+  "verified_at": "2026-11-03T00:45:03.860141+00:00",
+  "repository": "crefans_admin",
+  "working_directory": "/Users/ethan/repository/crefans_admin-reserved-handles",
+  "base_commit": "1b8c16160f68fbbcc8f184ad9e7e0920ed080bce",
+  "branch": "feat/category-vertical-drag",
+  "source_state_at_verification": [
+    " M AGENTS.md",
+    " M e2e/category-management.spec.ts",
+    " M package-lock.json",
+    " M package.json",
+    " M src/app/globals.css",
+    " M src/components/console/Categories.tsx",
+    "?? e2e/category-drag.spec.ts",
+    "?? playwright.category-drag.config.ts"
+  ],
+  "verified_files": [
+    {
+      "path": "src/components/console/Categories.tsx",
+      "sha256": "74b6a740ebaa18a95d7c66eda8570af5c83f2b14381fa8d3f077c985c22586b6",
+      "modified_at": "2026-11-03T00:40:45.651063+00:00"
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "dc62f12263583fd824e0b999d99fedb247f113b5389ee0fe87f9c37e320fac19",
+      "modified_at": "2026-11-03T00:32:17.144145+00:00"
+    },
+    {
+      "path": "package.json",
+      "sha256": "f81f798547c495430cf1f669581c8fff0ae206b9d21de8ae882a72b882d76acb",
+      "modified_at": "2026-11-03T00:28:42.765213+00:00"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "ceac9a5df61089c3c663561f346a1c992193903ab8201a9638b3da110b4ff818",
+      "modified_at": "2026-11-03T00:28:42.813900+00:00"
+    },
+    {
+      "path": "e2e/category-drag.spec.ts",
+      "sha256": "9de5cca094903f4e4cde79522ea7cff75e9d08e967fe01aa4cc9c54efd4abc0e",
+      "modified_at": "2026-11-03T00:42:50.931195+00:00"
+    },
+    {
+      "path": "e2e/category-management.spec.ts",
+      "sha256": "fb58f4f1bd9e5d838cbce4d5bc7fcd4293eddc19b276cac6f6e8b56787102f9f",
+      "modified_at": "2026-11-03T00:39:42.913440+00:00"
+    },
+    {
+      "path": "playwright.category-drag.config.ts",
+      "sha256": "081a30bf2792e7b80eb582308da083b69d2c5fed039bb9a82a83f7031c0bec5d",
+      "modified_at": "2026-11-03T00:39:42.930748+00:00"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "384e0907852048932a44764e6347a491a5aed83fc9b0e243240940a05b4d102e",
+      "modified_at": "2026-11-03T00:41:54.737385+00:00"
+    }
+  ],
+  "environment": {
+    "os": "macOS",
+    "node": "22.7.0",
+    "next": "15.5.28",
+    "react": "18.3.1",
+    "playwright": "1.64.0",
+    "base_url": "http://127.0.0.1:3044",
+    "data": "모든 관리자 API 대역. 운영 계정·운영 DB 접근 없음"
+  },
+  "acceptance": [
+    {
+      "requirement": "PC 마우스 세로 이동 및 명시적 저장·새로고침 후 동일 순서",
+      "result": "PASS"
+    },
+    {
+      "requirement": "모바일 터치 이동·취소, 44px 이상 손잡이",
+      "result": "PASS: Chromium CDP touch; WebKit mobile tap/layout"
+    },
+    {
+      "requirement": "가로 이동·가로 자동 스크롤 차단, 세로 자동 스크롤 유지",
+      "result": "PASS: 모바일 가장자리 15 animation frames의 scrollLeft=0; 세로 자동 스크롤 +20px 이상"
+    },
+    {
+      "requirement": "손잡이 밖 일반 스크롤 및 가로 페이지 넘침 방지",
+      "result": "PASS"
+    },
+    {
+      "requirement": "키보드 Space/Enter, 위·아래 이동, 좌우 무시, Esc 취소, 포커스 복원, 한국어 안내",
+      "result": "PASS"
+    },
+    {
+      "requirement": "기존 화살표 대안·되돌리기·편집 portal 유지",
+      "result": "PASS"
+    },
+    {
+      "requirement": "저장 중 잠금·409 충돌 시 미저장 순서/expectedIds 유지·조회 권한",
+      "result": "PASS (API 대역)"
+    }
+  ],
+  "checks": [
+    {
+      "command": "npm run check",
+      "exit_code": 0,
+      "result": "TypeScript + 13 unit tests PASS",
+      "evidence": {
+        "path": ".local/category-vertical-drag-20261103/check-final.log",
+        "sha256": "160556e509bfc9af30dbb9abdf3e57bf9a41e564ce8867fad9aa3bfd700987b5",
+        "modified_at": "2026-11-03T00:42:26.541268+00:00"
+      }
+    },
+    {
+      "command": "npm exec playwright test -- --config=playwright.category-drag.config.ts",
+      "exit_code": 0,
+      "result": {
+        "startTime": "2026-11-03T00:42:53.794Z",
+        "duration": 19829.414,
+        "expected": 11,
+        "skipped": 7,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "notes": "18 project/case combinations: 11 applicable PASS, 7 device-inapplicable skipped; no failures/flaky",
+      "evidence": {
+        "path": ".local/category-vertical-drag-20261103/ui-complete-final.log",
+        "sha256": "ebe9df13d16b15c0cb8ca1e1ddedf34e23638a2a44275871d3e7b3c018f98150",
+        "modified_at": "2026-11-03T00:43:13.623981+00:00"
+      },
+      "report": {
+        "path": ".local/category-vertical-drag-20261103/results.json",
+        "sha256": "a51e48d2ce7f2b6c3f72088a8fcbf5496d48fe34381a6f8210fdfc1f00dc06df",
+        "modified_at": "2026-11-03T00:43:13.625279+00:00"
+      }
+    },
+    {
+      "command": "npm run build:verify",
+      "exit_code": 0,
+      "result": "Production build PASS; existing native img lint warnings in Brand/Categories",
+      "evidence": {
+        "path": ".local/category-vertical-drag-20261103/build.log",
+        "sha256": "7991ecda6c6a6f2b3719d03c60eda5112caf13d7dd7a6e9e2d9e06d98e989635",
+        "modified_at": "2026-11-03T00:43:38.561321+00:00"
+      }
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "regression_evidence": {
+    "before_fix": {
+      "result": "FAIL as expected for horizontal edge: scrollLeft increased 28→183px with stock PointerSensor + vertical modifier only",
+      "log": ".local/category-vertical-drag-20261103/ui-final.log",
+      "report": ".local/category-vertical-drag-20261103/results-horizontal-regression.json"
+    },
+    "fix": "Keep PointerSensor lifecycle/cancellation; constrain onMove x to pickup x, vertical activation 8px. This also constrains auto-scroll intent. Keep parent/vertical modifiers.",
+    "test_harness_corrections": [
+      "Full-page screenshot resized viewport and intentionally cancelled a drag; changed mid-drag capture to viewport screenshot.",
+      "Scoped status/alert selectors away from Next route announcer.",
+      "Human-like key/click duration avoids sensor initialization/50ms post-drag click suppression.",
+      "Measure nested table scroll plus document scroll; use downward swipe when at the bottom boundary."
+    ]
+  },
+  "visual_review": [
+    ".local/category-vertical-drag-20261103/results/category-drag-touch-sized--517e9-and-portal-editor-on-mobile-mobile-chromium/mobile-layout.png",
+    ".local/category-vertical-drag-20261103/results/category-drag-touch-sized--517e9-and-portal-editor-on-mobile-mobile-webkit/mobile-layout.png",
+    ".local/category-vertical-drag-20261103/results/category-drag-mobile-Chrom-dd84d-inary-content-still-scrolls-mobile-chromium/mobile-touch-dragging.png",
+    ".local/category-vertical-drag-20261103/results/category-drag-mouse-drag-s-67592-persists-the-complete-order-desktop-chromium/desktop-dragging.png",
+    ".local/category-vertical-drag-20261103/results/category-drag-mouse-drag-s-67592-persists-the-complete-order-desktop-chromium/desktop-saved.png"
+  ],
+  "research_checked_on": "2026-11-03",
+  "sources": [
+    {
+      "url": "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html",
+      "decision": "Retain up/down click/tap controls; keyboard alone does not replace a single-pointer alternative."
+    },
+    {
+      "url": "https://dndkit.com/legacy/presets/sortable/overview/",
+      "decision": "Exact stable core6.3.1/sortable10 API compatible with React18. Official docs label this API legacy; not the newer 0.5.x React rewrite."
+    },
+    {
+      "url": "https://dndkit.com/legacy/api-documentation/sensors/pointer/",
+      "decision": "Dedicated drag handle touch-action:none, rest uses native scrolling; primary pointer covers mouse/touch."
+    },
+    {
+      "url": "https://dndkit.com/legacy/api-documentation/sensors/",
+      "decision": "Use public sensor extension hooks to preserve vertical-only auto-scroll."
+    },
+    {
+      "url": "https://dndkit.com/legacy/api-documentation/modifiers/",
+      "decision": "Restrict row to parent and vertical axis."
+    },
+    {
+      "url": "https://dndkit.com/legacy/api-documentation/sensors/keyboard/",
+      "decision": "Space/Enter pickup/drop; up/down coordinates; Esc cancellation; Korean live announcements."
+    }
+  ],
+  "limitations": [
+    "API responses and persistence are simulated. Existing server order contract unchanged.",
+    "No physical iPhone touch or screen-reader session performed. WebKit mobile test verifies layout, taps, permission and save guards.",
+    "Not a production deployment or full admin regression suite."
+  ],
+  "git_workflow": "origin/prod → feat/category-vertical-drag → integration from origin/dev → release from origin/prod; final refs and clean state recorded in .local/category-vertical-drag-20261103/integration.json",
+  "runtime_deployment": "not_deployed"
+}
