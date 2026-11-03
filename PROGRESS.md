@@ -713,3 +713,7 @@
 ## 2026-11-03 미배포 콘솔 통합·검증
 - origin/dev602cecf에 예약핸들 관리91bc8cb와 콩 후원·출금 빈 상태2448f72를 통합. 기존 미커밋 작업이 있는 주 작업트리는 보존. AGENTS 규약 유지.
 - npm run check: TypeScript 및 단위13건 통과. 과거 실제 격리API 예약핸들 E2E와 빈 표 E2E 증거는 각 커밋의 docs JSON 참조. 운영은 기존referral-20261102이며 API 예약 핸들 migration과 함께 배포 예정.
+
+## 2026-11-03 예약핸들·빈 콩 테이블 운영 배포
+- dev통합b43619d→prod5a290a4 승격 후 crefans-admin:all-pending-20261103 배포. 예약핸들 관리UI·후원/출금/정산 관련 테이블 누락 없는 no-data 표시 포함. 서버 예약핸들103개 및 API migration 동시 반영.
+- typecheck/13단위 통과; 이미지 원본 소스 해시 및 운영 컴파일 산출물·컨테이너 imageID 확인. 운영 로그인 경로200, restart0/OOMfalse. 상세 묶음 증거는 프론트 docs/audit/open-event-spacing-20261103.json. 운영관리자 인증 데이터 변경은 수행하지 않았으며 앞선 격리E2E 증거와 구분.
