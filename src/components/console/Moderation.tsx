@@ -1,4 +1,5 @@
 'use client';
+import {EmptyState} from './EmptyState';
 import {useState} from 'react';
 import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
@@ -10,7 +11,7 @@ type Entry={action:string;reason:string;publicReason?:string|null;until:string|n
 const labels:Record<string,string>={'post.hidden':'숨김','post.unhidden':'숨김 해제','member.suspended':'이용 제한','member.unsuspended':'제한 해제','member.erased':'회원 삭제'};
 const at=(v:string)=>new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
 const day=(v:string)=>new Date(v).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'});
-function History({path}:{path:string}){const state=useData<Entry[]>(path);return <section className="terms-history"><h3>조치 이력</h3><State {...state}/>{state.data&&(state.data.length?<div className="table-wrap"><table><thead><tr><th>일시</th><th>조치</th><th>처리자</th><th>내부 사유</th><th>당사자 안내 사유</th></tr></thead><tbody>{state.data.map((h,i)=><tr key={i}><td>{at(h.createdAt)}</td><td>{labels[h.action]||h.action}{h.action==='member.suspended'&&<small>{h.until?day(h.until)+'까지':'무기한'}</small>}</td><td>{h.adminName||'—'}</td><td>{h.reason}</td><td>{h.publicReason||'—'}</td></tr>)}</tbody></table></div>:<p className="empty">조치 이력이 없습니다.</p>)}</section>;}
+function History({path}:{path:string}){const state=useData<Entry[]>(path);return <section className="terms-history"><h3>조치 이력</h3><State {...state}/>{state.data&&(state.data.length?<div className="table-wrap"><table><thead><tr><th>일시</th><th>조치</th><th>처리자</th><th>내부 사유</th><th>당사자 안내 사유</th></tr></thead><tbody>{state.data.map((h,i)=><tr key={i}><td>{at(h.createdAt)}</td><td>{labels[h.action]||h.action}{h.action==='member.suspended'&&<small>{h.until?day(h.until)+'까지':'무기한'}</small>}</td><td>{h.adminName||'—'}</td><td>{h.reason}</td><td>{h.publicReason||'—'}</td></tr>)}</tbody></table></div>:<EmptyState>조치 이력이 없습니다.</EmptyState>)}</section>;}
 
 // reason stays internal; publicReason reaches the affected member by app notice and email (server rejects an empty one).
 function Reasons({reason,setReason,publicReason,setPublicReason,placeholder,publicPlaceholder}:{reason:string;setReason:(v:string)=>void;publicReason:string;setPublicReason:(v:string)=>void;placeholder:string;publicPlaceholder:string}){return <>
