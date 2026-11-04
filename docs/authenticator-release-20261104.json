@@ -1,0 +1,26 @@
+{
+  "at": "2026-11-04T00:02:12Z",
+  "runtimeCommit": "d664a6c10a24ea5a3d0b3952e855031b12526137",
+  "release": "authenticator-20261104",
+  "loginStatus": 200,
+  "otherContainersUnchanged": true,
+  "restartCount": 0,
+  "checks": {
+    "typecheck": true,
+    "unitTests": 16,
+    "localBrowserTests": 2,
+    "deployedBrowserTests": 2,
+    "buildPages": 12
+  },
+  "limitations": [
+    "Authentication API mocked in browser checks",
+    "Physical iPhone app launch unverified",
+    "Android app auto-launch not implemented"
+  ],
+  "cleanup": {
+    "previousAdminImageOffhostVerified": true,
+    "previousAdminImageRemoved": true,
+    "temporarySourceRemoved": true,
+    "freeBytes": 10821349376
+  }
+}
