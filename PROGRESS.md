@@ -1,3 +1,10 @@
+## 2026-11-04 Google Authenticator 실행 시도 운영 배포 완료
+- 사용자 배포 지시. feature acf939c → dev8da1b5c → prodd664a6c, 운영 crefans-admin:authenticator-20261104. 콘솔만 교체, API/worker/front/DB/proxy 컨테이너 ID 유지. 로그인 HTTP200, 콘솔 running/restarts0/OOMfalse. DB 변경 없음.
+- 운영 이미지 내 googleauthenticator:// 포함·소스 커밋 라벨 확인. 운영 URL에 PC Chromium/iPhone WebKit 2회귀 통과(인증 API 대역, 실제 계정 미접속): 모바일 링크/PC 제외·6자리 자동제출·오류/복구 전환/입력 보존. 기존 로컬 타입·단위16/화면2 통과. 운영 Next빌드12페이지 성공, 기존 img 경고3개.
+- 실제 iPhone Google Authenticator 실행 성공은 미검증. 현재 스킴 공식 호환성 보장 없이 1회 best-effort 시도, OS 차단/미설치 시 직접열기 안내 유지. Android 자동실행 미적용. 자동실행 성공으로 과장하지 않는다.
+- 이전 콘솔 이미지와 설정은 /Users/ethan/crefans-recovery/20261104/authenticator에 비공개 보관, OCI blob/ID·SHA/설정해시 검증. 완료후 정확한 직전콘솔 이미지1개 및 이번 임시소스만 서버에서 제거. 여유10821349376bytes. 활성 이미지/DB/업로드 보존.
+- 증거 .local/authenticator-release/{deployment.json,browser-results.json,build.log,cleanup.log}, docs/authenticator-release-20261104.json. 아래 미배포 기록은 이전 이력. 텔레그램 알림 설치는 별도 승인 대기이며 이번 배포에 포함하지 않음.
+
 ## 2026-11-04 Google Authenticator 자동 열기 시도 구현 (미배포)
 - 사용자 Google 앱 확인 및 가능한 자동실행 시도 요청. iPhone/iPad만 googleauthenticator:// 데이터 없는 URL로 2차 인증 최초 진입 1회 시도. ref를 effect 전에 설정하여 재렌더/복구코드 복귀 시 반복하지 않음. 다른 계정 로그인 시작시 재설정. 수동 열기 링크·실패시 직접 앱 열기 안내·OTP 자동제출/복구코드 유지.
 - 현재 Google 공식 자료에서 단순 실행 스킴의 최신 호환성 보장은 확인하지 못함. 이 구현은 best-effort 실험이며 실제 앱 실행 성공 주장 불가. 실물 iPhone Chrome/Safari와 설치된 앱에서 확인 필요. 미설치면 OS 오류/확인창이 나타날 수 있음. Android는 공개 manifest가 otpauth 등록용만 노출하므로 잘못된 등록 URI 대신 기존 수동입력 유지.
