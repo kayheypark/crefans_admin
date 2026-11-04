@@ -814,3 +814,5 @@
 - origin/prod a947f47에서 feat/support-editor-modals 분기. 공지·FAQ 등록/편집 및 문의 답변 등록/수정 폼을 공통 ConfirmDialog portal로 전환. 기존 권한·API payload·게시 확인 유지, 저장 중 닫기/중복 제출 방지, 오류 시 입력 유지, 성공 시 snackbar와 목록 갱신.
 - npm run check: 타입 및 단위 16건 통과. playwright.support.config.ts의 PC Chromium/iPhone13 WebKit 2건 통과: 초기 inline 폼 없음, body portal, 등록 실패 입력 유지, 수정값/category/pinned 보존, 취소 무변경, 답변 저장. 실 API는 대역이며 실제 문의 답변 발송 없음. 모바일 캡처 확인. 최초 fixture 권한 누락 및 textarea label locator 실패는 테스트 fixture/role locator 수정 후 통과. 물리 기기 검증 제외.
 - 운영 배포 및 원격 빌드 검증은 후속 기록. DB 스키마 변경 없음.
+- 운영 배포 완료: support-modals-20261104 / 590c0b1. Docker production build 성공(12페이지, 기존 img 권고), 로그인 HTTP200, admin 외 컨테이너 ID 불변·재시작0. 운영 URL의 PC Chromium·iPhone13 WebKit 2건도 API 대역으로 통과; PC/모바일 화면 확인. 실제 고객 데이터 변경/답변 발송 없음.
+- 이전 admin 이미지·현재 구성은 /Users/ethan/crefans-recovery/20261104/support-modals 에 비공개 보관하고 SHA-256/OCI blob·image ID/설정 해시 검증 후 서버 이전 이미지와 임시 소스만 정리. 증거 docs/support-modals-20261104.json 및 .local/support-modals-release/ 로그. dev→prod 순서 반영.

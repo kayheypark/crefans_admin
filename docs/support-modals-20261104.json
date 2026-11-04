@@ -1,0 +1,46 @@
+{
+  "verifiedAt": "2026-11-04T00:37:27.808914+00:00",
+  "repository": "crefans_admin",
+  "runtimeCommit": "590c0b1ea31f90bb9f86898bca41c584d5b4e29a",
+  "release": "support-modals-20261104",
+  "checks": [
+    {
+      "command": "npm run check",
+      "exitCode": 0,
+      "result": "typecheck + 16 unit tests passed"
+    },
+    {
+      "command": "npx playwright test -c playwright.support.config.ts",
+      "exitCode": 0,
+      "result": "PC Chromium and iPhone13 WebKit: 2 passed"
+    },
+    {
+      "command": "Dockerfile npm run build",
+      "exitCode": 0,
+      "result": "12 pages generated; existing img warnings"
+    },
+    {
+      "command": "SUPPORT_TEST_ORIGIN=https://admin.crefans.com npx playwright test -c playwright.support.config.ts",
+      "exitCode": 0,
+      "result": "2 passed against production UI, all admin APIs mocked"
+    }
+  ],
+  "production": {
+    "loginHttpStatus": 200,
+    "otherContainersUnchanged": true,
+    "restartCount": 0
+  },
+  "cleanup": {
+    "previousImageArchivedOffhostAndVerified": true,
+    "previousServerImageRemoved": true,
+    "temporaryServerSourceRemoved": true
+  },
+  "limits": [
+    "No real inquiry reply or document mutation performed",
+    "Physical mobile device not tested"
+  ],
+  "screenshots": {
+    "test-results/support-modals-support-edi-84a8c-dits-and-close-after-saving-pc/document.png": "6ac976721aeedd257f8be4b872fa2429c2153e21a6a14e24cbec18efbb7ec5e2",
+    "test-results/support-modals-support-edi-84a8c-dits-and-close-after-saving-mobile/document.png": "700723272ef198808972655eec206d7fb37d4c0537d84896b4d46ae11c9d5396"
+  }
+}
