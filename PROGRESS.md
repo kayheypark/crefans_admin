@@ -820,3 +820,5 @@
 ## 2026-11-04 인증 앱 열기 위치 변경
 - prod f3e0ca3에서 분기. Google Authenticator 열기를 인증하고 로그인 버튼 아래로 이동하고 “열리지 않으면…” 문구 삭제. 기존 모바일 조건·자동 열기·OTP/복구 동작 유지. 운영 빌드 및 기존 인증 UI 검사 후 배포 예정.
 - 타입 검사 및 기존 인증 UI PC/iPhone WebKit 2건 통과(API 대역). 삭제한 설명 전용 CSS 제거, 폼 기본 gap으로 버튼 간격 유지.
+- 운영 배포 완료: authenticator-position-20261104 / 4085150. production build 12페이지 성공, 로그인 HTTP200·다른 컨테이너 불변. 운영 URL PC/iPhone WebKit 2건 통과(API 대역), 로그인 아래 링크 위치·안내 부재·OTP/복구 전환 검사 및 모바일 캡처 육안 확인. 물리 앱 열기 재검증은 제외.
+- 증거 docs/authenticator-position-20261104.json, .local/authenticator-position-release/ 로그·캡처. 이전 이미지/설정은 로컬 복구저장소로 전송해 해시 검증 후 서버 사본·임시 소스 정리. dev→prod 반영.

@@ -1,0 +1,34 @@
+{
+  "repository": "crefans_admin",
+  "commit": "40851505d460c578cef845e940e57ff2f7c57a6a",
+  "deployedAt": "2026-11-04T00:46:51Z",
+  "release": "authenticator-position-20261104",
+  "checks": {
+    "typecheck": {
+      "exitCode": 0
+    },
+    "localAuthenticatorBrowser": {
+      "passed": 2,
+      "exitCode": 0
+    },
+    "productionBuild": {
+      "exitCode": 0,
+      "pages": 12
+    },
+    "productionBrowser": {
+      "passed": 2,
+      "exitCode": 0,
+      "assertions": [
+        "app link below login button",
+        "removed guidance absent",
+        "OTP and recovery preserved"
+      ],
+      "apis": "mocked"
+    },
+    "loginHttpStatus": 200,
+    "otherContainersUnchanged": true
+  },
+  "screenshotSha256": "0de7ecf172269ca975d5579a6c776fecc4a9e564e6a75d3ba9c8fc19da6a6cff",
+  "cleanup": "Offhost archive SHA/OCI/config verified, previous server image and temporary source removed",
+  "limits": "Physical Authenticator app launch not tested; existing behavior unchanged"
+}
