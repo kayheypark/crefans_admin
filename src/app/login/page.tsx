@@ -38,11 +38,11 @@ export default function Login(){
   <h1>{second?recovery?'복구 코드 인증':'2차 인증':'운영 콘솔 로그인'}</h1>
   {!second?<><label>이메일<input type="email" autoComplete="username" required disabled={busy} value={email} onChange={e=>setEmail(e.target.value)}/></label><label>비밀번호<input type="password" autoComplete="current-password" required disabled={busy} value={password} onChange={e=>setPassword(e.target.value)}/></label></>:recovery?<><p className="muted">인증 앱을 쓸 수 없으면 등록할 때 받은 복구 코드 하나를 입력하세요. 쓴 코드는 다시 쓸 수 없습니다.</p><label>복구 코드<input autoComplete="off" autoCapitalize="off" spellCheck={false} maxLength={20} required autoFocus disabled={busy} placeholder="xxxxx-xxxxx" value={recoveryCode} onChange={e=>setRecoveryCode(e.target.value)}/></label></>:<>
    <p className="muted" id="otp-help">인증 앱에 표시된 6자리 코드를 입력해 주세요.</p>
-   {appLink&&<div className="login-authenticator"><a href={appLink}>Google Authenticator 열기 ↗</a><p className="muted">열리지 않으면 인증 앱을 직접 열어 코드를 복사해 주세요.</p></div>}
    <label htmlFor="login-otp">인증 코드</label><div className="login-otp"><input id="login-otp" type="text" name="one-time-code" aria-describedby="otp-help" aria-invalid={!!error} inputMode="numeric" autoComplete="one-time-code" autoCapitalize="off" spellCheck={false} enterKeyHint="go" pattern="\d{6}" maxLength={6} required autoFocus readOnly={busy} value={code} onPaste={pasteCode} onChange={e=>updateCode(e.target.value.replace(/\D/g,''))}/></div>
   </>}
   {error&&<p role="alert" className="error">{error}</p>}
   <button className="primary" disabled={busy||!ready}>{busy?(second?'확인 중…':'로그인 중…'):second?'인증하고 로그인':'로그인'}</button>
+  {second&&!recovery&&appLink&&<div className="login-authenticator"><a href={appLink}>Google Authenticator 열기 ↗</a></div>}
   {second&&<><div className="login-alternatives"><button type="button" disabled={busy} onClick={()=>{setRecovery(v=>!v);setError('');}}>{recovery?'인증 앱 코드 사용':'복구 코드 사용'}</button><button type="button" disabled={busy} onClick={restart}>다른 계정으로 로그인</button></div></>}
  </form></main>;
 }

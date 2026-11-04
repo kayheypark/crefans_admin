@@ -816,3 +816,7 @@
 - 운영 배포 및 원격 빌드 검증은 후속 기록. DB 스키마 변경 없음.
 - 운영 배포 완료: support-modals-20261104 / 590c0b1. Docker production build 성공(12페이지, 기존 img 권고), 로그인 HTTP200, admin 외 컨테이너 ID 불변·재시작0. 운영 URL의 PC Chromium·iPhone13 WebKit 2건도 API 대역으로 통과; PC/모바일 화면 확인. 실제 고객 데이터 변경/답변 발송 없음.
 - 이전 admin 이미지·현재 구성은 /Users/ethan/crefans-recovery/20261104/support-modals 에 비공개 보관하고 SHA-256/OCI blob·image ID/설정 해시 검증 후 서버 이전 이미지와 임시 소스만 정리. 증거 docs/support-modals-20261104.json 및 .local/support-modals-release/ 로그. dev→prod 순서 반영.
+
+## 2026-11-04 인증 앱 열기 위치 변경
+- prod f3e0ca3에서 분기. Google Authenticator 열기를 인증하고 로그인 버튼 아래로 이동하고 “열리지 않으면…” 문구 삭제. 기존 모바일 조건·자동 열기·OTP/복구 동작 유지. 운영 빌드 및 기존 인증 UI 검사 후 배포 예정.
+- 타입 검사 및 기존 인증 UI PC/iPhone WebKit 2건 통과(API 대역). 삭제한 설명 전용 CSS 제거, 폼 기본 gap으로 버튼 간격 유지.
