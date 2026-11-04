@@ -809,3 +809,8 @@
 - PC Chromium·모바일 WebKit 14건 PASS: 7개 목록 화면, 수동 지급·다크 모드, 콩 테이블9개 빈/정상/0값·지연/오류/재시도·이전행 유지·다음 페이지를 검사. 아이콘36×44/간격16/중앙/화면 이내·테두리0 확인, PC/모바일/다크 캡처 육안 확인. 타입·기존 단위13건·production build 통과. 기존 img 최적화 경고 유지.
 - 최초 타입 검사는 개발서버의 .next-e2e 타입 재생성과 동시에 실행되어 임시 파일 경합으로 실패; 서버 종료 후 순차 검사로 해결했다. 기존 TableContent 단위 테스트는 단일 파일만 변환하던 로더라 새 공통 컴포넌트를 찾지 못했으므로 실제 EmptyState도 변환하도록 수정했고, 정확한 과거 p 마크업 대신 안내·장식 아이콘·로딩/정상행 동작을 검사한다. 최초 실패 로그 보존, 제품 동작 실패로 확대하지 않음.
 - 증거 docs/console-empty-state-20261103.json 및 .local/console-empty-state-20261103/의 inventory/results·check/build 로그·화면. API 대역 검증이며 실운영 데이터/물리 iPhone/스크린리더 검증 아님. 개발서버 tsconfig 부수변경만 복원하고 다른 작업트리 보존. dev→prod 소스 통합 결과는 같은 폴더 integration.json에 기록. 운영 서버 배포는 하지 않음.
+
+## 2026-11-04 고객지원 등록·수정 모달
+- origin/prod a947f47에서 feat/support-editor-modals 분기. 공지·FAQ 등록/편집 및 문의 답변 등록/수정 폼을 공통 ConfirmDialog portal로 전환. 기존 권한·API payload·게시 확인 유지, 저장 중 닫기/중복 제출 방지, 오류 시 입력 유지, 성공 시 snackbar와 목록 갱신.
+- npm run check: 타입 및 단위 16건 통과. playwright.support.config.ts의 PC Chromium/iPhone13 WebKit 2건 통과: 초기 inline 폼 없음, body portal, 등록 실패 입력 유지, 수정값/category/pinned 보존, 취소 무변경, 답변 저장. 실 API는 대역이며 실제 문의 답변 발송 없음. 모바일 캡처 확인. 최초 fixture 권한 누락 및 textarea label locator 실패는 테스트 fixture/role locator 수정 후 통과. 물리 기기 검증 제외.
+- 운영 배포 및 원격 빌드 검증은 후속 기록. DB 스키마 변경 없음.

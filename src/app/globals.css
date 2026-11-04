@@ -348,3 +348,5 @@ button.danger{color:var(--danger)}
 .reserved-handles td:not(.handle-reason){white-space:nowrap}.handle-reason{min-width:180px;max-width:320px;overflow-wrap:anywhere}.handle-status{display:inline-flex;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--text-2);font-size:12px}.handle-status.reserved{font-weight:600;color:var(--brand)}.handle-history{padding:0;list-style:none;margin:0}.handle-history li{padding:12px 0;border-bottom:1px solid var(--border)}.handle-history p{margin:6px 0;overflow-wrap:anywhere}
 
 .login-authenticator{margin:0 0 20px;text-align:center}.login-authenticator a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;color:var(--brand);border:1px solid var(--border-strong);border-radius:8px;font-weight:600;text-decoration:none}.login-authenticator a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}.login-authenticator p{margin:8px 0 0;font-size:13px}
+
+.support-question{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;color:var(--text-2)}

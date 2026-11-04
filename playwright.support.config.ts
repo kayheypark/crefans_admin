@@ -1,0 +1,2 @@
+import {defineConfig,devices} from '@playwright/test';
+export default defineConfig({testDir:'./e2e',testMatch:'support-modals.spec.ts',workers:1,reporter:'list',use:{baseURL:process.env.SUPPORT_TEST_ORIGIN||'http://127.0.0.1:3048'},projects:[{name:'pc',use:{browserName:'chromium'}},{name:'mobile',use:{...devices['iPhone 13'],browserName:'webkit'}}],...(process.env.SUPPORT_TEST_ORIGIN?{}:{webServer:{command:'NEXT_DIST_DIR=.next-support npx next dev -H 127.0.0.1 -p 3048',url:'http://127.0.0.1:3048/login',reuseExistingServer:false,timeout:120000}})});
