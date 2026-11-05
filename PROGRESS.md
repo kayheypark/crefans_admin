@@ -1,4 +1,7 @@
-## 2026-11-06 멤버십·구독 조회 화면 (미커밋·미배포)
+## 2026-11-06 멤버십·구독 조회 화면 (운영 배포 완료)
+- 사용자 "다되면 배포" 지시로 배포. feat fa2826d → dev 646b5b6 → prod 3c35a70(tree 동일). 운영 crefans-admin:admin-memberships-20261106(서버 빌드, 라벨 commit 3c35a70), 콘솔만 교체, 다른 컨테이너 불변, login 200·restart0. 이미지 번들에 '구독자 보기' 포함 확인.
+- 운영 URL https://admin.crefans.com 에서 memberships.spec PC Chromium·iPhone WebKit 4/4(API 대역, 실제 계정 미접속). 실제 운영자 로그인 화면 확인은 사용자 몫(미검증).
+- 직전 콘솔 이미지·설정은 /Users/ethan/crefans-recovery/20261106/admin-memberships(blob SHA·설정 해시 검증). 서버의 직전 이미지·임시 소스 정리. 스크립트·로그 .local/admin-memberships-release/.
 - 사용자 요청("추가진행"). 브랜치 feat/admin-memberships(origin/prod c714b5f 기준, 작업트리 crefans_admin-memberships). 서버 짝: crefans_server feat/admin-memberships의 GET /admin/memberships·/admin/subscriptions.
 - /console/memberships 새 메뉴 "멤버십·구독"(현황 그룹, 매출·정산 다음). 별도 권한 없이 매출 조회(revenue.view)가 있으면 보임(canViewSection 매핑). 탭 2개: 멤버십 상품(상태·검색, 가격·주기·체험·상태·이용 중/자동 갱신/해지 예약/만료 수, 구독자 보기) / 구독 현황(상태·검색·상품 조건, 집계 카드, 구독자·상품·크리에이터·상태·금액·시작일·이용 종료일·다음 결제일·결제 실패). 조회 전용, 수정·해지·환불 버튼 없음. 로딩/빈 상태는 기존 useData·State·TableContent 사용.
 - 검증(2026-11-06 로컬): typecheck exit0, npm test 16/16, build:verify exit0, playwright.memberships.config.ts PC Chromium+iPhone WebKit 4/4(API 대역: 메뉴 href, 필터·검색·구독자 보기의 요청 query, 상태 표기, 탈퇴 회원 표기, GET 외 호출 0건, 권한 없으면 메뉴·요청 없음). 대조: 권한 매핑을 빼면 PC 실패, 원복 후 4/4.
