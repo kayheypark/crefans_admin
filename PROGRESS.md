@@ -1,3 +1,10 @@
+## 2026-11-06 멤버십·구독 조회 화면 (미커밋·미배포)
+- 사용자 요청("추가진행"). 브랜치 feat/admin-memberships(origin/prod c714b5f 기준, 작업트리 crefans_admin-memberships). 서버 짝: crefans_server feat/admin-memberships의 GET /admin/memberships·/admin/subscriptions.
+- /console/memberships 새 메뉴 "멤버십·구독"(현황 그룹, 매출·정산 다음). 별도 권한 없이 매출 조회(revenue.view)가 있으면 보임(canViewSection 매핑). 탭 2개: 멤버십 상품(상태·검색, 가격·주기·체험·상태·이용 중/자동 갱신/해지 예약/만료 수, 구독자 보기) / 구독 현황(상태·검색·상품 조건, 집계 카드, 구독자·상품·크리에이터·상태·금액·시작일·이용 종료일·다음 결제일·결제 실패). 조회 전용, 수정·해지·환불 버튼 없음. 로딩/빈 상태는 기존 useData·State·TableContent 사용.
+- 검증(2026-11-06 로컬): typecheck exit0, npm test 16/16, build:verify exit0, playwright.memberships.config.ts PC Chromium+iPhone WebKit 4/4(API 대역: 메뉴 href, 필터·검색·구독자 보기의 요청 query, 상태 표기, 탈퇴 회원 표기, GET 외 호출 0건, 권한 없으면 메뉴·요청 없음). 대조: 권한 매핑을 빼면 PC 실패, 원복 후 4/4.
+- 기존 e2e/console.spec.ts(실서버) 12개 중 2개 실패(빈 표 문구 '표시할 데이터가 없습니다.', 문의 답변 행 탐색). 같은 실패가 origin/prod c714b5f에서도 재현되어 이번 변경과 무관한 기존 실패로 판단, 수정하지 않음.
+- 남은 일: 커밋·dev 통합·prod 승격·운영 배포는 사용자 승인 대기. 실서버+실데이터 화면 확인은 배포 후.
+
 ## 2026-11-04 Google Authenticator 실행 시도 운영 배포 완료
 - 사용자 배포 지시. feature acf939c → dev8da1b5c → prodd664a6c, 운영 crefans-admin:authenticator-20261104. 콘솔만 교체, API/worker/front/DB/proxy 컨테이너 ID 유지. 로그인 HTTP200, 콘솔 running/restarts0/OOMfalse. DB 변경 없음.
 - 운영 이미지 내 googleauthenticator:// 포함·소스 커밋 라벨 확인. 운영 URL에 PC Chromium/iPhone WebKit 2회귀 통과(인증 API 대역, 실제 계정 미접속): 모바일 링크/PC 제외·6자리 자동제출·오류/복구 전환/입력 보존. 기존 로컬 타입·단위16/화면2 통과. 운영 Next빌드12페이지 성공, 기존 img 경고3개.
