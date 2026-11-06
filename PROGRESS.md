@@ -851,4 +851,6 @@
 - 검증: typecheck 0 오류, lint 신규 경고 없음(기존 `<img>` 3건), 단위 16/16, `build:verify` 통과. E2E 8파일 34건 중 28 통과·2 건너뜀·4 실패 — **4 실패는 변경 없는 origin/prod 기준선에서도 같은 4건**(console:21, console:31, moderation:14, moderation:21). 수정 전에 새로 깨졌던 4건(bean-refunds 2, comment-reports, console:123)은 모두 해결.
 - 회귀 검사: 각 E2E가 네이티브 다이얼로그를 받으면 `native` 배열에 담고 마지막에 빈 배열을 단언한다. 대조 검사: 공지 저장을 네이티브 `confirm` 으로 되돌리면 `support-modals` 가 실패하고, 복구하면 통과함을 확인.
 - 미검증: console.spec 33행의 신고 "처리 완료" 확인 경로는 기준선에서 32행(문의 답변)이 먼저 실패해 도달하지 못한다. 같은 컴포넌트의 "숨기고 처리 완료" 경로는 comment-reports 에서 통과.
-- 남은 일: `window.prompt()` 3곳(콩 이체 참조번호·반려 사유, ManualPayouts)은 같은 문제가 있으나 이번 지시 범위(confirm) 밖이라 그대로 뒀다. 운영 미배포.
+- (추가, 사용자 결정) `window.prompt()` 3곳도 교체: 같은 provider 에 입력 모드를 붙여 `usePrompt()`(→ 앞뒤 공백 제거한 값 또는 null)를 만들었다. 콩 출금 "이체 완료 기록"(참조번호), "반려"(사유, 빨간 버튼), 수동 지급 "예금주 확인 완료"(확인 내용). 입력란이 자동 포커스되고 빈 값·공백만이면 확정 버튼이 꺼진다. **콘솔 전체 네이티브 confirm/prompt/alert 0건.**
+- 추가 E2E `e2e/bean-payout-prompts.spec.ts`: 빈 값 차단, 취소·Esc 시 미전송, 재오픈 시 입력 초기화, Enter 확정, 공백 제거 전송, 반려 버튼 danger, 네이티브 창 0건. `manual-payouts.spec`(ADMIN_E2E_MANUAL_PAYOUTS=1)도 새 입력창으로 갱신해 통과. 공지 저장은 PC·모바일(WebKit) 둘 다 통과.
+- 운영 배포는 사용자 승인(2026-11-06).

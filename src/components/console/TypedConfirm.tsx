@@ -58,31 +58,46 @@ export function TypedConfirmDialog({title,phrase,actionLabel,busyLabel='처리 �
 }
 
 /**
- * Plain yes/no confirmation in the console's own dialog, replacing window.confirm (2026-11-06).
- * Native dialogs are blocked in some embedded browsers, where confirm() silently returns false and the
- * action is dropped without a word. Cancel keeps default focus so Enter never confirms by accident.
- * Actions that need a typed phrase use TypedConfirmDialog instead.
+ * Yes/no confirmation and single-value input in the console's own dialog, replacing window.confirm and
+ * window.prompt (2026-11-06). Native dialogs are blocked in some embedded browsers, where confirm() silently
+ * returns false and prompt() returns null, so the action is dropped without a word.
+ * Confirm keeps default focus on Cancel so Enter never confirms by accident; a prompt focuses its field and the
+ * action stays off until something non-blank is typed. Actions that need a typed phrase use TypedConfirmDialog.
  */
 export type ConfirmRequest={title:string;message?:ReactNode;actionLabel?:string;cancelLabel?:string;danger?:boolean};
-const ConfirmContext=createContext<((request:ConfirmRequest)=>Promise<boolean>)|null>(null);
+export type PromptRequest=ConfirmRequest&{label:string;placeholder?:string;maxLength?:number;multiline?:boolean};
+type Ask=(request:ConfirmRequest&Partial<PromptRequest>,input:boolean)=>Promise<string|null>;
+const ConfirmContext=createContext<Ask|null>(null);
+
+function ConfirmBody({request,input,onSettle}:{request:ConfirmRequest&Partial<PromptRequest>;input:boolean;onSettle:(value:string|null)=>void}){
+ const [value,setValue]=useState(''),fieldId=useId(),ready=!input||!!value.trim();
+ const lines=typeof request.message==='string'?request.message.split('\n').filter(line=>line.trim()).map((line,index)=><p key={index}>{line}</p>):request.message;
+ return <form className="editor" onSubmit={e=>{e.preventDefault();if(ready)onSettle(input?value.trim():'');}}>
+  {lines}
+  {input&&<label htmlFor={fieldId}><span>{request.label}</span>{request.multiline
+   ?<textarea id={fieldId} autoFocus value={value} maxLength={request.maxLength} placeholder={request.placeholder} onChange={e=>setValue(e.target.value)}/>
+   :<input id={fieldId} autoFocus value={value} maxLength={request.maxLength} placeholder={request.placeholder} autoComplete="off" onChange={e=>setValue(e.target.value)}/>}</label>}
+  <div className="actions dialog-actions">
+   <button type="button" autoFocus={!input} onClick={()=>onSettle(null)}>{request.cancelLabel||'취소'}</button>
+   <button type="submit" className={request.danger?'danger':'primary'} disabled={!ready}>{request.actionLabel||'확인'}</button>
+  </div>
+ </form>;
+}
 
 export function ConfirmProvider({children}:{children:ReactNode}){
- const [pending,setPending]=useState<{request:ConfirmRequest;id:number}|null>(null);
- const resolve=useRef<((answer:boolean)=>void)|null>(null),nextId=useRef(0);
- const settle=useCallback((answer:boolean)=>{const done=resolve.current;resolve.current=null;setPending(null);done?.(answer);},[]);
- // A request arriving while another is open answers the older one "no" instead of losing its promise.
- const ask=useCallback((request:ConfirmRequest)=>{resolve.current?.(false);return new Promise<boolean>(done=>{resolve.current=done;setPending({request,id:nextId.current++});});},[]);
- useEffect(()=>()=>{resolve.current?.(false);resolve.current=null;},[]);
+ const [pending,setPending]=useState<{request:ConfirmRequest&Partial<PromptRequest>;input:boolean;id:number}|null>(null);
+ const resolve=useRef<((value:string|null)=>void)|null>(null),nextId=useRef(0);
+ const settle=useCallback((value:string|null)=>{const done=resolve.current;resolve.current=null;setPending(null);done?.(value);},[]);
+ // A request arriving while another is open answers the older one "cancel" instead of losing its promise.
+ const ask=useCallback<Ask>((request,input)=>{resolve.current?.(null);return new Promise<string|null>(done=>{resolve.current=done;setPending({request,input,id:nextId.current++});});},[]);
+ useEffect(()=>()=>{resolve.current?.(null);resolve.current=null;},[]);
  return <ConfirmContext.Provider value={ask}>{children}
-  {pending&&<ConfirmDialog key={pending.id} title={pending.request.title} onCancel={()=>settle(false)}>
-   {typeof pending.request.message==='string'?pending.request.message.split('\n').filter(line=>line.trim()).map((line,index)=><p key={index}>{line}</p>):pending.request.message}
-   <div className="actions dialog-actions">
-    <button type="button" autoFocus onClick={()=>settle(false)}>{pending.request.cancelLabel||'취소'}</button>
-    <button type="button" className={pending.request.danger?'danger':'primary'} onClick={()=>settle(true)}>{pending.request.actionLabel||'확인'}</button>
-   </div>
-  </ConfirmDialog>}
+  {pending&&<ConfirmDialog key={pending.id} title={pending.request.title} onCancel={()=>settle(null)}><ConfirmBody request={pending.request} input={pending.input} onSettle={settle}/></ConfirmDialog>}
  </ConfirmContext.Provider>;
 }
 
-export function useConfirm(){const ask=useContext(ConfirmContext);if(!ask)throw new Error('useConfirm needs ConfirmProvider');return ask;}
-
+function useAsk(){const ask=useContext(ConfirmContext);if(!ask)throw new Error('useConfirm/usePrompt needs ConfirmProvider');return ask;}
+/** Resolves true when the operator confirms. */
+export function useConfirm(){const ask=useAsk();return useCallback((request:ConfirmRequest)=>ask(request,false).then(value=>value!==null),[ask]);}
+/** Resolves the trimmed, non-blank text, or null when cancelled. */
+export function usePrompt(){const ask=useAsk();return useCallback((request:PromptRequest)=>ask(request,true),[ask]);}
