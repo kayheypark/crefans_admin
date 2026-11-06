@@ -3,6 +3,7 @@ import {EmptyState} from './EmptyState';
 import {useState} from 'react';
 import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
+import {usePrompt} from './TypedConfirm';
 
 // Manual payout mode (server MANUAL_PAYOUTS_ENABLED): no bank API is connected. The operator confirms settlement accounts
 // against a bank book copy and records each bank transfer made outside the console. The server applies the usual
@@ -16,9 +17,9 @@ const localNow=()=>{const d=new Date(Date.now()-new Date().getTimezoneOffset()*6
 
 export function ManualPayouts({canUpdate}:{canUpdate:boolean}){
  const [revision,setRevision]=useState(0),accounts=useData<Account[]>(`/admin/settlement-accounts?r=${revision}`),open=useData<{items:Withdrawal[];total:number}>(`/admin/withdrawals?status=open&r=${revision}`);
- const [busy,setBusy]=useState(false),[message,setMessage]=useState(''),[form,setForm]=useState<{id:string;result:'paid'|'rejected';reference:string;reason:string;at:string}|null>(null);
+ const askText=usePrompt(),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[form,setForm]=useState<{id:string;result:'paid'|'rejected';reference:string;reason:string;at:string}|null>(null);
  async function send(path:string,body:object){if(busy)return;setBusy(true);setMessage('');try{const r=await api<{message?:string}>(path,body);setMessage(r?.message||'기록했습니다.');setForm(null);setRevision(n=>n+1);}catch(e){setMessage(e instanceof Error?e.message:'기록하지 못했습니다. 상태를 새로고침해 확인해주세요.');}finally{setBusy(false);}}
- function confirmAccount(a:Account){const reason=window.prompt(`${a.holder} · ${a.bank} ****${a.lastFour}\n통장 사본 등으로 예금주를 확인한 내용을 적어주세요.`);if(reason?.trim())void send(`/admin/settlement-accounts/${a.id}/verify`,{expectedVersion:a.version,reason:reason.trim()});}
+ async function confirmAccount(a:Account){const reason=await askText({title:'예금주 확인 완료',message:`${a.holder} · ${a.bank} ****${a.lastFour}`,label:'통장 사본 등으로 예금주를 확인한 내용',maxLength:500,multiline:true,actionLabel:'확인 완료 기록'});if(reason)await send(`/admin/settlement-accounts/${a.id}/verify`,{expectedVersion:a.version,reason});}
  function submit(e:React.FormEvent){e.preventDefault();if(!form)return;const body=form.result==='paid'?{result:'paid',reference:form.reference.trim(),transferredAt:new Date(form.at).toISOString()}:{result:'rejected',reason:form.reason.trim()};void send(`/admin/withdrawals/${form.id}/manual-result`,body);}
  return <section className="manual-payouts"><h2>수동 지급</h2>
   <p className="notice">은행 연동 없이 운영자가 직접 이체합니다. 정산 계좌는 통장 사본으로 예금주를 확인한 뒤 확인 완료로 기록하고, 이체를 마친 출금은 이체 참조번호와 함께 기록합니다. 화요일 23:59(한국 시간)까지 접수된 출금이 매주 수요일에 이체 대기로 전환되며, 수요일이 공휴일이면 다음 영업일에 이체합니다.</p>

@@ -8,12 +8,13 @@ test('댓글 신고는 댓글 내용을 보여주고, 숨기고 처리 완료하
     else if(url.pathname.endsWith('/reports'))data=reports;
     else if(method==='POST'){mutations.push({path:url.pathname,body:route.request().postDataJSON()});if(url.pathname.endsWith('/resolve'))reports=reports.filter(r=>!url.pathname.includes(r.id));data={message:'완료'};}
     await route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,data,errorMessage:null,errorCode:null})});});
-  page.on('dialog',dialog=>void dialog.accept());
+  // 2026-11-06: 확인은 콘솔 자체 다이얼로그. 네이티브 창이 뜨면 실패시킨다.
+  const native:string[]=[];page.on('dialog',dialog=>{native.push(dialog.message());void dialog.dismiss();});
   await page.goto('/console/content');
   const comment=page.getByRole('row',{name:/광고 링크 남깁니다/});await expect(comment).toContainText('댓글');await expect(comment).toContainText('스팸·광고');
   const post=page.getByRole('row',{name:/무단 사용/});await expect(post).toContainText('게시물');await expect(post.getByRole('button',{name:'댓글 숨기고 처리 완료'})).toHaveCount(0);
   const hide=comment.getByRole('button',{name:'댓글 숨기고 처리 완료'});await expect(hide).toBeDisabled();
   await comment.getByLabel('신고 처리 메모').fill('스팸 확인');await expect(hide).toBeDisabled();await expect(post.getByLabel('당사자에게 보일 사유')).toHaveCount(0);await comment.getByLabel('당사자에게 보일 사유').fill('광고성 댓글로 운영정책을 위반했습니다.');await expect(hide).toBeEnabled();await page.screenshot({path:info.outputPath('comment-report-row.png')});
-  await hide.click();await expect(page.getByRole('row',{name:/광고 링크 남깁니다/})).toHaveCount(0);
+  await hide.click();const confirmHide=page.getByRole('dialog',{name:'댓글 숨기고 처리 완료',exact:true});await expect(confirmHide).toContainText('당사자에게 보일 사유');await confirmHide.getByRole('button',{name:'숨기고 처리 완료',exact:true}).click();await expect(page.getByRole('row',{name:/광고 링크 남깁니다/})).toHaveCount(0);expect(native).toEqual([]);
   expect(mutations).toEqual([{path:'/api/v1/admin/comments/comment-1/moderation',body:{hidden:true,reason:'스팸 확인',publicReason:'광고성 댓글로 운영정책을 위반했습니다.'}},{path:'/api/v1/admin/reports/report-1/resolve',body:{status:'RESOLVED',note:'스팸 확인'}}]);
 });

@@ -1,4 +1,5 @@
 import {ConsoleShell} from '@/components/console/Console';
 import {SnackbarProvider} from '@/components/console/Snackbar';
+import {ConfirmProvider} from '@/components/console/TypedConfirm';
 
-export default function Layout({children}:{children:React.ReactNode}){return <SnackbarProvider><ConsoleShell>{children}</ConsoleShell></SnackbarProvider>;}
+export default function Layout({children}:{children:React.ReactNode}){return <SnackbarProvider><ConfirmProvider><ConsoleShell>{children}</ConsoleShell></ConfirmProvider></SnackbarProvider>;}

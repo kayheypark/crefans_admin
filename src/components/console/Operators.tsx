@@ -4,6 +4,7 @@ import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
 import {ConsoleIcon} from './ConsoleIcon';
 import {TotpSection,type TotpStatus} from './Totp';
+import {useConfirm} from './TypedConfirm';
 
 export type Permissions=Record<string,Record<string,boolean>>;
 type Operator={id:string;name:string;email:string;phone:string;role:string;isActive:boolean;mustChangePassword:boolean;lastLogin:string|null;createdAt:string;permissions:Permissions};
@@ -43,10 +44,12 @@ function TemporaryPassword({email,password,onClose}:{email:string;password:strin
 }
 
 export function Operators({selfId}:{selfId:string}){
- const state=useData<Operator[]>('/admin/operators'),[creating,setCreating]=useState(false),[editing,setEditing]=useState<Operator|null>(null),[issued,setIssued]=useState<{email:string;password:string}|null>(null),[message,setMessage]=useState('');
+ const state=useData<Operator[]>('/admin/operators'),confirmAction=useConfirm(),[creating,setCreating]=useState(false),[editing,setEditing]=useState<Operator|null>(null),[issued,setIssued]=useState<{email:string;password:string}|null>(null),[message,setMessage]=useState('');
  async function act(op:Operator,kind:'reset'|'deactivate'|'activate'){
-  const text=kind==='reset'?`${op.name}의 임시 비밀번호를 다시 발급할까요? 기존 로그인은 모두 종료됩니다.`:kind==='deactivate'?`${op.name}을(를) 비활성화할까요? 즉시 로그인이 종료되고 콘솔에 들어올 수 없습니다.`:`${op.name}을(를) 다시 활성화할까요?`;
-  if(!window.confirm(text))return;setMessage('');
+  const ask={reset:{title:'임시 비밀번호 재발급',message:`${op.name}의 임시 비밀번호를 다시 발급할까요? 기존 로그인은 모두 종료됩니다.`,actionLabel:'재발급',danger:true},
+   deactivate:{title:'운영자 비활성화',message:`${op.name}을(를) 비활성화할까요? 즉시 로그인이 종료되고 콘솔에 들어올 수 없습니다.`,actionLabel:'비활성화',danger:true},
+   activate:{title:'운영자 활성화',message:`${op.name}을(를) 다시 활성화할까요?`,actionLabel:'활성화'}}[kind];
+  if(!await confirmAction(ask))return;setMessage('');
   try{if(kind==='reset'){const r=await api<{temporaryPassword:string}>(`/admin/operators/${op.id}/password-reset`,{});setIssued({email:op.email,password:r.temporaryPassword});}else if(kind==='deactivate')await api(`/admin/operators/${op.id}`,undefined,'DELETE');else await api(`/admin/operators/${op.id}`,{isActive:true},'PUT');state.reload();}catch(e){setMessage((e as Error).message);}
  }
  return <div className="operators">

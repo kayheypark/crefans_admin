@@ -12,7 +12,9 @@ test('operator confirms the account holder and records a transfer made outside t
  const account=panel.getByRole('row').filter({hasText:'수동 지급 예금주'});await expect(account).toContainText('****4321');
  const withdrawal=panel.getByRole('row').filter({hasText:'123,400원'});await expect(withdrawal).toContainText('이체 대기');
  await panel.scrollIntoViewIfNeeded();await shot('01-queue');
- page.once('dialog',d=>d.accept('통장 사본 예금주 일치 확인'));await account.getByRole('button',{name:'예금주 확인 완료'}).click();
+ const native:string[]=[];page.on('dialog',d=>{native.push(d.message());void d.dismiss();});await account.getByRole('button',{name:'예금주 확인 완료'}).click();
+ // 2026-11-06: 입력은 콘솔 자체 다이얼로그. 빈 값이면 기록 버튼이 꺼져 있다.
+ const verify=page.getByRole('dialog',{name:'예금주 확인 완료',exact:true}),record=verify.getByRole('button',{name:'확인 완료 기록',exact:true});await expect(record).toBeDisabled();await verify.getByLabel('통장 사본 등으로 예금주를 확인한 내용').fill('   ');await expect(record).toBeDisabled();await verify.getByLabel('통장 사본 등으로 예금주를 확인한 내용').fill('통장 사본 예금주 일치 확인');await record.click();expect(native).toEqual([]);
  await expect(panel.getByRole('status')).toHaveText('계좌 확인을 기록했습니다.');await expect(account).toHaveCount(0);await shot('02-account-confirmed');
  await withdrawal.getByRole('button',{name:'이체 완료 기록'}).click();const form=panel.getByRole('form',{name:'이체 완료 기록'});
  await expect(form.getByRole('button',{name:'기록',exact:true})).toBeVisible();await form.getByRole('button',{name:'기록',exact:true}).click();
