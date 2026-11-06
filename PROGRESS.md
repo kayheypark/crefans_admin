@@ -1,9 +1,11 @@
-## 2026-11-06 콘솔 구독 즉시 해지 UI (커밋·미배포)
+## 2026-11-06 콘솔 구독 즉시 해지 UI — 운영 배포 완료 (cancel-now-20261106)
 - 사용자 결정(/ask-me): 즉시 종료·환불 없음·전체 구독 상시 기능·SUPER_ADMIN 전용, 사유 필수.
 - 브랜치 feat/admin-cancel-now(origin/prod 0b2a648 기준). Memberships.tsx 구독 현황 표에 '해지 사유' 열과 최고관리자 전용 '관리' 열 추가. 이용 기간이 남은 구독에만 '즉시 해지' 버튼(live(): status!=='EXPIRED' && endedAt>now), 서버와 같은 조건.
 - 확인 모달은 기존 ConfirmDialog 재사용: 남은 기간 소멸·접근 즉시 차단, 환불 없음, 되돌릴 수 없음을 적고 사유(필수, 500자)를 받는다. 공백만 입력하면 버튼이 꺼진 상태 유지. 성공은 기존 Snackbar, 실패는 모달 안 오류로 남기고 목록을 건드리지 않는다. Console.tsx가 superAdmin 여부를 Beans와 같은 방식으로 전달.
 - 검증: npm run check(typecheck 0, 16/16), playwright memberships PC Chromium·iPhone13 WebKit 10/10. 대조: superAdmin 게이트를 제거하면 '부운영자 비노출' 테스트가 실패하고 원복 후 재통과. 증거는 서버 작업트리 .local/cancel-now-20261106/verification.json.
-- 미수행: 운영 배포. API 대역 기준이며 실제 운영 계정·실제 구독 대상 실행은 아님.
+- 승격·배포: feat e70652d → dev 0b2f6b7 → prod 458197b(tree 동일). 이미지 `crefans-admin:cancel-now-20261106`을 운영 서버에서 네이티브 amd64로 전체 빌드. 새 문구("구독 즉시 해지", "되돌릴 수 없습니다", "cancel-now")가 빌드 청크 2개에서 검출되고 이전 이미지에서는 0건임을 대조 확인.
+- 운영 확인: admin 컨테이너 restart 0·OOM false, https://admin.crefans.com/login 200. 서버 측 세부는 crefans_server PROGRESS.md 같은 날짜 항목.
+- 미수행: 운영 콘솔에서 실제 즉시 해지 실행은 하지 않음(운영 구독 1건 그대로). 화면 검증은 API 대역 기준이며 운영 계정 육안 확인은 아직.
 
 ## 2026-11-06 멤버십·구독 조회 화면 (운영 배포 완료)
 - 사용자 "다되면 배포" 지시로 배포. feat fa2826d → dev 646b5b6 → prod 3c35a70(tree 동일). 운영 crefans-admin:admin-memberships-20261106(서버 빌드, 라벨 commit 3c35a70), 콘솔만 교체, 다른 컨테이너 불변, login 200·restart0. 이미지 번들에 '구독자 보기' 포함 확인.
