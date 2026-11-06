@@ -1,3 +1,9 @@
+## 2026-11-06 23:27 KST 구독 현황 '환불 후 종료' 운영 배포 (refund-notices-20261106)
+- 사용자 결정(/pilot-work): 콘솔 운영자 환불 도구, 전액 환불만+구독 즉시 종료, 검사 통과 시 배포.
+- prod 69c4711(feat/console-subscription-refund a7233ce): 최근 paid 결제가 있는 구독에 SUPER_ADMIN 전용 '환불 후 종료' 버튼. TypedConfirmDialog 로 금액(예 12,000원)·사유 입력 → POST /admin/subscriptions/:id/refund {reason,confirmation}, 서버도 같은 금액 표기 검사. AGENTS.md '조회만' 규칙에 이 예외 명시.
+- 검증: tsc·lint 0, unit 16/16, e2e memberships+support-modals 8/8(API 대역, 서버 CREFANS_SERVER_DIR=refund 워크트리), build. 운영 이미지 crefans-admin:refund-notices-20261106 에 '환불 후 종료' 포함, admin 로그인 200. 로그인한 운영 콘솔에서 버튼 동작은 미확인(운영 실환불 미실행).
+- 기록: server .local/refund-notices-deploy-20261106/deployment.md, 복구본 /Users/ethan/crefans-recovery/20261106/refund-notices.
+
 ## 2026-11-06 콘솔 구독 즉시 해지 UI — 운영 배포 완료 (cancel-now-20261106)
 - 사용자 결정(/ask-me): 즉시 종료·환불 없음·전체 구독 상시 기능·SUPER_ADMIN 전용, 사유 필수.
 - 브랜치 feat/admin-cancel-now(origin/prod 0b2a648 기준). Memberships.tsx 구독 현황 표에 '해지 사유' 열과 최고관리자 전용 '관리' 열 추가. 이용 기간이 남은 구독에만 '즉시 해지' 버튼(live(): status!=='EXPIRED' && endedAt>now), 서버와 같은 조건.
