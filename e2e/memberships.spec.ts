@@ -2,10 +2,13 @@ import {test,expect,type Page} from '@playwright/test';
 // Console memberships·subscriptions (2026-11-06) against an API stand-in; the server enforces the same rules (server tests/platform-admin-console.test.cjs).
 const creator={id:'c1',name:'맛집 탐험가',handle:'crefans',active:true};
 const plans={items:[{id:'p1',name:'맛집 탐험',level:1,price:10000,billingUnit:'MONTH',billingPeriod:1,trialUnit:'DAY',trialPeriod:0,active:true,deleted:false,version:1,createdAt:'2026-10-20T00:00:00Z',updatedAt:'2026-10-20T00:00:00Z',creator,subscriptions:{current:2,autoRenew:1,cancelled:1,expired:3}}],total:1,page:1,pageSize:20};
-const subs={items:[{id:'s1',status:'ONGOING',autoRenew:true,amount:10000,startedAt:'2026-10-01T00:00:00Z',endedAt:'2026-11-01T00:00:00Z',nextBillingDate:'2026-11-01T00:00:00Z',lastPaymentDate:'2026-10-01T00:00:00Z',paymentFailureCount:1,createdAt:'2026-10-01T00:00:00Z',cancelReason:null,cancelledBy:null,subscriber:{id:'m1',nickname:'하늘',withdrawn:false},membership:{id:'p1',name:'맛집 탐험',level:1},creator},{id:'s2',status:'CANCELLED',autoRenew:false,amount:10000,startedAt:'2026-10-02T00:00:00Z',endedAt:'2026-11-02T00:00:00Z',nextBillingDate:null,lastPaymentDate:null,paymentFailureCount:0,createdAt:'2026-10-02T00:00:00Z',cancelReason:null,cancelledBy:null,subscriber:{id:'m2',nickname:null,withdrawn:true},membership:{id:'p1',name:'맛집 탐험',level:1},creator},{id:'s3',status:'ONGOING',autoRenew:true,amount:10000,startedAt:'2026-11-01T00:00:00Z',endedAt:'2099-01-01T00:00:00Z',nextBillingDate:'2099-01-01T00:00:00Z',lastPaymentDate:'2026-11-01T00:00:00Z',paymentFailureCount:0,createdAt:'2026-11-01T00:00:00Z',cancelReason:null,cancelledBy:null,subscriber:{id:'m3',nickname:'이용중',withdrawn:false},membership:{id:'p1',name:'맛집 탐험',level:1},creator}],summary:{current:3,ONGOING:2,CANCELLED:1,EXPIRED:3},total:3,page:1,pageSize:20};
+const subs={items:[{id:'s1',status:'ONGOING',autoRenew:true,amount:10000,startedAt:'2026-10-01T00:00:00Z',endedAt:'2026-11-01T00:00:00Z',nextBillingDate:'2026-11-01T00:00:00Z',lastPaymentDate:'2026-10-01T00:00:00Z',paymentFailureCount:1,createdAt:'2026-10-01T00:00:00Z',cancelReason:null,cancelledBy:null,refundable:{orderId:'o1',amount:10000,paidAt:'2026-10-01T00:00:00Z'},subscriber:{id:'m1',nickname:'하늘',withdrawn:false},membership:{id:'p1',name:'맛집 탐험',level:1},creator},{id:'s2',status:'CANCELLED',autoRenew:false,amount:10000,startedAt:'2026-10-02T00:00:00Z',endedAt:'2026-11-02T00:00:00Z',nextBillingDate:null,lastPaymentDate:null,paymentFailureCount:0,createdAt:'2026-10-02T00:00:00Z',cancelReason:null,cancelledBy:null,refundable:null,subscriber:{id:'m2',nickname:null,withdrawn:true},membership:{id:'p1',name:'맛집 탐험',level:1},creator},{id:'s3',status:'ONGOING',autoRenew:true,amount:10000,startedAt:'2026-11-01T00:00:00Z',endedAt:'2099-01-01T00:00:00Z',nextBillingDate:'2099-01-01T00:00:00Z',lastPaymentDate:'2026-11-01T00:00:00Z',paymentFailureCount:0,createdAt:'2026-11-01T00:00:00Z',cancelReason:null,cancelledBy:null,refundable:{orderId:'o3',amount:12000,paidAt:'2026-11-01T00:00:00Z'},subscriber:{id:'m3',nickname:'이용중',withdrawn:false},membership:{id:'p1',name:'맛집 탐험',level:1},creator}],summary:{current:3,ONGOING:2,CANCELLED:1,EXPIRED:3},total:3,page:1,pageSize:20};
 async function fixture(page:Page,permissions:Record<string,Record<string,boolean>>,role='ADMIN',cancel?:{status:number;code?:string;message?:string}){const calls:string[]=[];const bodies:string[]=[];
  await page.route('**/api/v1/admin/**',async route=>{const url=new URL(route.request().url());calls.push(route.request().method()+' '+url.pathname+url.search);let data:unknown={};
-  if(url.pathname.endsWith('/cancel-now')){bodies.push(route.request().postData()||'');
+  if(url.pathname.endsWith('/refund')){bodies.push(route.request().postData()||'');
+   if(cancel&&cancel.status>=400)return route.fulfill({status:cancel.status,contentType:'application/json',body:JSON.stringify({success:false,data:null,errorMessage:cancel.message||'처리하지 못했습니다.',errorCode:cancel.code||'ERROR'})});
+   data={message:'전액 환불하고 구독을 종료했습니다.',id:'s3',orderId:'o3',amount:12000,status:'EXPIRED',endedAt:new Date().toISOString(),refunded:true};}
+  else if(url.pathname.endsWith('/cancel-now')){bodies.push(route.request().postData()||'');
    if(cancel&&cancel.status>=400)return route.fulfill({status:cancel.status,contentType:'application/json',body:JSON.stringify({success:false,data:null,errorMessage:cancel.message||'처리하지 못했습니다.',errorCode:cancel.code||'ERROR'})});
    data={message:'구독을 즉시 해지했습니다.',id:'s1',status:'EXPIRED',endedAt:new Date().toISOString(),refunded:false};}
   else if(url.pathname.endsWith('/me'))data={id:'operator',name:'검수',role,permissions};
@@ -63,6 +66,39 @@ test('멤버십·구독: 즉시 해지가 거부되면 모달에 오류가 남�
  await expect(dialog.getByRole('alert')).toContainText('이미 종료된 구독입니다.');
  await expect(dialog).toBeVisible();expect(bodies.length).toBe(1);
  await expect(page.getByText('구독을 즉시 해지했습니다.')).toHaveCount(0);
+});
+
+test('멤버십·구독: 최고관리자는 결제 금액을 입력하고 사유를 적어야 전액 환불 후 종료를 보낸다 (API 대역)',async({page},info)=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ const {calls,bodies}=await fixture(page,{revenue:{view:true}},'SUPER_ADMIN');
+ await page.goto('/console/memberships');await page.getByRole('button',{name:'구독 현황'}).click();
+ // 환불할 결제가 있는 구독(s1 종료됨, s3 이용 중)에만 버튼이 붙는다
+ await expect(page.getByRole('button',{name:'환불 후 종료'})).toHaveCount(2);
+ const row=page.getByRole('row').filter({hasText:'2099'});await row.getByRole('button',{name:'환불 후 종료'}).click();
+ const dialog=page.getByRole('dialog',{name:'결제 전액 환불 후 구독 종료'});
+ await expect(dialog).toContainText('12,000원');await expect(dialog).toContainText('부분 환불은 할 수 없습니다');await expect(dialog).toContainText('되돌릴 수 없습니다');
+ const confirm=dialog.getByRole('button',{name:'환불 후 종료'});
+ await expect(confirm).toBeDisabled();
+ await dialog.getByLabel(/환불 사유/).fill('고객센터 청약철회 요청');await expect(confirm).toBeDisabled();
+ await dialog.getByRole('textbox',{name:/그대로 입력/}).fill('10,000원');await expect(confirm).toBeDisabled();
+ await dialog.getByRole('textbox',{name:/그대로 입력/}).fill('12,000원');await dialog.getByLabel(/환불 사유/).fill('  ');await expect(confirm).toBeDisabled();
+ expect(bodies).toEqual([]);
+ await dialog.getByLabel(/환불 사유/).fill('고객센터 청약철회 요청');await expect(confirm).toBeEnabled();
+ await page.screenshot({path:info.outputPath('refund-dialog.png'),fullPage:true});
+ await confirm.click();
+ await expect.poll(()=>bodies.length).toBe(1);expect(JSON.parse(bodies[0])).toEqual({reason:'고객센터 청약철회 요청',confirmation:'12,000원'});
+ expect(calls.filter(c=>!c.startsWith('GET '))).toEqual(['POST /api/v1/admin/subscriptions/s3/refund']);
+ await expect(page.getByText('전액 환불하고 구독을 종료했습니다.')).toBeVisible();await expect(dialog).toHaveCount(0);
+ expect(errors).toEqual([]);
+});
+
+test('멤버십·구독: 환불이 거부되면 모달에 오류가 남는다 (API 대역)',async({page})=>{
+ const {bodies}=await fixture(page,{revenue:{view:true}},'SUPER_ADMIN',{status:409,code:'NO_REFUNDABLE_PAYMENT',message:'환불할 결제가 없습니다.'});
+ await page.goto('/console/memberships');await page.getByRole('button',{name:'구독 현황'}).click();
+ await page.getByRole('row').filter({hasText:'2099'}).getByRole('button',{name:'환불 후 종료'}).click();
+ const dialog=page.getByRole('dialog',{name:'결제 전액 환불 후 구독 종료'});
+ await dialog.getByLabel(/환불 사유/).fill('검증');await dialog.getByRole('textbox',{name:/그대로 입력/}).fill('12,000원');await dialog.getByRole('button',{name:'환불 후 종료'}).click();
+ await expect(dialog.getByRole('alert')).toContainText('환불할 결제가 없습니다.');await expect(dialog).toBeVisible();expect(bodies.length).toBe(1);
 });
 
 test('멤버십·구독: 부운영자에게는 즉시 해지 버튼이 보이지 않는다',async({page})=>{
