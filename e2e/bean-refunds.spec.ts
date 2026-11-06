@@ -13,16 +13,19 @@ async function fixture(page:Page,update=true){const mutations:any[]=[],gets:stri
   await route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,data,errorMessage:null,errorCode:null})});});
  return Object.assign(mutations,{gets});}
 
-test('결제 완료 충전만 환불할 수 있고, 사유·회사 귀책 여부·요청 ID를 보내고 결과 금액을 알린다 (API 대역)',async({page},info)=>{const mutations=await fixture(page);const confirms:string[]=[];page.on('dialog',d=>{confirms.push(d.message());void d.accept();});
+test('결제 완료 충전만 환불할 수 있고, 사유·회사 귀책 여부·요청 ID를 보내고 결과 금액을 알린다 (API 대역)',async({page},info)=>{const mutations=await fixture(page);const native:string[]=[];page.on('dialog',d=>{native.push(d.message());void d.dismiss();});
  await page.goto('/console/beans');
  const paid=page.getByRole('row').filter({hasText:'charge-paid'}),failed=page.getByRole('row').filter({hasText:'charge-failed'});
  await expect(failed).toContainText('실패');await expect(failed.getByRole('button',{name:'환불',exact:true})).toHaveCount(0);
- await paid.getByRole('button',{name:'환불',exact:true}).click();const dialog=page.getByRole('dialog');await expect(dialog).toContainText('7일이 지나면 10%를 공제');
+ await paid.getByRole('button',{name:'환불',exact:true}).click();const dialog=page.getByRole('dialog',{name:'콩 충전 환불',exact:true}),confirmBox=page.getByRole('dialog',{name:'충전 환불',exact:true});await expect(dialog).toContainText('7일이 지나면 10%를 공제');
  const submit=dialog.getByRole('button',{name:'환불',exact:true});await expect(submit).toBeDisabled();
  await dialog.getByLabel('환불 사유').fill('결제 오류로 회사 귀책 환불');await dialog.getByLabel('회사 귀책(7일 이후 10% 공제 면제)').check();await page.screenshot({path:info.outputPath('bean-refund-dialog.png')});
  const before=mutations.gets.filter(p=>p.endsWith('/beans/overview')).length;
- await submit.click();await expect(dialog).toBeHidden();
- expect(confirms[0]).toContain('charge-paid');expect(mutations).toHaveLength(1);
+ await submit.click();
+ // 2026-11-06: 네이티브 confirm 대신 콘솔 자체 확인 다이얼로그를 거친다.
+ await expect(confirmBox).toContainText('charge-paid');await expect(confirmBox).toContainText('회사 귀책으로 공제를 면제합니다');await confirmBox.getByRole('button',{name:'환불',exact:true}).click();
+ await expect(dialog).toBeHidden();
+ expect(native).toEqual([]);expect(mutations).toHaveLength(1);
  expect(mutations[0]).toEqual({path:'/api/v1/admin/beans/charges/charge-paid/refund',body:{requestId:expect.stringMatching(/^[0-9a-f-]{36}$/),waived:true,reason:'결제 오류로 회사 귀책 환불'}});
  await expect(page.locator('.console-snackbar')).toContainText('환불 완료: 80콩 · 8,800원 · 공제 면제');
  await expect.poll(()=>mutations.gets.filter(p=>p.endsWith('/beans/overview')).length).toBeGreaterThan(before);
@@ -46,16 +49,18 @@ test('조회 권한만 있으면 환불·정산 버튼이 없다 (API 대역)',a
  await page.goto('/console/beans');await expect(page.getByRole('heading',{name:'미수금',exact:true})).toBeVisible();await expect(page.getByRole('row').filter({hasText:'refund-9'})).toBeVisible();await expect(page.getByRole('row').filter({hasText:'charge-paid'})).toBeVisible();
  await expect(page.getByRole('button',{name:'환불',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'정산 완료'})).toHaveCount(0);expect([...mutations]).toEqual([]);
 });
-test('환불이 거절되면 다시 시도할 때 새 요청 ID를 쓰고, 처리 중 응답은 완료라고 하지 않는다 (API 대역)',async({page})=>{await fixture(page);page.on('dialog',d=>void d.accept());
+test('환불이 거절되면 다시 시도할 때 새 요청 ID를 쓰고, 처리 중 응답은 완료라고 하지 않는다 (API 대역)',async({page})=>{await fixture(page);const native:string[]=[];page.on('dialog',d=>{native.push(d.message());void d.dismiss();});
  const sent:string[]=[];let reply=0;
  await page.route('**/api/v1/admin/beans/charges/*/refund',async route=>{sent.push(route.request().postDataJSON().requestId);reply++;
   if(reply===1)return route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({success:false,data:null,errorMessage:'결제사가 환불을 거절했습니다.',errorCode:'PROVIDER_REJECTED'})});
   return route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,data:{id:'refund-2',chargeId:'charge-paid',quantity:80,gross:8800,deduction:880,amount:7920,waived:false,status:'processing'},errorMessage:null,errorCode:null})});});
  await page.goto('/console/beans');
  await page.getByRole('row').filter({hasText:'charge-paid'}).getByRole('button',{name:'환불',exact:true}).click();
- const dialog=page.getByRole('dialog');await dialog.getByLabel('환불 사유').fill('고객 요청');
- await dialog.getByRole('button',{name:'환불',exact:true}).click();await expect(dialog).toContainText('결제사가 환불을 거절했습니다.');
- await dialog.getByRole('button',{name:'환불',exact:true}).click();await expect(dialog).toBeHidden();
+ const dialog=page.getByRole('dialog',{name:'콩 충전 환불',exact:true}),confirmBox=page.getByRole('dialog',{name:'충전 환불',exact:true});await dialog.getByLabel('환불 사유').fill('고객 요청');
+ const approve=async()=>{await confirmBox.getByRole('button',{name:'환불',exact:true}).click();};
+ await dialog.getByRole('button',{name:'환불',exact:true}).click();await approve();await expect(dialog).toContainText('결제사가 환불을 거절했습니다.');
+ await dialog.getByRole('button',{name:'환불',exact:true}).click();await approve();await expect(dialog).toBeHidden();
+ expect(native).toEqual([]);
  expect(sent.length).toBe(2);expect(sent[1]).not.toBe(sent[0]);
  const bar=page.locator('.console-snackbar');await expect(bar).toContainText('환불 결과 확인 중');await expect(bar).not.toContainText('환불 완료');
 });

@@ -841,3 +841,14 @@
 - 타입 검사 및 기존 인증 UI PC/iPhone WebKit 2건 통과(API 대역). 삭제한 설명 전용 CSS 제거, 폼 기본 gap으로 버튼 간격 유지.
 - 운영 배포 완료: authenticator-position-20261104 / 4085150. production build 12페이지 성공, 로그인 HTTP200·다른 컨테이너 불변. 운영 URL PC/iPhone WebKit 2건 통과(API 대역), 로그인 아래 링크 위치·안내 부재·OTP/복구 전환 검사 및 모바일 캡처 육안 확인. 물리 앱 열기 재검증은 제외.
 - 증거 docs/authenticator-position-20261104.json, .local/authenticator-position-release/ 로그·캡처. 이전 이미지/설정은 로컬 복구저장소로 전송해 해시 검증 후 서버 사본·임시 소스 정리. dev→prod 반영.
+
+## 2026-11-06 네이티브 confirm 을 콘솔 자체 확인 다이얼로그로 교체 (feat/console-confirm-dialog)
+- 배경: 운영 공지 저장 중 내장 브라우저가 네이티브 `confirm()` 을 막아 **저장이 조용히 취소**됐다(콘솔은 false 를 "취소"로 처리). 사용자 지시: 톤앤매너에 맞게 직접 구현, 재사용 구조 우선.
+- 재사용: 기존 `ConfirmDialog`(포털·포커스 트랩·`.dialog` 스타일)와 `SnackbarProvider` 의 provider 패턴을 그대로 따랐다. 새 CSS 없음.
+- 추가: `TypedConfirm.tsx` 에 `ConfirmProvider` + `useConfirm()` (→ `Promise<boolean>`). 호출부는 `if(!confirm(text))return` 을 `if(!await confirmAction({title,message,actionLabel,danger}))return` 으로만 바꾸면 된다. `app/console/layout.tsx` 에서 SnackbarProvider 안에 설치. 취소 버튼이 기본 포커스(Enter 로 실수 확정 방지, TypedConfirmDialog 와 같은 원칙). 위험 동작은 `danger` 로 빨간 버튼.
+- 교체 6곳(네이티브 confirm 0건): 공지·FAQ 저장, 크리에이터 인증 배지, 신고 처리(3종), 운영자 재발급·비활성·활성, 콩 충전 환불, 은행 지급 처리/결과 확인, 프로모션콩 지급.
+- 결함 수정: 확인창이 편집창 위에 겹치면 Esc 가 두 창을 동시에 닫았다. `ConfirmDialog` 에 열린 창 스택을 두어 Esc·포커스 트랩·스크롤 잠금을 최상단 창만 처리한다.
+- 검증: typecheck 0 오류, lint 신규 경고 없음(기존 `<img>` 3건), 단위 16/16, `build:verify` 통과. E2E 8파일 34건 중 28 통과·2 건너뜀·4 실패 — **4 실패는 변경 없는 origin/prod 기준선에서도 같은 4건**(console:21, console:31, moderation:14, moderation:21). 수정 전에 새로 깨졌던 4건(bean-refunds 2, comment-reports, console:123)은 모두 해결.
+- 회귀 검사: 각 E2E가 네이티브 다이얼로그를 받으면 `native` 배열에 담고 마지막에 빈 배열을 단언한다. 대조 검사: 공지 저장을 네이티브 `confirm` 으로 되돌리면 `support-modals` 가 실패하고, 복구하면 통과함을 확인.
+- 미검증: console.spec 33행의 신고 "처리 완료" 확인 경로는 기준선에서 32행(문의 답변)이 먼저 실패해 도달하지 못한다. 같은 컴포넌트의 "숨기고 처리 완료" 경로는 comment-reports 에서 통과.
+- 남은 일: `window.prompt()` 3곳(콩 이체 참조번호·반려 사유, ManualPayouts)은 같은 문제가 있으나 이번 지시 범위(confirm) 밖이라 그대로 뒀다. 운영 미배포.

@@ -30,7 +30,7 @@ test('real login, six menus, actual database revenue, period and detail views',a
 });
 test('inquiry reply persists and report resolution is audited, API failure is not a zero fallback',async({page})=>{
  await login(page);await page.getByRole('link',{name:'고객지원',exact:true}).click();const row=page.getByRole('row').filter({hasText:'브라우저 문의'});await row.getByLabel('문의 답변').fill('브라우저 자동 검증 답변');await row.getByRole('button',{name:'답변 저장'}).click();await expect(row).toContainText('답변 완료');const denied=await page.request.post('/api/v1/admin/inquiries/ignored/reply',{headers:{Origin:'https://untrusted.invalid'},data:{reply:'denied'}});expect(denied.status()).toBe(403);await page.reload();await expect(page.getByLabel('문의 답변')).toHaveValue('브라우저 자동 검증 답변');
- await page.getByRole('link',{name:'콘텐츠·신고',exact:true}).click();await page.getByLabel('신고 처리 메모').fill('합성 데이터 검증 완료');page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'처리 완료',exact:true}).click();await expect(page.getByLabel('신고 처리 메모')).toHaveCount(0);
+ await page.getByRole('link',{name:'콘텐츠·신고',exact:true}).click();await page.getByLabel('신고 처리 메모').fill('합성 데이터 검증 완료');await page.getByRole('button',{name:'처리 완료',exact:true}).click();await page.getByRole('dialog',{name:'신고 처리 완료',exact:true}).getByRole('button',{name:'처리 완료',exact:true}).click();await expect(page.getByLabel('신고 처리 메모')).toHaveCount(0);
  await page.route('**/api/v1/admin/revenue?*',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,data:null,errorCode:'TEST_FAILURE',errorMessage:'검증용 API 실패'})}));await page.getByRole('link',{name:'매출·정산',exact:true}).click();await expect(page.locator('.error[role=alert]')).toContainText('검증용 API 실패');await expect(page.locator('.metrics')).toHaveCount(0);
 });
 test('small viewport preserves navigation and zero data state',async({page})=>{await page.setViewportSize({width:390,height:844});await login(page);await page.getByRole('button',{name:'메뉴 열기',exact:true}).click();await page.getByRole('link',{name:'매출·정산',exact:true}).click();await expect(page.getByLabel('시작일',{exact:true})).toBeVisible();await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);await page.screenshot({path:'test-results/revenue-mobile.png',fullPage:true});});
@@ -86,21 +86,25 @@ test('creator badge grant and revoke require confirmation, persist and update th
  await page.getByLabel('회원 검색').fill('creator@console-test.invalid');await page.getByRole('button',{name:'검색',exact:true}).click();
  const row=page.locator('tbody tr').filter({hasText:'creator@console-test.invalid'});
  await expect(row.getByText('미인증',{exact:true})).toBeVisible();
- page.once('dialog',dialog=>dialog.dismiss());await row.getByRole('button',{name:'인증 부여',exact:true}).click();
+ // 2026-11-06: 확인은 콘솔 자체 다이얼로그다. 네이티브 창이 뜨면 실패시킨다(내장 브라우저에서 조용히 취소되므로).
+ const native:string[]=[];page.on('dialog',d=>{native.push(d.message());void d.dismiss();});
+ const grant=page.getByRole('dialog',{name:'인증 배지 부여'}),revoke=page.getByRole('dialog',{name:'인증 배지 해제'});
+ await row.getByRole('button',{name:'인증 부여',exact:true}).click();await grant.getByRole('button',{name:'취소',exact:true}).click();
  await expect(row.getByText('미인증',{exact:true})).toBeVisible();
  // An actual failed HTTP response must not produce a success state.
  await page.route('**/api/v1/admin/creators/*/verification',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,data:null,errorMessage:'검증용 저장 실패',errorCode:'TEST_FAILURE'})}),{times:1});
- page.once('dialog',dialog=>dialog.accept());await row.getByRole('button',{name:'인증 부여',exact:true}).click();await expect(row.getByRole('alert')).toHaveText('검증용 저장 실패');await expect(row.getByText('미인증',{exact:true})).toBeVisible();
+ await row.getByRole('button',{name:'인증 부여',exact:true}).click();await grant.getByRole('button',{name:'부여',exact:true}).click();await expect(row.getByRole('alert')).toHaveText('검증용 저장 실패');await expect(row.getByText('미인증',{exact:true})).toBeVisible();
  const result=page.waitForResponse(r=>r.url().endsWith('/verification')&&r.request().method()==='PUT');
- page.once('dialog',dialog=>dialog.accept());await row.getByRole('button',{name:'인증 부여',exact:true}).click();const response=await result;expect(response.status()).toBe(200);
+ await row.getByRole('button',{name:'인증 부여',exact:true}).click();await grant.getByRole('button',{name:'부여',exact:true}).click();const response=await result;expect(response.status()).toBe(200);
  const id=response.url().split('/').at(-2)!;
  await expect(row.getByText('인증됨',{exact:true})).toBeVisible();
  expect((await(await page.request.get('http://127.0.0.1:3013/api/v1/profiles/'+id)).json()).data.isVerified).toBe(true);
  await page.reload();await expect(row.getByText('인증됨',{exact:true})).toBeVisible();
  await page.screenshot({path:'test-results/creator-verification-admin.png',fullPage:true});
- page.once('dialog',dialog=>dialog.accept());await row.getByRole('button',{name:'인증 해제',exact:true}).click();await expect(row.getByText('미인증',{exact:true})).toBeVisible();
+ await row.getByRole('button',{name:'인증 해제',exact:true}).click();await revoke.getByRole('button',{name:'해제',exact:true}).click();await expect(row.getByText('미인증',{exact:true})).toBeVisible();
  expect((await(await page.request.get('http://127.0.0.1:3013/api/v1/profiles/'+id)).json()).data.isVerified).toBe(false);
  const logs=await(await page.request.get('/api/v1/admin/logs?entityId='+id+'&action=admin.creator_verification_changed')).json();expect(logs.data.items).toHaveLength(2);
+ expect(native).toEqual([]);
 });
 
 test('policy change shows an i tooltip and needs the typed phrase in a dialog before submitting',async({page})=>{
@@ -135,7 +139,7 @@ test('super admin creates a sub-operator; temporary password forces a change and
  await sub.goto('/console/revenue');await expect(sub.locator('main [role=alert]')).toContainText('권한이 없습니다');
  expect((await sub.request.get('/api/v1/admin/revenue')).status()).toBe(403);expect((await sub.request.get('/api/v1/admin/operators')).status()).toBe(403);
  await sub.locator('.profile-link:visible').click();await expect(sub.getByLabel('운영자 종류')).toHaveValue('부운영자');await expect(sub.getByRole('table').last()).toContainText('허용');await sub.screenshot({path:'test-results/operator-mypage-mobile.png',fullPage:true});
- page.once('dialog',d=>d.accept());await page.locator('tbody tr').filter({hasText:email}).getByRole('button',{name:'비활성화'}).click();await expect(page.locator('tbody tr').filter({hasText:email}).getByRole('button',{name:'다시 활성화'})).toBeVisible();
+ await page.locator('tbody tr').filter({hasText:email}).getByRole('button',{name:'비활성화'}).click();await page.getByRole('dialog',{name:'운영자 비활성화',exact:true}).getByRole('button',{name:'비활성화',exact:true}).click();await expect(page.locator('tbody tr').filter({hasText:email}).getByRole('button',{name:'다시 활성화'})).toBeVisible();
  expect((await sub.request.get('/api/v1/admin/me')).status()).toBe(401);await page.screenshot({path:'test-results/operators-desktop.png',fullPage:true});
 });
 
