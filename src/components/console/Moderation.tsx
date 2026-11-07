@@ -7,11 +7,11 @@ import {ConfirmDialog,TypedConfirmDialog} from './TypedConfirm';
 import {useSnackbar} from './Snackbar';
 
 // Terms §8 operator actions. The server checks permission and records every action with its reason.
-type Entry={action:string;reason:string;publicReason?:string|null;until:string|null;adminName:string|null;createdAt:string};
-const labels:Record<string,string>={'post.hidden':'숨김','post.unhidden':'숨김 해제','member.suspended':'이용 제한','member.unsuspended':'제한 해제','member.erased':'회원 삭제'};
+type Entry={action:string;reason:string|null;publicReason?:string|null;until:string|null;actorType?:'admin'|'creator';actorName?:string|null;adminName:string|null;createdAt:string};
+const labels:Record<string,string>={'post.hidden':'숨김','post.unhidden':'숨김 해제','post.unpublished':'미공개 전환 (공개→미공개)','post.republished':'다시 공개 (미공개→공개)','post.reviewed':'검수 완료','member.suspended':'이용 제한','member.unsuspended':'제한 해제','member.erased':'회원 삭제'};
 const at=(v:string)=>new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
 const day=(v:string)=>new Date(v).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'});
-function History({path}:{path:string}){const state=useData<Entry[]>(path);return <section className="terms-history"><h3>조치 이력</h3><State {...state}/>{state.data&&(state.data.length?<div className="table-wrap"><table><thead><tr><th>일시</th><th>조치</th><th>처리자</th><th>내부 사유</th><th>당사자 안내 사유</th></tr></thead><tbody>{state.data.map((h,i)=><tr key={i}><td>{at(h.createdAt)}</td><td>{labels[h.action]||h.action}{h.action==='member.suspended'&&<small>{h.until?day(h.until)+'까지':'무기한'}</small>}</td><td>{h.adminName||'—'}</td><td>{h.reason}</td><td>{h.publicReason||'—'}</td></tr>)}</tbody></table></div>:<EmptyState>조치 이력이 없습니다.</EmptyState>)}</section>;}
+function History({path}:{path:string}){const state=useData<Entry[]>(path);return <section className="terms-history"><h3>조치 이력</h3><State {...state}/>{state.data&&(state.data.length?<div className="table-wrap"><table><thead><tr><th>일시</th><th>조치</th><th>처리자</th><th>내부 사유</th><th>당사자 안내 사유</th></tr></thead><tbody>{state.data.map((h,i)=><tr key={i}><td>{at(h.createdAt)}</td><td>{labels[h.action]||h.action}{h.action==='member.suspended'&&<small>{h.until?day(h.until)+'까지':'무기한'}</small>}</td><td>{h.actorType==='creator'?`크리에이터 · ${h.actorName||'탈퇴한 회원'}`:h.actorName||h.adminName||'—'}</td><td>{h.reason||'—'}</td><td>{h.publicReason||'—'}</td></tr>)}</tbody></table></div>:<EmptyState>조치 이력이 없습니다.</EmptyState>)}</section>;}
 
 // reason stays internal; publicReason reaches the affected member by app notice and email (server rejects an empty one).
 function Reasons({reason,setReason,publicReason,setPublicReason,placeholder,publicPlaceholder}:{reason:string;setReason:(v:string)=>void;publicReason:string;setPublicReason:(v:string)=>void;placeholder:string;publicPlaceholder:string}){return <>
@@ -31,6 +31,27 @@ export function PostModeration({post,canEdit,reload}:{post:ModeratedPost;canEdit
     <Reasons reason={reason} setReason={setReason} publicReason={publicReason} setPublicReason={setPublicReason} placeholder="예: 신고 확인 — 저작권 침해" publicPlaceholder={hidden?'예: 소명이 확인되어 게시물 숨김을 해제했습니다.':'예: 저작권 침해 신고가 확인되어 게시물을 숨겼습니다.'}/>
     {error&&<p className="error" role="alert">{error}</p>}
     <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{hidden?'숨김 해제':'숨기기'}</button></div>
+   </form>}
+   <History path={`/admin/posts/${encodeURIComponent(post.id)}/moderation`}/>
+   {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
+  </ConfirmDialog>}
+ </div>;
+}
+
+export type VisiblePost={id:string;title:string;is_public:boolean;hidden_at:string|null};
+// Creator unpublish (2026-11-07): the same state the author switches in the studio. Operators need a reason; the author is not notified.
+// Operator hiding stays a separate column/action above; either one keeps the post from everyone but its author.
+export function PostVisibility({post,canEdit,reload}:{post:VisiblePost;canEdit:boolean;reload:()=>void}){
+ const [open,setOpen]=useState(false),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),notify=useSnackbar();const unpublished=!post.is_public;
+ async function save(e:React.FormEvent){e.preventDefault();if(busy||!reason.trim())return;setBusy(true);setError('');try{const r=await api<{message:string}>(`/admin/posts/${encodeURIComponent(post.id)}/visibility`,{public:unpublished,reason});setOpen(false);setReason('');notify(r.message);reload();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ return <div className="actions"><span>{unpublished?'미공개':'공개'}</span><button type="button" onClick={()=>{setOpen(true);setError('');}}>{canEdit?(unpublished?'공개로 전환':'미공개로 전환'):'공개 이력'}</button>
+  {open&&<ConfirmDialog title={canEdit?(unpublished?'게시물 공개로 전환':'게시물 미공개로 전환'):'게시물 처리 이력'} onCancel={()=>{if(!busy)setOpen(false);}}>
+   <p><strong>{post.title}</strong></p>
+   {canEdit&&<form className="editor" onSubmit={save}>
+    <p className="muted">{unpublished?'공개로 바꾸면 미공개 전 공개 범위 그대로 다시 보입니다.':'미공개로 바꾸면 작성자 본인 외에는 피드·프로필·검색·상세·댓글·좋아요·후원·미디어에서 볼 수 없습니다. 데이터는 지워지지 않습니다.'} 크리에이터에게 알림을 보내지 않으며, 크리에이터도 스튜디오에서 다시 바꿀 수 있습니다.{post.hidden_at?' 이 게시물은 운영자 숨김 상태라 공개로 바꿔도 숨김을 해제하기 전까지 보이지 않습니다.':''}</p>
+    <label>변경 사유<small className="muted">내부 기록용, 크리에이터에게 보이지 않음</small><textarea required maxLength={500} placeholder="예: 신고 검토 중 임시 미공개" value={reason} onChange={e=>setReason(e.target.value)}/></label>
+    {error&&<p className="error" role="alert">{error}</p>}
+    <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()}>{busy?'처리 중…':unpublished?'공개로 전환':'미공개로 전환'}</button></div>
    </form>}
    <History path={`/admin/posts/${encodeURIComponent(post.id)}/moderation`}/>
    {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
