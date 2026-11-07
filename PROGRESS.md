@@ -1,3 +1,7 @@
+## 2026-11-07 10:00 KST 차지백 경고가 뜬 처리 중 콩 출금 '반려 기록' 버튼 (fix/withdrawal-reject, 배포 보류)
+- 사용자 결정(2026-11-07). 콩 후원·출금 › 콩 출금 신청에서 SUPER_ADMIN·수동 지급 모드·processing·`chargebackHold`인 행에만 '반려 기록'. 공통 usePrompt(사유 489자 = 서버 note 500자−접두어, 빈 값 비활성, 취소 시 미전송, 네이티브 창 없음) → 기존 POST /admin/beans/withdrawals/:id/manual-result {result:'rejected',reason}. 실제로 이체하지 않은 경우에만 기록하라는 안내 포함. '이체 완료 기록'은 이미 이체한 경우를 위해 그대로 둠. 서버 짝 crefans_server fix/payout-refund-gaps 4322ffd(사유 489자).
+- 검증(09:54 KST, API 대역): typecheck 0, lint 오류 0, unit 16/16, e2e withdrawal-reject 설정 10/10(pc·mobile), bean-payout-prompts 1/1. 대조: 경고 조건을 빼고 처리 중 전체에 노출 → 1 실패. 화면 `.local/withdrawal-reject-20261107/*-bean-reject-dialog.png`.
+
 ## 2026-11-07 09:40 KST 멤버십 출금 반려 버튼·콩 출금 차지백 경고 — 브랜치 fix/withdrawal-reject (커밋만, push·배포 없음)
 - 사용자 결정(2026-11-07): 서버 배포 보류, 콘솔 반려 버튼 지금 추가, 콩 출금 차지백 경고 표시. 서버 짝 브랜치 crefans_server fix/payout-refund-gaps(011efbd rejectable, cf097d6 chargebackHold).
 - 매출·정산 › 출금 내역: 서버 `rejectable`(requested+출금 가능액 음수)인 행에만, 매출·정산 생성 권한일 때 '반려' 표시 → 공통 usePrompt 다이얼로그(사유 150자, 빈 값 비활성, 네이티브 confirm 없음) → POST /admin/withdrawals/:id/reject. 실패는 그 행에 오류(role=alert), 성공은 상태 문구+목록 재조회. 수동 지급 패널: rejectable 행은 '환불로 잔액 부족'+새 반려만(이체 완료 기록·manual-result 반려 숨김), 수동 반려 사유 입력 500→180자(서버 note 191자).
