@@ -4,12 +4,13 @@ import {useState} from 'react';
 import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
 import {usePrompt} from './TypedConfirm';
+import {RejectWithdrawal} from './WithdrawalReject';
 
 // Manual payout mode (server MANUAL_PAYOUTS_ENABLED): no bank API is connected. The operator confirms settlement accounts
 // against a bank book copy and records each bank transfer made outside the console. The server applies the usual
 // withdrawal checks (Wednesday, balance, verified account) before a request can be recorded.
 type Account={id:string;creatorId:string;bank:string;holder:string;lastFour:string;version:number;createdAt:string};
-type Withdrawal={id:string;creator_id:string;amount:number;status:string;note:string|null;account_label:string;created_at:string};
+type Withdrawal={id:string;creator_id:string;amount:number;status:string;note:string|null;account_label:string;created_at:string;rejectable?:boolean};
 const won=(n:number)=>`${n.toLocaleString('ko-KR')}원`;
 const day=(v:string)=>new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(v));
 const states:Record<string,string>={requested:'접수',processing:'이체 대기'};
@@ -27,10 +28,10 @@ export function ManualPayouts({canUpdate}:{canUpdate:boolean}){
   <h3>확인 대기 정산 계좌</h3><State {...accounts}/>
   {accounts.data&&(accounts.data.length?<div className="table-wrap"><table><thead><tr><th>예금주</th><th>은행·끝자리</th><th>크리에이터 ID</th><th>등록일</th><th></th></tr></thead><tbody>{accounts.data.map(a=><tr key={a.id}><td>{a.holder}</td><td>{a.bank} ****{a.lastFour}</td><td>{a.creatorId}</td><td>{day(a.createdAt)}</td><td>{canUpdate&&<button disabled={busy} onClick={()=>confirmAccount(a)}>예금주 확인 완료</button>}</td></tr>)}</tbody></table></div>:<EmptyState>확인 대기 계좌가 없습니다.</EmptyState>)}
   <h3>이체할 멤버십 출금</h3><State {...open}/>
-  {open.data&&(open.data.items.length?<div className="table-wrap"><table><thead><tr><th>신청일</th><th>크리에이터 ID</th><th>계좌</th><th>금액</th><th>상태</th><th></th></tr></thead><tbody>{open.data.items.map(w=><tr key={w.id}><td>{day(w.created_at)}</td><td>{w.creator_id}</td><td>{w.account_label}</td><td>{won(w.amount)}</td><td>{states[w.status]||w.status}{w.note&&<small> {w.note}</small>}</td><td>{canUpdate&&<><button disabled={busy} onClick={()=>setForm({id:w.id,result:'paid',reference:'',reason:'',at:localNow()})}>이체 완료 기록</button> <button disabled={busy} onClick={()=>setForm({id:w.id,result:'rejected',reference:'',reason:'',at:localNow()})}>반려</button></>}</td></tr>)}</tbody></table></div>:<EmptyState>이체할 출금이 없습니다.</EmptyState>)}
+  {open.data&&(open.data.items.length?<div className="table-wrap"><table><thead><tr><th>신청일</th><th>크리에이터 ID</th><th>계좌</th><th>금액</th><th>상태</th><th></th></tr></thead><tbody>{open.data.items.map(w=><tr key={w.id}><td>{day(w.created_at)}</td><td>{w.creator_id}</td><td>{w.account_label}</td><td>{won(w.amount)}</td><td>{states[w.status]||w.status}{w.note&&<small> {w.note}</small>}</td><td>{canUpdate&&(w.rejectable?<><small className="muted">환불로 잔액 부족 </small><RejectWithdrawal id={w.id} amount={w.amount} onDone={m=>{setMessage(m);setForm(null);setRevision(n=>n+1);}}/></>:<><button disabled={busy} onClick={()=>setForm({id:w.id,result:'paid',reference:'',reason:'',at:localNow()})}>이체 완료 기록</button> <button disabled={busy} onClick={()=>setForm({id:w.id,result:'rejected',reference:'',reason:'',at:localNow()})}>반려</button></>)}</td></tr>)}</tbody></table></div>:<EmptyState>이체할 출금이 없습니다.</EmptyState>)}
   {form&&<form className="filters" onSubmit={submit} aria-label={form.result==='paid'?'이체 완료 기록':'출금 반려'}>
    {form.result==='paid'?<><label>이체 참조번호<input required maxLength={100} value={form.reference} onChange={e=>setForm({...form,reference:e.target.value})} placeholder="은행 이체 거래번호 등"/></label><label>이체 시각<input type="datetime-local" required value={form.at} max={localNow()} onChange={e=>setForm({...form,at:e.target.value})}/></label></>
-    :<label>반려 사유<input required maxLength={500} value={form.reason} onChange={e=>setForm({...form,reason:e.target.value})} placeholder="예: 예금주 불일치"/></label>}
+    :<label>반려 사유<input required maxLength={180} value={form.reason} onChange={e=>setForm({...form,reason:e.target.value})} placeholder="예: 예금주 불일치"/></label>}
    <button type="submit" disabled={busy}>{form.result==='paid'?'기록':'반려'}</button><button type="button" onClick={()=>setForm(null)}>취소</button></form>}
  </section>;
 }
