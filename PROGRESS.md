@@ -1,3 +1,8 @@
+## 2026-11-07 11:10 KST 배포 묶음 통합 release/bundle-20261107 (로컬 커밋만, push·배포 없음)
+- origin/prod 69efec7 에서 fix/withdrawal-reject 70d1a9a → feat/post-unpublish b658cc7 --no-ff merge. 충돌은 PROGRESS.md 뿐(양쪽 유지). Console.tsx 는 자동 병합(출금 반려 Revenue 와 게시물 '공개 상태' 열이 다른 줄), 결과에 PostVisibility·WithdrawalReject 모두 존재.
+- 검증(10:58~11:02 KST, node_modules=crefans_admin-refund 링크): typecheck 0, lint 오류 0(경고 3, 기존 img), unit 16/16. e2e withdrawal-reject 설정(PC·iPhone13 WebKit, CREFANS_SERVER_DIR=통합 서버 작업트리) 10/10. post-visibility 설정(moderation.spec, API 대역) 8/12 — 실패 4건(회원 이용 제한·미검수 필터 × PC/모바일)은 브랜치 보고의 origin/prod 기준선 실패와 같은 이름.
+- 남은 일: dev/prod 통합·push, 운영 배포(서버 계획 `crefans_server/.local/bundle-deploy-20261107/plan.md`).
+
 ## 2026-11-07 10:00 KST 차지백 경고가 뜬 처리 중 콩 출금 '반려 기록' 버튼 (fix/withdrawal-reject, 배포 보류)
 - 사용자 결정(2026-11-07). 콩 후원·출금 › 콩 출금 신청에서 SUPER_ADMIN·수동 지급 모드·processing·`chargebackHold`인 행에만 '반려 기록'. 공통 usePrompt(사유 489자 = 서버 note 500자−접두어, 빈 값 비활성, 취소 시 미전송, 네이티브 창 없음) → 기존 POST /admin/beans/withdrawals/:id/manual-result {result:'rejected',reason}. 실제로 이체하지 않은 경우에만 기록하라는 안내 포함. '이체 완료 기록'은 이미 이체한 경우를 위해 그대로 둠. 서버 짝 crefans_server fix/payout-refund-gaps 4322ffd(사유 489자).
 - 검증(09:54 KST, API 대역): typecheck 0, lint 오류 0, unit 16/16, e2e withdrawal-reject 설정 10/10(pc·mobile), bean-payout-prompts 1/1. 대조: 경고 조건을 빼고 처리 중 전체에 노출 → 1 실패. 화면 `.local/withdrawal-reject-20261107/*-bean-reject-dialog.png`.
