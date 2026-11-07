@@ -350,3 +350,5 @@ button.danger{color:var(--danger)}
 .login-authenticator{margin:0;text-align:center}.login-authenticator a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;color:var(--brand);border:1px solid var(--border-strong);border-radius:8px;font-weight:600;text-decoration:none}.login-authenticator a:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 
 .support-question{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;color:var(--text-2)}
+/* 2026-11-07: bean payout drawing on chargeback-frozen beans (server chargebackHold) */
+.chargeback-hold{display:block;margin-top:4px;font-size:12px;font-weight:700;color:var(--danger)}
