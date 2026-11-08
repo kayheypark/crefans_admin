@@ -1,3 +1,9 @@
+## 2026-11-08 AI 사진 편집 허용 크리에이터 관리 (feat/ai-photo-grants, 미병합·미배포)
+- 사용자 요청: 스튜디오 AI 사진 편집을 쓸 수 있는 크리에이터 테이블과 콘솔 관리. 서버 crefans_server feat/ai-photo-grants(ai_photo_grants·ai_photo_grant_changes, /admin/ai-photo-grants)와 짝.
+- 화면: `/console/ai-photo`(운영 관리 > AI 사진 편집 허용). 목록(핸들·활동명·허용 사유·허용 운영자·허용일, 검색), 크리에이터 허용(핸들+사유), 이력, 해제(사유). 권한은 members.view/update(새 권한 메뉴 없음), 운영자 권한표 설명에 반영.
+- 검증: typecheck 0, npm test 16/16, e2e/ai-photo.spec.ts 1/1(격리 서버·e2e DB: 사유 1자 비활성, 허용→목록, 중복 409 안내, 해제 사유 필수→해제, 재허용 후 이력 3건, 390px 가로 넘침 없음, pageerror 0). 캡처 test-results/ai-photo-*.png.
+- 다음: 서버 마이그레이션 포함 운영 배포(승인 필요), 스튜디오 서버 연결 시 aiPhotoAllowed 검사.
+
 ## 2026-11-07 11:10 KST 배포 묶음 통합 release/bundle-20261107 (로컬 커밋만, push·배포 없음)
 - origin/prod 69efec7 에서 fix/withdrawal-reject 70d1a9a → feat/post-unpublish b658cc7 --no-ff merge. 충돌은 PROGRESS.md 뿐(양쪽 유지). Console.tsx 는 자동 병합(출금 반려 Revenue 와 게시물 '공개 상태' 열이 다른 줄), 결과에 PostVisibility·WithdrawalReject 모두 존재.
 - 검증(10:58~11:02 KST, node_modules=crefans_admin-refund 링크): typecheck 0, lint 오류 0(경고 3, 기존 img), unit 16/16. e2e withdrawal-reject 설정(PC·iPhone13 WebKit, CREFANS_SERVER_DIR=통합 서버 작업트리) 10/10. post-visibility 설정(moderation.spec, API 대역) 8/12 — 실패 4건(회원 이용 제한·미검수 필터 × PC/모바일)은 브랜치 보고의 origin/prod 기준선 실패와 같은 이름.

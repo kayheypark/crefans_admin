@@ -48,6 +48,8 @@
 - dev/prod 직접 기능 개발·prod 직행·force push 금지. 기본 PR, 사용자 직접 통합 요청은 같은 순서의 로컬 merge와 일반 push 허용.
 - 실행 방법·증거 기준은 `docs/branch-workflow.md`. prod 반영과 운영 배포는 별개다.
 
+- AI 사진 편집 허용 크리에이터는 `/console/ai-photo`, 서버 `members` 권한(조회 view, 허용·해제 update)을 사용한다. 허용·해제 사유 2~500자 필수, 이력(ai_photo_grant_changes)과 감사(사유는 해시)를 서버가 한 트랜잭션으로 남긴다(2026-11-08).
+
 - 예약 핸들 관리는 `/console/reserved-handles`, 독립 `reserved-handles` 권한을 사용한다. 후보는 차단하지 않고 예약 중만 신규 취득을 막으며 기존 보유자 유지·이전 핸들 보호를 명시한다. 삭제는 공통 TypedConfirmDialog와 서버 정확 입력 검사, 변경 사유·버전·이력을 함께 사용한다.
 
 - 광고상품 비교가격은 VAT 포함 동일 기간 기준가와 산정 근거를 함께 표시한다. 할인율은 (기준가−결제금액)/기준가를 내림한 값이며, 기간2배 상품의 durationDays는 혜택이 포함된 최종기간이다. 일반 상품 기간이나 기존 이력을 자동 변경하지 않는다.
