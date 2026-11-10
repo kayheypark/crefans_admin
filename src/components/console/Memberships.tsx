@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import {useData,State} from './ConsoleData';
 import {TableContent} from './TableContent';
-import {ConfirmDialog,TypedConfirmDialog} from './TypedConfirm';
+import {ConfirmDialog,TypedConfirmDialog,DialogActions} from './TypedConfirm';
 import {useSnackbar} from './Snackbar';
 import {api,ApiError} from '@/lib/console-api';
 
@@ -60,7 +60,7 @@ function CancelNow({subscription,onClose,onDone}:{subscription:Subscription;onCl
   <ul className="muted"><li>남은 이용 기간({day(subscription.endedAt)}까지)이 사라지고 유료 콘텐츠 접근이 즉시 막힙니다.</li><li>환불·결제 취소는 하지 않습니다. 환불이 필요하면 [환불 후 종료] 버튼을 쓰세요.</li><li>되돌릴 수 없습니다. 다시 이용하려면 회원이 멤버십에 새로 가입해야 합니다.</li></ul>
   <label><span>해지 사유 (필수)</span><textarea value={reason} maxLength={500} rows={3} onChange={e=>setReason(e.target.value)} placeholder="예: 토스 심사용 계정 정리"/></label>
   {error&&<p role="alert" className="error">{error}</p>}
-  <div className="actions dialog-actions"><button type="button" autoFocus onClick={onClose} disabled={busy}>취소</button><button type="button" className="danger" disabled={busy||!trimmed} onClick={()=>void submit()}>{busy?'해지 중…':'즉시 해지'}</button></div>
+  <DialogActions><button type="button" autoFocus onClick={onClose} disabled={busy}>취소</button><button type="button" className="danger" disabled={busy||!trimmed} onClick={()=>void submit()}>{busy?'해지 중…':'즉시 해지'}</button></DialogActions>
  </ConfirmDialog>;
 }
 
