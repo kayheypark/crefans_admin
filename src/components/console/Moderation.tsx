@@ -3,7 +3,7 @@ import {EmptyState} from './EmptyState';
 import {useState} from 'react';
 import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
-import {ConfirmDialog,TypedConfirmDialog} from './TypedConfirm';
+import {ConfirmDialog,TypedConfirmDialog,DialogActions} from './TypedConfirm';
 import {useSnackbar} from './Snackbar';
 
 // Terms §8 operator actions. The server checks permission and records every action with its reason.
@@ -30,10 +30,10 @@ export function PostModeration({post,canEdit,reload}:{post:ModeratedPost;canEdit
     <p className="muted">{hidden?`현재 숨김 사유: ${post.hidden_reason||'—'}`:'숨기면 작성자 본인 외에는 피드·프로필·상세·댓글·후원·미디어에서 볼 수 없습니다. 작성자는 스튜디오에서 숨김 상태를 봅니다.'}</p>
     <Reasons reason={reason} setReason={setReason} publicReason={publicReason} setPublicReason={setPublicReason} placeholder="예: 신고 확인 — 저작권 침해" publicPlaceholder={hidden?'예: 소명이 확인되어 게시물 숨김을 해제했습니다.':'예: 저작권 침해 신고가 확인되어 게시물을 숨겼습니다.'}/>
     {error&&<p className="error" role="alert">{error}</p>}
-    <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{hidden?'숨김 해제':'숨기기'}</button></div>
+    <DialogActions><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{hidden?'숨김 해제':'숨기기'}</button></DialogActions>
    </form>}
    <History path={`/admin/posts/${encodeURIComponent(post.id)}/moderation`}/>
-   {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
+   {!canEdit&&<DialogActions><button type="button" onClick={()=>setOpen(false)}>닫기</button></DialogActions>}
   </ConfirmDialog>}
  </div>;
 }
@@ -51,10 +51,10 @@ export function PostVisibility({post,canEdit,reload}:{post:VisiblePost;canEdit:b
     <p className="muted">{unpublished?'공개로 바꾸면 미공개 전 공개 범위 그대로 다시 보입니다.':'미공개로 바꾸면 작성자 본인 외에는 피드·프로필·검색·상세·댓글·좋아요·후원·미디어에서 볼 수 없습니다. 데이터는 지워지지 않습니다.'} 크리에이터에게 알림을 보내지 않으며, 크리에이터도 스튜디오에서 다시 바꿀 수 있습니다.{post.hidden_at?' 이 게시물은 운영자 숨김 상태라 공개로 바꿔도 숨김을 해제하기 전까지 보이지 않습니다.':''}</p>
     <label>변경 사유<small className="muted">내부 기록용, 크리에이터에게 보이지 않음</small><textarea required maxLength={500} placeholder="예: 신고 검토 중 임시 미공개" value={reason} onChange={e=>setReason(e.target.value)}/></label>
     {error&&<p className="error" role="alert">{error}</p>}
-    <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()}>{busy?'처리 중…':unpublished?'공개로 전환':'미공개로 전환'}</button></div>
+    <DialogActions><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()}>{busy?'처리 중…':unpublished?'공개로 전환':'미공개로 전환'}</button></DialogActions>
    </form>}
    <History path={`/admin/posts/${encodeURIComponent(post.id)}/moderation`}/>
-   {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
+   {!canEdit&&<DialogActions><button type="button" onClick={()=>setOpen(false)}>닫기</button></DialogActions>}
   </ConfirmDialog>}
  </div>;
 }
@@ -94,10 +94,10 @@ export function MemberSuspension({member,canEdit,reload}:{member:SuspendableMemb
      <label>제한 기간<select value={days} onChange={e=>setDays(e.target.value)}><option value="7">7일</option><option value="30">30일</option><option value="none">무기한(해제할 때까지)</option></select></label></>}
     <Reasons reason={reason} setReason={setReason} publicReason={publicReason} setPublicReason={setPublicReason} placeholder="예: 반복 스팸 신고 확인" publicPlaceholder={active?'예: 소명이 확인되어 이용 제한을 해제했습니다.':'예: 반복적인 스팸 게시로 운영정책을 위반했습니다.'}/>
     {error&&<p className="error" role="alert">{error}</p>}
-    <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{active?'제한 해제':'이용 제한'}</button></div>
+    <DialogActions><button type="button" disabled={busy} onClick={()=>setOpen(false)}>닫기</button><button className="primary" disabled={busy||!reason.trim()||!publicReason.trim()}>{active?'제한 해제':'이용 제한'}</button></DialogActions>
    </form>}
    <History path={`/admin/members/${encodeURIComponent(member.id)}/suspension`}/>
-   {!canEdit&&<div className="actions dialog-actions"><button type="button" onClick={()=>setOpen(false)}>닫기</button></div>}
+   {!canEdit&&<DialogActions><button type="button" onClick={()=>setOpen(false)}>닫기</button></DialogActions>}
   </ConfirmDialog>}
  </div>;
 }

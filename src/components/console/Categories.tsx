@@ -8,7 +8,7 @@ import {CSS} from '@dnd-kit/utilities';
 import {api} from '@/lib/console-api';
 import {State,useData} from './ConsoleData';
 import {useSnackbar} from './Snackbar';
-import {ConfirmDialog} from './TypedConfirm';
+import {ConfirmDialog,DialogActions} from './TypedConfirm';
 
 type Category={id:string;name:string;active:boolean;sortOrder:number;iconUrl:string|null;customIcon:boolean};
 const iconSource=(url:string)=>url.replace(/^\/api\/v1\/categories\//,'/api/v1/admin/categories/');
@@ -126,7 +126,7 @@ export function Categories({canCreate,canUpdate=false}:{canCreate:boolean;canUpd
    <p className="muted">PNG·JPG·WebP, 최대 2MB. 아이콘은 선택 즉시 저장됩니다. 투명 배경의 정사각형 이미지를 권장합니다.</p>
    {editing.customIcon&&<button type="button" disabled={busy} onClick={()=>void resetIcon()}>기본 아이콘으로 복원</button>}
    {error&&<p role="alert" className="error">{error}</p>}
-   <div className="actions"><button type="button" disabled={busy} onClick={()=>{setEditing(null);setError('');}}>닫기</button><button className="primary" disabled={busy||!editing.name.trim()}>변경 저장</button></div>
+   <DialogActions><button type="button" disabled={busy} onClick={()=>{setEditing(null);setError('');}}>닫기</button><button className="primary" disabled={busy||!editing.name.trim()}>변경 저장</button></DialogActions>
   </form></ConfirmDialog>}
  </section>;
 }

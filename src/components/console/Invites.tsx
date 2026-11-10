@@ -4,7 +4,7 @@ import {Fragment,useId,useState} from 'react';
 import {Snackbar} from './Snackbar';
 import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
-import {ConfirmDialog,TypedConfirmDialog} from './TypedConfirm';
+import {ConfirmDialog,TypedConfirmDialog,DialogActions} from './TypedConfirm';
 import {InfoTip} from './InfoTip';
 
 // Server signup-invites.ts: null keeps the platform default; fee values are basis points.
@@ -63,10 +63,10 @@ export function Invites({canCreate,canUpdate,canDelete,canTerms}:{canCreate:bool
    <TermsFields form={edit.form} setForm={form=>setEdit({...edit,form})} disabled={!canTerms} defaults={state.data?.defaults}/>
    {!terms&&<p className="error" role="alert">수수료율은 0~100%(소수 둘째 자리), 보류 기간은 0~365일, 최소 출금 금액은 100원 단위로 입력해주세요.</p>}
    {error&&<p className="error" role="alert">{error}</p>}
-   <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={()=>setEdit(null)}>취소</button><button className="primary" disabled={busy||!valid}>{termsEdited?'조건 확인':'저장'}</button></div>
+   <DialogActions><button type="button" disabled={busy} onClick={()=>setEdit(null)}>취소</button><button className="primary" disabled={busy||!valid}>{termsEdited?'조건 확인':'저장'}</button></DialogActions>
   </form></ConfirmDialog>}
   {edit&&confirming&&terms&&<TypedConfirmDialog title="개별 수수료·출금 조건 확인" phrase={POLICY_PHRASE} actionLabel="저장" busyLabel="저장 중…" busy={busy} error={error} onCancel={()=>setConfirming(false)} onConfirm={typed=>void save(typed)}><p><strong>{edit.email}</strong></p><TermsChange before={before} after={terms} defaults={state.data?.defaults}/></TypedConfirmDialog>}
-  {remove&&<ConfirmDialog title="초대 취소" onCancel={()=>{if(!busy)setRemove(null);}}><p>{remove.email} 초대를 취소할까요? 이 이메일은 가입 인증 코드를 받을 수 없게 됩니다. 같은 이메일로 다시 초대할 수 있습니다.</p>{error&&<p className="error" role="alert">{error}</p>}<div className="actions dialog-actions"><button disabled={busy} onClick={()=>setRemove(null)}>닫기</button><button className="primary" disabled={busy} onClick={()=>void revoke()}>초대 취소</button></div></ConfirmDialog>}
+  {remove&&<ConfirmDialog title="초대 취소" onCancel={()=>{if(!busy)setRemove(null);}}><p>{remove.email} 초대를 취소할까요? 이 이메일은 가입 인증 코드를 받을 수 없게 됩니다. 같은 이메일로 다시 초대할 수 있습니다.</p>{error&&<p className="error" role="alert">{error}</p>}<DialogActions><button disabled={busy} onClick={()=>setRemove(null)}>닫기</button><button className="primary" disabled={busy} onClick={()=>void revoke()}>초대 취소</button></DialogActions></ConfirmDialog>}
  </section>;
 }
 
@@ -88,7 +88,7 @@ export function MemberTerms({memberId,name,canEdit}:{memberId:string;name:string
    {!terms&&<p className="error" role="alert">수수료율은 0~100%(소수 둘째 자리), 보류 기간은 0~365일, 최소 출금 금액은 100원 단위로 입력해주세요.</p>}
    {canEdit&&<label>변경 사유<textarea required maxLength={500} placeholder="예: 2026-10 개별 계약 체결" value={reason} onChange={e=>setReason(e.target.value)}/></label>}
    {error&&<p className="error" role="alert">{error}</p>}
-   <div className="actions dialog-actions"><button type="button" onClick={close}>닫기</button>{canEdit&&<button className="primary" disabled={!changed||!reason.trim()}>조건 확인</button>}</div>
+   <DialogActions><button type="button" onClick={close}>닫기</button>{canEdit&&<button className="primary" disabled={!changed||!reason.trim()}>조건 확인</button>}</DialogActions>
    <TermsHistory history={state.data.history} defaults={state.data.defaults}/>
   </form>}</ConfirmDialog>}
   {open&&confirming&&terms&&current&&<TypedConfirmDialog title="개별 수수료·출금 조건 변경" phrase={POLICY_PHRASE} actionLabel="저장" busyLabel="저장 중…" busy={busy} error={error} onCancel={()=>setConfirming(false)} onConfirm={typed=>void save(typed)}><p><strong>{name}</strong></p><TermsChange before={current} after={terms} defaults={state.data?.defaults}/><p>변경 사유: {reason}</p></TypedConfirmDialog>}

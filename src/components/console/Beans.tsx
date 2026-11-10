@@ -3,7 +3,7 @@ import {useState} from 'react';
 import {api,ApiError} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
 import {TableContent} from './TableContent';
-import {ConfirmDialog,useConfirm,usePrompt} from './TypedConfirm';
+import {ConfirmDialog,useConfirm,usePrompt,DialogActions} from './TypedConfirm';
 import {useSnackbar} from './Snackbar';
 const won=(v:number)=>v.toLocaleString('ko-KR')+'원';
 const states:Record<string,string>={pending:'결제 대기',processing:'처리 중',paid:'완료',failed:'실패',cancelled:'취소',disputed:'확인 필요',requested:'접수',blocked:'보류',rejected:'반려'};
@@ -30,7 +30,7 @@ if(!uncertain)setRequestId(crypto.randomUUID());setError((e as Error).message+(u
   <label>환불 사유<input required maxLength={200} value={reason} disabled={busy} onChange={e=>setReason(e.target.value)}/></label>
   <label className="check"><input type="checkbox" checked={waived} disabled={busy} onChange={e=>setWaived(e.target.checked)}/>회사 귀책(7일 이후 10% 공제 면제)</label>
   {error&&<p className="error" role="alert">{error}</p>}
-  <div className="actions dialog-actions"><button type="button" disabled={busy} onClick={onClose}>닫기</button><button className="primary" disabled={busy||!reason.trim()}>{busy?'처리 중…':'환불'}</button></div>
+  <DialogActions><button type="button" disabled={busy} onClick={onClose}>닫기</button><button className="primary" disabled={busy||!reason.trim()}>{busy?'처리 중…':'환불'}</button></DialogActions>
  </form></ConfirmDialog>;
 }
 type Receivable={id:string;creatorId:string;kind:'membership'|'beans';sourceId:string;amount:number;createdAt:string};

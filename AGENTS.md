@@ -30,6 +30,8 @@
 
 - 크리에이터 인증 심사는 운영자가 이메일로 직접 검토한다. 콘솔은 회원·크리에이터 목록에서 인증 부여·해제와 확인만 제공한다. 적용은 권한 검사 후 변경 상태와 처리자·시각·대상·IP·변경 전후의 감사 이력을 같은 트랜잭션으로 저장한다. 별도 신청·심사 접수 화면은 만들지 않는다.
 
+- 모달 하단 버튼(2026-11-11 사용자 지시): 모든 `ConfirmDialog` 안의 버튼 줄은 `TypedConfirm.tsx`의 `DialogActions`로 감싼다(오른쪽 정렬·8px 간격·취소/닫기 먼저, 주 동작 마지막). `dialog-actions` 클래스를 직접 쓰거나 다이얼로그 안에 `actions` div를 손으로 만들지 않는다. 회귀 검사 `tests/dialog-actions.test.cjs`.
+
 - 운영자 권한(2026-10-28): 최고관리자 전체, 부운영자는 메뉴별 입장(조회)·생성·수정·삭제 권한표. 서버가 모든 /admin 경로에서 `@Permit`로 검사하고 콘솔은 표시만 맞춘다. 운영자·권한 관리는 최고관리자 전용. 임시 비밀번호는 생성 응답에 한 번만 보이고 첫 로그인 때 변경. 금융 정책 변경은 확인 문구 '정책 변경' 입력(서버도 검사). 중요한 작업의 직접 입력 확인은 `components/console/TypedConfirm.tsx`의 `TypedConfirmDialog`(phrase·actionLabel·onConfirm)를 재사용하고 서버에서도 같은 문구를 검사한다. 조사는 `lib/korean.ts`의 `objectParticle`/`withParticle`로 받침에 맞춘다.
 
 - 콩 후원은 server `docs/platform-implementation.md`의 콩 확장 설계를 따른다. 구형 Wallet/Transfer와 신규 Bean 원장을 자동 혼합하지 않고, 충전·후원·출금은 중복 집계하지 않는다. 공유 지갑/후원/출금과 독립 콘솔은 연결되어 있다. 기능/live 판매 기본 off 및 실공급자 미확인 경계·배포 상태는 PROGRESS.md에서 확인한다.

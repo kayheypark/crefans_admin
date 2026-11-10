@@ -3,7 +3,7 @@ import Link from 'next/link';
 import {useEffect,useRef,useState} from 'react';
 import {api,ApiError} from '@/lib/console-api';
 import {graceDaysLeft,groupSecret} from '@/lib/totp';
-import {ConfirmDialog} from './TypedConfirm';
+import {ConfirmDialog,DialogActions} from './TypedConfirm';
 import {useSnackbar} from './Snackbar';
 
 export type TotpStatus={enabled:boolean;graceUntil:string|null;recoveryCodesLeft:number};
@@ -41,7 +41,7 @@ export function TotpSection({totp,onChanged}:{totp:TotpStatus;onChanged:()=>void
    <ol className="recovery-codes">{codes.map(c=><li key={c}><code>{c}</code></li>)}</ol>
    <button type="button" onClick={()=>void copy()}>복구 코드 복사</button>
    <label className="check"><input type="checkbox" checked={saved} onChange={e=>setSaved(e.target.checked)}/>복구 코드를 안전한 곳에 보관했습니다.</label>
-   <div className="actions dialog-actions"><button type="button" className="primary" disabled={!saved} onClick={close}>닫기</button></div>
+   <DialogActions><button type="button" className="primary" disabled={!saved} onClick={close}>닫기</button></DialogActions>
   </ConfirmDialog>}
  </section>;
 }
