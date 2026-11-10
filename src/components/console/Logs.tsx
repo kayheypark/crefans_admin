@@ -16,20 +16,20 @@ export function Logs(){
  const [draft,setDraft]=useState(initial),[filters,setFilters]=useState(initial),[page,setPage]=useState(1),[selected,setSelected]=useState<string|null>(null);
  const query=new URLSearchParams(Object.entries(filters).filter(([,v])=>v));query.set('page',String(page));const state=useData<Result>('/admin/logs?'+query);
  function change(key:keyof ReturnType<typeof initial>,value:string){setDraft(v=>({...v,[key]:value}));}
- return <>
+ return <section>
+ <p className="notice">한국 시간 기준 · 최대 366일 · 비밀값과 본문은 기록하지 않습니다. 동일 요청·대상·배치 기록은 상세에서 확인할 수 있습니다.</p>
  <form className="filters log-filters" onSubmit={e=>{e.preventDefault();setFilters(draft);setPage(1);setSelected(null);}}>
   <label>시작일<input type="date" value={draft.from} onChange={e=>change('from',e.target.value)} required/></label><label>종료일<input type="date" value={draft.to} onChange={e=>change('to',e.target.value)} required/></label>
   <label>분류<select value={draft.category} onChange={e=>change('category',e.target.value)}><option value="">전체 분류</option>{Object.entries(categories).map(([v,label])=><option key={v} value={v}>{label}</option>)}</select></label>
   <label>수준<select value={draft.level} onChange={e=>change('level',e.target.value)}><option value="">전체 수준</option>{Object.entries(levels).map(([v,label])=><option key={v} value={v}>{label}</option>)}</select></label>
   {([['ip','접속 IP'],['requestId','요청 ID'],['actorId','행위자 ID'],['entityId','대상 ID'],['jobId','배치 실행 ID'],['action','이벤트명']] as const).map(([key,label])=><label key={key}>{label}<input value={draft[key]} maxLength={191} onChange={e=>change(key,e.target.value)} placeholder="정확히 일치"/></label>)}
-  <button className="primary" disabled={!draft.from||!draft.to||draft.from>draft.to}>조회</button><button type="button" onClick={()=>{const next=initial();setDraft(next);setFilters(next);setPage(1);setSelected(null);}}>초기화</button><button type="button" onClick={state.reload}>새로고침</button>
+  <button disabled={!draft.from||!draft.to||draft.from>draft.to}>조회</button><button type="button" onClick={()=>{const next=initial();setDraft(next);setFilters(next);setPage(1);setSelected(null);}}>초기화</button><button type="button" onClick={state.reload}>새로고침</button>
  </form>
- <p className="notice">한국 시간 기준 · 최대 366일 · 비밀값과 본문은 기록하지 않습니다. 동일 요청·대상·배치 기록은 상세에서 확인할 수 있습니다.</p>
  <State {...state}/>
  {state.data&&<>{state.data.items.length?<div className="table-wrap"><table className="log-table"><thead><tr>{['시각','분류','수준','이벤트','접속 IP','상태','소요','상세'].map(v=><th key={v}>{v}</th>)}</tr></thead><tbody>{state.data.items.map(row=><tr key={row.id}><td>{date(row.at)}</td><td>{categories[row.category]||row.category}</td><td><span className={'log-level '+row.level}>{levels[row.level]||row.level}</span></td><td><code>{row.action}</code></td><td>{row.ip||'시스템'}</td><td>{row.status??'—'}</td><td>{row.durationMs===null?'—':row.durationMs+'ms'}</td><td><button onClick={e=>{e.currentTarget.focus({preventScroll:true});setSelected(row.id);}} aria-label={`${row.action} 상세`}>상세</button></td></tr>)}</tbody></table></div>:<EmptyState>조건에 맞는 로그가 없습니다.</EmptyState>}
  <div className="pager"><span>총 {state.data.total.toLocaleString()}건</span><button disabled={page<=1} onClick={()=>setPage(v=>v-1)}>이전</button><span>{page} / {Math.max(1,Math.ceil(state.data.total/state.data.pageSize))}</span><button disabled={page*state.data.pageSize>=state.data.total} onClick={()=>setPage(v=>v+1)}>다음</button></div></>}
  {selected&&<LogDetail id={selected} onClose={()=>setSelected(null)} onSelect={setSelected}/>}
- </>;
+ </section>;
 }
 function LogDetail({id,onClose,onSelect}:{id:string;onClose:()=>void;onSelect:(id:string)=>void}){
  const close=useRef<HTMLButtonElement>(null);
