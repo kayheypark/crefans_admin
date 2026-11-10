@@ -41,6 +41,12 @@ export function ConfirmDialog({title,onCancel,children,className=''}:{title:stri
 }
 
 /**
+ * The one action row for every console dialog (2026-11-11 user decision): right-aligned, 8px gap, secondary
+ * (취소·닫기) first and the main action last. Do not hand-write `dialog-actions` divs; pass the buttons here.
+ */
+export function DialogActions({children}:{children:ReactNode}){return <div className="actions dialog-actions">{children}</div>;}
+
+/**
  * Confirmation for important actions: the operator must type `phrase` exactly before the action button
  * turns on. Cancel has default focus so Enter never confirms by accident. The server should check the
  * same phrase too; `onConfirm` receives the typed value to send along.
@@ -53,7 +59,7 @@ export function TypedConfirmDialog({title,phrase,actionLabel,busyLabel='처리 �
   <label><span>계속하려면 <strong>{phrase}</strong>{particle} 그대로 입력하세요</span><input value={typed} onChange={e=>setTyped(e.target.value)} autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} aria-describedby={help}/></label>
   <p id={help} className="muted">띄어쓰기까지 정확히 같아야 버튼이 켜집니다.</p>
   {error&&<p role="alert" className="error">{error}</p>}
-  <div className="actions dialog-actions"><button type="button" autoFocus onClick={onCancel} disabled={busy}>취소</button><button type="button" className="primary" disabled={busy||confirmDisabled||!matched} onClick={()=>{if(matched&&!busy&&!confirmDisabled)onConfirm(typed);}}>{busy?busyLabel:actionLabel}</button></div>
+  <DialogActions><button type="button" autoFocus onClick={onCancel} disabled={busy}>취소</button><button type="button" className="primary" disabled={busy||confirmDisabled||!matched} onClick={()=>{if(matched&&!busy&&!confirmDisabled)onConfirm(typed);}}>{busy?busyLabel:actionLabel}</button></DialogActions>
  </ConfirmDialog>;
 }
 
@@ -77,10 +83,10 @@ function ConfirmBody({request,input,onSettle}:{request:ConfirmRequest&Partial<Pr
   {input&&<label htmlFor={fieldId}><span>{request.label}</span>{request.multiline
    ?<textarea id={fieldId} autoFocus value={value} maxLength={request.maxLength} placeholder={request.placeholder} onChange={e=>setValue(e.target.value)}/>
    :<input id={fieldId} autoFocus value={value} maxLength={request.maxLength} placeholder={request.placeholder} autoComplete="off" onChange={e=>setValue(e.target.value)}/>}</label>}
-  <div className="actions dialog-actions">
+  <DialogActions>
    <button type="button" autoFocus={!input} onClick={()=>onSettle(null)}>{request.cancelLabel||'취소'}</button>
    <button type="submit" className={request.danger?'danger':'primary'} disabled={!ready}>{request.actionLabel||'확인'}</button>
-  </div>
+  </DialogActions>
  </form>;
 }
 

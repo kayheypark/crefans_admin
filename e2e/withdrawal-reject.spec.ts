@@ -14,6 +14,7 @@ async function fixture(page:Page,permissions:Record<string,Record<string,boolean
   else if(url.pathname.endsWith('/payments'))data={items:[],total:0,page:1,pageSize:20};
   else if(url.pathname.endsWith('/withdrawals'))data={items:items.map(w=>w.id==='w-neg'&&rejected?{...w,status:'rejected',rejectable:false}:w).filter(w=>url.searchParams.get('status')!=='open'||['requested','processing'].includes(w.status)),total:3,page:1,pageSize:20};
   else if(url.pathname.endsWith('/settlement-accounts'))data=[];
+  else if(url.pathname.endsWith('/payouts/due'))data={items:[],creators:[],totals:{count:0,amount:0,creators:0,testCount:0},beans:false,truncated:false};
   else if(url.pathname.endsWith('/overview'))data={members:0,creators:0,posts:0,reports:0,inquiries:0,failedPayments:0,pendingWithdrawals:0,undeliveredEvents:0,jobs:[]};
   await route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,data,errorMessage:null,errorCode:null})});});
  return{calls,bodies};}

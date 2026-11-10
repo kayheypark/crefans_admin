@@ -23,6 +23,11 @@ test('AI photo allow-list: grant, history and revoke with reasons, on desktop an
  await row.getByRole('button',{name:'이력',exact:true}).click();const history=page.getByRole('dialog',{name:'@console_creator 허용 이력'});
  await expect(history.locator('li')).toHaveCount(3);await expect(history.locator('li').nth(1)).toContainText('시범 운영 종료');await history.getByRole('button',{name:'닫기',exact:true}).click();
  await page.setViewportSize({width:390,height:844});await page.reload();await expect(row).toBeVisible();await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);await page.screenshot({path:'test-results/ai-photo-mobile.png',fullPage:true});
+ // 2026-11-11: dialog buttons come from the shared DialogActions row (right-aligned, 8px gap, cancel then action).
+ await page.getByRole('button',{name:'크리에이터 허용',exact:true}).click();const cancel=add.getByRole('button',{name:'취소',exact:true}),ok=add.getByRole('button',{name:'허용',exact:true});
+ const [c,o,d]=[await cancel.boundingBox(),await ok.boundingBox(),await add.boundingBox()];expect(c&&o&&d).toBeTruthy();
+ expect(o!.x-(c!.x+c!.width)).toBeGreaterThanOrEqual(7.5);expect(Math.abs(c!.y-o!.y)).toBeLessThan(1);expect(d!.x+d!.width-(o!.x+o!.width)).toBeLessThan(40);
+ await page.screenshot({path:'test-results/ai-photo-mobile-dialog.png'});await cancel.click();
  await row.getByRole('button',{name:'해제',exact:true}).click();await revoke.getByLabel('해제 사유').fill('테스트 정리');await revoke.getByRole('button',{name:'해제',exact:true}).click();await expect(page.getByText('아직 허용한 크리에이터가 없습니다.')).toBeVisible();
  expect(errors).toEqual([]);
 });
