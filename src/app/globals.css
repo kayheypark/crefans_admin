@@ -107,6 +107,10 @@ th.number,td.number{text-align:right;font-variant-numeric:tabular-nums;white-spa
 .filters{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .filters label{min-width:140px}
 .filters .muted{padding-bottom:9px}
+/* 목록 툴바: 필터·검색은 왼쪽, 등록 계열 주 버튼은 오른쪽 끝 */
+.filters>.toolbar-end{margin-left:auto}
+/* 카드 제목 아래 한 줄 설명 */
+.section-desc{margin:-4px 0 12px}
 .tabs{display:flex;gap:2px;padding:3px;margin:16px 0;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);overflow-x:auto}
 .tabs button{flex:1;min-height:32px;padding:6px 10px;font-size:13px;border-color:transparent;border-radius:var(--r-sm);background:transparent;color:var(--text-2)}
 .tabs button[aria-pressed=true]{background:var(--surface);border-color:var(--border-strong);color:var(--text-1);box-shadow:var(--shadow)}
