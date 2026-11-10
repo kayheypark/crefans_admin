@@ -356,3 +356,10 @@ button.danger{color:var(--danger)}
 .support-question{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;color:var(--text-2)}
 /* 2026-11-07: bean payout drawing on chargeback-frozen beans (server chargebackHold) */
 .chargeback-hold{display:block;margin-top:4px;font-size:12px;font-weight:700;color:var(--danger)}
+/* Weekly payout list (2026-11-10): totals as three stat cells, revealed account numbers stay selectable. */
+.payout-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.payout-summary>div{padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface-2);display:flex;flex-direction:column;gap:4px}
+.payout-summary strong{font-size:18px}
+.payout-number{margin-top:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.payout-number code{user-select:all;font-size:14px;letter-spacing:.02em}
+@media (max-width:640px){.payout-summary{grid-template-columns:1fr}}
