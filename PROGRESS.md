@@ -1,3 +1,10 @@
+## 2026-11-10 이번 주 지급 목록 (feat/payout-list, 미커밋·미배포)
+- 요청: 수동 이체용으로 '크리에이터에게 얼마를 이체해야 하는지' 계산된 목록. 기존 수동 지급 패널은 크리에이터 ID·끝 4자리만 보여 실제 이체 불가였음.
+- 구현: `src/components/console/PayoutList.tsx`(매출·정산, 수동 지급 모드에서 기존 패널 위). 총액·크리에이터 수·건수, 크리에이터별 합계, 출금별 상세(멤버십/콩, 이체 금액, 은행·예금주·끝 4자리, 미확인·계좌 변경 경고). '계좌번호 보기'는 revenue.create만, 테스트 콩 출금 제외, 누를 때만 서버 조회(감사 기록), 2분 뒤 자동 숨김, 번호·금액 복사(스낵바). 이체 완료 기록은 기존 패널/콩 화면 그대로.
+- 서버: crefans_server feat/payout-list의 GET /admin/payouts/due, POST /admin/settlement-accounts/:id/reveal.
+- 검증: typecheck 0, 단위 16/16, e2e `playwright.payout-list.config.ts` PC·모바일 4/4(API 대역, 실서버·실이체 아님). 캡처 test-results/payout-list/.
+- 남은 것: 커밋·dev/prod 통합·운영 배포(사용자 승인 필요), MANUAL_PAYOUTS_ENABLED는 운영에서 꺼져 있어 켜기 전엔 화면이 보이지 않음.
+
 ## 2026-11-10 목록 화면 상단(안내·검색·등록) 디자인 통일 (배포 진행 중)
 - 사용자 지적: 안내 텍스트, 검색만 있을 때, 검색+등록 버튼일 때 화면마다 디자인이 다름. 작업트리 `/Users/ethan/repository/crefans_admin-toolbar`, 브랜치 feat/console-toolbar-consistency (origin/prod 7c41f55 기준).
 - 규칙: ① 목록은 흰 카드(section) 안 ② 화면 안내는 카드 맨 위 `.notice` 박스, 카드 제목(h2) 아래 설명은 `.muted.section-desc` ③ 툴바는 필터·검색(보조 버튼) 왼쪽, 등록 계열 주 버튼은 `.toolbar-end`로 오른쪽 끝(카드 제목이 있으면 `section-head` 오른쪽) ④ 페이지 표기 '현재 / 전체'.
