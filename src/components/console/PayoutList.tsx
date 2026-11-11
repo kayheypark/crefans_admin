@@ -10,13 +10,18 @@ import {withParticle} from '@/lib/korean';
 // already net of the platform fee and bean payouts use their net. The full account number is fetched per account on demand
 // (audited on the server), kept only in this component's memory and hidden again after a short time.
 type Account={id:string;bank?:string;holder?:string;lastFour?:string;verified?:boolean;hasNumber?:boolean;changed?:boolean;missing?:boolean};
-type Item={id:string;kind:'membership'|'bean';creatorId:string;creatorName:string;handle:string|null;amount:number;status:string;note:string|null;test:boolean;createdAt:string;account:Account};
+type Hold='next-batch'|'account-unverified'|'account-changed'|'account-missing'|'test';
+type Item={id:string;kind:'membership'|'bean';creatorId:string;creatorName:string;handle:string|null;amount:number;status:string;note:string|null;test:boolean;createdAt:string;account:Account;due?:boolean;holdReason?:Hold|null};
 type Group={creatorId:string;creatorName:string;handle:string|null;count:number;amount:number};
-type Due={items:Item[];creators:Group[];totals:{count:number;amount:number;creators:number;testCount:number};beans:boolean;truncated:boolean};
+type Due={items:Item[];creators:Group[];batchCutoff?:string;totals:{count:number;amount:number;creators:number;testCount:number;heldCount?:number;heldAmount?:number};beans:boolean;truncated:boolean};
 const won=(n:number)=>`${n.toLocaleString('ko-KR')}원`;
 const day=(v:string)=>new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit'}).format(new Date(v));
 const states:Record<string,string>={requested:'접수',processing:'이체 대기'};
 const HIDE_AFTER_MS=120000;
+// 2026-11-11: the server marks what belongs to this Wednesday's transfer (due) and why the rest waits; those rows are
+// shown apart without the number or copy buttons because the server refuses to record their transfer yet.
+const holds:Record<Hold,string>={'next-batch':'다음 주 지급 (마감 뒤 신청)','account-unverified':'예금주 확인 전','account-changed':'신청 후 계좌 변경됨','account-missing':'계좌 정보 없음',test:'테스트 환경 (이체하지 않음)'};
+const isDue=(i:Item)=>i.due??!i.test;
 const who=(i:{creatorName:string;handle:string|null;creatorId:string})=><>{i.creatorName||i.creatorId}{i.handle&&<small className="muted"> @{i.handle}</small>}</>;
 
 export function PayoutList({canReveal}:{canReveal:boolean}){
@@ -35,12 +40,17 @@ export function PayoutList({canReveal}:{canReveal:boolean}){
    {d.truncated&&<p role="alert" className="error">건수가 많아 일부만 표시했습니다. 처리 후 새로고침해 나머지를 확인하세요.</p>}
    {d.creators.length?<><h3>크리에이터별 합계</h3><div className="table-wrap"><table><thead><tr><th>크리에이터</th><th>건수</th><th>이체할 금액</th></tr></thead><tbody>{d.creators.map(g=><tr key={g.creatorId}><td>{who(g)}</td><td>{g.count}건</td><td>{won(g.amount)}</td></tr>)}</tbody></table></div></>:null}
    <h3>출금별 상세</h3>
-   {d.items.length?<div className="table-wrap"><table><thead><tr><th>크리에이터</th><th>종류</th><th>이체할 금액</th><th>입금 계좌</th><th>상태</th><th>신청일</th></tr></thead><tbody>{d.items.map(i=>{const a=i.account,n=numbers[a.id];return <tr key={i.kind+i.id} className={i.test?'muted':undefined}>
+   {d.items.some(isDue)?<div className="table-wrap"><table><thead><tr><th>크리에이터</th><th>종류</th><th>이체할 금액</th><th>입금 계좌</th><th>상태</th><th>신청일</th></tr></thead><tbody>{d.items.filter(isDue).map(i=>{const a=i.account,n=numbers[a.id];return <tr key={i.kind+i.id}>
     <td>{who(i)}</td><td>{i.kind==='membership'?'멤버십':'콩'}{i.test&&<small> (테스트)</small>}</td><td>{won(i.amount)}</td>
     <td>{a.missing?<span className="error">계좌 정보 없음</span>:<>{a.bank} · {a.holder} · ****{a.lastFour}{!a.verified&&<small className="error"> 예금주 미확인</small>}{a.changed&&<small className="error"> 신청 후 계좌 변경됨</small>}
      {n?<div className="payout-number"><code>{n}</code> <button type="button" onClick={()=>copy(n,'계좌번호')}>번호 복사</button> <button type="button" onClick={()=>copy(String(i.amount),'금액')}>금액 복사</button></div>
       :canReveal&&a.hasNumber&&!i.test&&<div><button type="button" disabled={!!busy} onClick={()=>reveal(a)}>{busy===a.id?'불러오는 중':'계좌번호 보기'}</button></div>}</>}</td>
-    <td>{states[i.status]||i.status}{i.note&&<small> {i.note}</small>}</td><td>{day(i.createdAt)}</td></tr>;})}</tbody></table></div>:<EmptyState>이체할 출금이 없습니다.</EmptyState>}
+    <td>{states[i.status]||i.status}{i.note&&<small> {i.note}</small>}</td><td>{day(i.createdAt)}</td></tr>;})}</tbody></table></div>:<EmptyState>이번 주에 이체할 출금이 없습니다.</EmptyState>}
+   {d.items.some(i=>!isDue(i))&&<><h3>이번 주 이체 대상이 아닌 건</h3>
+    <p className="muted">{d.batchCutoff&&<>이번 지급은 {day(d.batchCutoff)} 0시(한국 시간) 전 신청분입니다. </>}아래 건은 지금 이체해도 기록할 수 없으니 이체하지 마세요{d.totals.heldCount?<> (테스트 제외 {d.totals.heldCount}건, {won(d.totals.heldAmount||0)})</>:null}.</p>
+    <div className="table-wrap"><table><thead><tr><th>크리에이터</th><th>종류</th><th>금액</th><th>입금 계좌</th><th>제외 사유</th><th>신청일</th></tr></thead><tbody>{d.items.filter(i=>!isDue(i)).map(i=>{const a=i.account;return <tr key={i.kind+i.id} className="muted">
+     <td>{who(i)}</td><td>{i.kind==='membership'?'멤버십':'콩'}</td><td>{won(i.amount)}</td><td>{a.missing?'계좌 정보 없음':<>{a.bank} · {a.holder} · ****{a.lastFour}</>}</td>
+     <td>{holds[i.holdReason||(i.test?'test':'next-batch')]}</td><td>{day(i.createdAt)}</td></tr>;})}</tbody></table></div></>}
   </>}
  </section>;
 }

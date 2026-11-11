@@ -3,10 +3,11 @@ import {test,expect,type Page} from '@playwright/test';
 // (server tests/platform-manual-payouts.test.cjs). This checks the console shows them and fetches a number only on demand.
 const account={id:'acc-1',bank:'국민',holder:'김크리',lastFour:'5678',verified:true,hasNumber:true,changed:false};
 const due={items:[
- {id:'w-1',kind:'membership',creatorId:'c-1',creatorName:'김크리',handle:'kimcre',amount:70000,status:'processing',note:null,test:false,createdAt:'2026-11-03T01:00:00Z',account},
- {id:'b-1',kind:'bean',creatorId:'c-1',creatorName:'김크리',handle:'kimcre',amount:30000,status:'processing',note:null,test:false,createdAt:'2026-11-04T01:00:00Z',account},
- {id:'b-2',kind:'bean',creatorId:'c-2',creatorName:'테스트',handle:null,amount:5000,status:'requested',note:null,test:true,createdAt:'2026-11-04T02:00:00Z',account:{...account,id:'acc-2',lastFour:'0000'}}],
- creators:[{creatorId:'c-1',creatorName:'김크리',handle:'kimcre',count:2,amount:100000}],totals:{count:2,amount:100000,creators:1,testCount:1},beans:true,truncated:false};
+ {id:'w-1',kind:'membership',creatorId:'c-1',creatorName:'김크리',handle:'kimcre',amount:70000,status:'processing',note:null,test:false,createdAt:'2026-11-03T01:00:00Z',account,due:true,holdReason:null},
+ {id:'b-1',kind:'bean',creatorId:'c-1',creatorName:'김크리',handle:'kimcre',amount:30000,status:'processing',note:null,test:false,createdAt:'2026-11-04T01:00:00Z',account,due:true,holdReason:null},
+ {id:'w-2',kind:'membership',creatorId:'c-1',creatorName:'김크리',handle:'kimcre',amount:40000,status:'requested',note:null,test:false,createdAt:'2026-11-11T02:00:00Z',account,due:false,holdReason:'next-batch'},
+ {id:'b-2',kind:'bean',creatorId:'c-2',creatorName:'테스트',handle:null,amount:5000,status:'requested',note:null,test:true,createdAt:'2026-11-04T02:00:00Z',account:{...account,id:'acc-2',lastFour:'0000'},due:false,holdReason:'test'}],
+ creators:[{creatorId:'c-1',creatorName:'김크리',handle:'kimcre',count:2,amount:100000}],batchCutoff:'2026-11-10T15:00:00Z',totals:{count:2,amount:100000,creators:1,testCount:1,heldCount:1,heldAmount:40000},beans:true,truncated:false};
 async function fixture(page:Page,permissions:Record<string,Record<string,boolean>>){
  const calls:string[]=[];
  await page.route('**/api/v1/admin/**',async route=>{const url=new URL(route.request().url()),method=route.request().method();calls.push(method+' '+url.pathname);let data:unknown={};
@@ -30,6 +31,9 @@ test('지급 목록: 총액·크리에이터별 합계·출금별 상세, 계좌
  expect(calls.some(c=>c.endsWith('/reveal'))).toBe(false);await expect(panel).not.toContainText('110123455678');
  await panel.scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('01-list.png'),fullPage:true});
  const test=panel.getByRole('row').filter({hasText:'5,000원'});await expect(test.getByRole('button',{name:'계좌번호 보기'})).toHaveCount(0);
+ // 2026-11-11: next week's request and the test payout sit in their own section with the reason, without the number button.
+ const held=panel.getByRole('table').last();await expect(held.getByRole('row').filter({hasText:'40,000원'})).toContainText('다음 주 지급');await expect(held.getByRole('row').filter({hasText:'5,000원'})).toContainText('테스트 환경');
+ await expect(held.getByRole('button')).toHaveCount(0);await expect(panel).toContainText('테스트 제외 1건, 40,000원');await expect(panel).toContainText('11. 11. 0시');
  await panel.getByRole('row').filter({hasText:'70,000원'}).getByRole('button',{name:'계좌번호 보기'}).click();
  await expect(panel.getByRole('row').filter({hasText:'70,000원'})).toContainText('110123455678');
  expect(calls.filter(c=>c.endsWith('/reveal'))).toEqual(['POST /api/v1/admin/settlement-accounts/acc-1/reveal']);

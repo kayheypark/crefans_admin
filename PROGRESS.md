@@ -1,3 +1,7 @@
+## 2026-11-11 이번 주 지급 목록 범위 (feat/payout-list-scope, 커밋·미배포)
+- 사용자 결정(11-11): 수동 지급 켜기 전 지급 목록 범위 수정. 서버 feat/payout-hardening(c57fbb1)의 `due`·`holdReason`·`batchCutoff`·`heldCount/heldAmount`를 사용.
+- 화면: 총액·크리에이터별 합계·출금별 상세는 이번 수요일 묶음의 확인된 계좌 건만. 나머지(다음 주 지급·예금주 확인 전·계좌 변경·계좌 없음·테스트)는 '이번 주 이체 대상이 아닌 건' 표에 사유와 함께, 계좌번호·복사 버튼 없이 표시. 서버가 due를 주지 않으면 이전처럼 테스트 아닌 건을 대상으로 본다.
+- 검증: check(typecheck+단위 18/18), e2e payout-list 2·withdrawal 관련 4 통과(API 대역). 서버 배포 전에는 화면 변화 없음(due 미제공).
 ## 2026-11-11 모달 하단 버튼 공통 컴포넌트 DialogActions (feat/dialog-actions, 미커밋·미배포)
 - 계기: 사용자 운영 캡처 — AI 사진 편집 허용 모달의 취소·허용 버튼이 왼쪽에 붙어 있음(`dialog-actions`만 쓰고 `actions` 누락 → flex·간격 없음). 지시: 디자인 일관성을 위해 컴포넌트 사용.
 - 변경: `TypedConfirm.tsx`에 `DialogActions` 추가, 다이얼로그 버튼 줄 26곳을 교체(AiPhotoGrants 3·Advertising 2·Beans 1·Categories 1·Console 2·Invites 3·Memberships 1·Moderation 6·Referrals 2·ReservedHandles 2·Totp 1·TypedConfirm 2). Categories 편집·Referrals 2개 모달도 왼쪽 정렬이던 것이 함께 정리됨. AGENTS.md 규칙 추가.
