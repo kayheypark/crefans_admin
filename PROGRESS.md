@@ -1,13 +1,13 @@
+## 2026-11-11 이번 주 지급 목록 범위 (feat/payout-list-scope, 커밋·미배포)
+- 사용자 결정(11-11): 수동 지급 켜기 전 지급 목록 범위 수정. 서버 feat/payout-hardening(c57fbb1)의 `due`·`holdReason`·`batchCutoff`·`heldCount/heldAmount`를 사용.
+- 화면: 총액·크리에이터별 합계·출금별 상세는 이번 수요일 묶음의 확인된 계좌 건만. 나머지(다음 주 지급·예금주 확인 전·계좌 변경·계좌 없음·테스트)는 '이번 주 이체 대상이 아닌 건' 표에 사유와 함께, 계좌번호·복사 버튼 없이 표시. 서버가 due를 주지 않으면 이전처럼 테스트 아닌 건을 대상으로 본다.
+- 검증: check(typecheck+단위 18/18), e2e payout-list 2·withdrawal 관련 4 통과(API 대역). 서버 배포 전에는 화면 변화 없음(due 미제공).
 ## 2026-11-11 모달 하단 버튼 공통 컴포넌트 DialogActions (feat/dialog-actions, 미커밋·미배포)
 - 계기: 사용자 운영 캡처 — AI 사진 편집 허용 모달의 취소·허용 버튼이 왼쪽에 붙어 있음(`dialog-actions`만 쓰고 `actions` 누락 → flex·간격 없음). 지시: 디자인 일관성을 위해 컴포넌트 사용.
 - 변경: `TypedConfirm.tsx`에 `DialogActions` 추가, 다이얼로그 버튼 줄 26곳을 교체(AiPhotoGrants 3·Advertising 2·Beans 1·Categories 1·Console 2·Invites 3·Memberships 1·Moderation 6·Referrals 2·ReservedHandles 2·Totp 1·TypedConfirm 2). Categories 편집·Referrals 2개 모달도 왼쪽 정렬이던 것이 함께 정리됨. AGENTS.md 규칙 추가.
 - 검증: typecheck 0, 단위 18/18(신규 tests/dialog-actions 2건 — 옛 AiPhotoGrants/Referrals로 되돌리면 각각 FAIL), e2e ai-photo(모바일 버튼 간격·정렬 측정 추가, 옛 코드면 간격 0으로 FAIL), withdrawal-reject 10/10, payout-list 4/4, referrals·reserved-handles·modal-layer·invites 통과. moderation 2건 실패는 변경 전 기준(46a2299)에서도 동일하게 실패(기존 문제).
 - 함께 고침: 어제 지급 목록 추가 후 withdrawal-reject e2e 대역이 /admin/payouts/due에 응답하지 않아 수동 지급 테스트 1건이 깨졌던 것(대역에 빈 목록 추가).
 
-## 2026-11-11 이번 주 지급 목록 범위 (feat/payout-list-scope, 커밋·미배포)
-- 사용자 결정(11-11): 수동 지급 켜기 전 지급 목록 범위 수정. 서버 feat/payout-hardening(c57fbb1)의 `due`·`holdReason`·`batchCutoff`·`heldCount/heldAmount`를 사용.
-- 화면: 총액·크리에이터별 합계·출금별 상세는 이번 수요일 묶음의 확인된 계좌 건만. 나머지(다음 주 지급·예금주 확인 전·계좌 변경·계좌 없음·테스트)는 '이번 주 이체 대상이 아닌 건' 표에 사유와 함께, 계좌번호·복사 버튼 없이 표시. 서버가 due를 주지 않으면 이전처럼 테스트 아닌 건을 대상으로 본다.
-- 검증: check(typecheck+단위 18/18), e2e payout-list 2·withdrawal 관련 4 통과(API 대역). 서버 배포 전에는 화면 변화 없음(due 미제공).
 ## 2026-11-10 이번 주 지급 목록 (feat/payout-list, 미커밋·미배포)
 - 요청: 수동 이체용으로 '크리에이터에게 얼마를 이체해야 하는지' 계산된 목록. 기존 수동 지급 패널은 크리에이터 ID·끝 4자리만 보여 실제 이체 불가였음.
 - 구현: `src/components/console/PayoutList.tsx`(매출·정산, 수동 지급 모드에서 기존 패널 위). 총액·크리에이터 수·건수, 크리에이터별 합계, 출금별 상세(멤버십/콩, 이체 금액, 은행·예금주·끝 4자리, 미확인·계좌 변경 경고). '계좌번호 보기'는 revenue.create만, 테스트 콩 출금 제외, 누를 때만 서버 조회(감사 기록), 2분 뒤 자동 숨김, 번호·금액 복사(스낵바). 이체 완료 기록은 기존 패널/콩 화면 그대로.
