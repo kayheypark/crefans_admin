@@ -10,7 +10,7 @@ import {withParticle} from '@/lib/korean';
 // already net of the platform fee and bean payouts use their net. The full account number is fetched per account on demand
 // (audited on the server), kept only in this component's memory and hidden again after a short time.
 type Account={id:string;bank?:string;holder?:string;lastFour?:string;verified?:boolean;hasNumber?:boolean;changed?:boolean;missing?:boolean};
-type Hold='next-batch'|'account-unverified'|'account-changed'|'account-missing'|'test';
+type Hold='partner-unverified'|'next-batch'|'account-unverified'|'account-changed'|'account-missing'|'test';
 type Item={id:string;kind:'membership'|'bean';creatorId:string;creatorName:string;handle:string|null;amount:number;status:string;note:string|null;test:boolean;createdAt:string;account:Account;due?:boolean;holdReason?:Hold|null};
 type Group={creatorId:string;creatorName:string;handle:string|null;count:number;amount:number};
 type Due={items:Item[];creators:Group[];batchCutoff?:string;totals:{count:number;amount:number;creators:number;testCount:number;heldCount?:number;heldAmount?:number};beans:boolean;truncated:boolean};
@@ -20,7 +20,7 @@ const states:Record<string,string>={requested:'접수',processing:'이체 대기
 const HIDE_AFTER_MS=120000;
 // 2026-11-11: the server marks what belongs to this Wednesday's transfer (due) and why the rest waits; those rows are
 // shown apart without the number or copy buttons because the server refuses to record their transfer yet.
-const holds:Record<Hold,string>={'next-batch':'다음 주 지급 (마감 뒤 신청)','account-unverified':'예금주 확인 전','account-changed':'신청 후 계좌 변경됨','account-missing':'계좌 정보 없음',test:'테스트 환경 (이체하지 않음)'};
+const holds:Record<Hold,string>={'partner-unverified':'계약 미확인 (인증 배지 없음)','next-batch':'다음 주 지급 (마감 뒤 신청)','account-unverified':'예금주 확인 전','account-changed':'신청 후 계좌 변경됨','account-missing':'계좌 정보 없음',test:'테스트 환경 (이체하지 않음)'};
 const isDue=(i:Item)=>i.due??!i.test;
 const who=(i:{creatorName:string;handle:string|null;creatorId:string})=><>{i.creatorName||i.creatorId}{i.handle&&<small className="muted"> @{i.handle}</small>}</>;
 
