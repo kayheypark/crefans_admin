@@ -1,3 +1,8 @@
+## 2026-11-13 AI 사진 오늘 사용 횟수 초기화(인원별·전체) — feat/ai-photo-quota-reset, 커밋·미배포
+- `/console/ai-photo` 표에 '오늘 사용 n/한도회 · 남음', 행별 '횟수 초기화'(사유 필수, 미사용이면 비활성), 상단 '오늘 횟수 전체 초기화'(사유 + `TypedConfirmDialog` 문구 '전체 초기화'). 이력 라벨에 횟수 초기화·전체 횟수 초기화 추가. 서버는 crefans_server feat/ai-photo-quota-reset.
+- 검증: typecheck 0, npm test 18/18, `e2e/ai-photo.spec.ts` 2/2(실서버 e2e, 데스크톱·모바일 390 스크린샷). 사용량이 있는 상태의 실제 초기화는 서버 e2e 테스트로 확인.
+- 남은 일: 통합·운영 배포는 사용자 승인 후.
+
 ## 2026-11-13 00:1x~00:35 KST 인증 배지=파트너 계약, 배지 있어야 출금 + 사진 업로드 50MB 운영 배포 완료
 - 사용자 결정(/ask-me 2026-11-12): 배지(creators.is_verified)=크레팬스 파트너 계약. 출금 신청·이체 기록 모두 서버에서 차단(403 PARTNER_CONTRACT_REQUIRED), 계좌·PIN은 계약 전 허용, 배지 해제 시 미지급 신청은 보류(자동 반려 아님, 잔액 유지), 약관 6조 배포일 시행(2026-11-13.partner.1), 배지 문구 "크레팬스와 파트너 계약을 맺은 크리에이터예요", 출금 화면 안내+계약 문의 버튼, 계약 없는 기존 배지 보유자는 사용자가 콘솔에서 직접 해제.
 - 서버 prod 4929ca4: partner-policy.ts, finance/beans verifyPin·requestWithdrawal·authorize·requestPayout 게이트, payout() quiet/strict/off(worker는 보류, 수동 paid·콘솔 approve 거부, rejected 허용), 지급 목록 holdReason partner-unverified, studio 응답 payoutPartner, 회원가입 게이트 시행일 비교 UTC→KST 버그 수정(KST 자정 시행 약관이 09시까지 가입을 막던 문제), 사진 상한 5MB→50MB(IMAGE_UPLOAD_MAX_BYTES).

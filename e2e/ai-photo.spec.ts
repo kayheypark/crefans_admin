@@ -31,3 +31,20 @@ test('AI photo allow-list: grant, history and revoke with reasons, on desktop an
  await row.getByRole('button',{name:'해제',exact:true}).click();await revoke.getByLabel('해제 사유').fill('테스트 정리');await revoke.getByRole('button',{name:'해제',exact:true}).click();await expect(page.getByText('아직 허용한 크리에이터가 없습니다.')).toBeVisible();
  expect(errors).toEqual([]);
 });
+
+// 2026-11-13: today's usage column, per-creator reset (off while unused) and typed-confirm reset of everyone.
+test('AI photo usage: shows today count, per-creator reset is off when unused, reset-all needs reason and phrase',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+ await login(page);await page.getByRole('link',{name:'AI 사진 편집 허용',exact:true}).click();await expect(page).toHaveURL(/\/console\/ai-photo$/);
+ await page.getByRole('button',{name:'크리에이터 허용',exact:true}).click();const add=page.getByRole('dialog',{name:'AI 사진 편집 허용'});
+ await add.getByLabel('크리에이터 핸들').fill('console_creator');await add.getByLabel('허용 사유').fill('횟수 초기화 확인');await add.getByRole('button',{name:'허용',exact:true}).click();
+ const row=page.locator('tbody tr').filter({hasText:'@console_creator'});await expect(row).toContainText(/0\/\d+회/);
+ await expect(row.getByRole('button',{name:'횟수 초기화',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'오늘 횟수 전체 초기화',exact:true}).click();const all=page.getByRole('dialog',{name:'오늘 사용 횟수 전체 초기화'});
+ const go=all.getByRole('button',{name:'전체 초기화',exact:true});await all.getByLabel(/그대로 입력하세요/).fill('전체 초기화');await expect(go).toBeDisabled();
+ await all.getByLabel('초기화 사유').fill('점검 후 전체 복구');await expect(go).toBeEnabled();await page.screenshot({path:'test-results/ai-photo-reset-all.png'});await go.click();
+ await expect(page.getByText('오늘 사용한 크리에이터가 없어 초기화할 것이 없습니다.')).toBeVisible();
+ await page.setViewportSize({width:390,height:844});await page.reload();await expect(row).toBeVisible();await expect(page.locator('body')).toHaveJSProperty('scrollWidth',390);await page.screenshot({path:'test-results/ai-photo-usage-mobile.png',fullPage:true});
+ await row.getByRole('button',{name:'해제',exact:true}).click();const revoke=page.getByRole('dialog',{name:'AI 사진 편집 허용 해제'});await revoke.getByLabel('해제 사유').fill('테스트 정리');await revoke.getByRole('button',{name:'해제',exact:true}).click();await expect(page.getByText('아직 허용한 크리에이터가 없습니다.')).toBeVisible();
+ expect(errors).toEqual([]);
+});
