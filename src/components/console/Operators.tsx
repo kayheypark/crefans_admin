@@ -11,6 +11,7 @@ type Operator={id:string;name:string;email:string;phone:string;role:string;isAct
 
 // Mirrors server ADMIN_MENUS: only actions that exist on each menu can be granted.
 export const permissionMenus:[string,string,Record<string,string>][]=[
+ ['shop','상점',{view:'상품·구매·사용·환불 조회',create:'상품 등록',update:'상품·노출·판매 수정',delete:'상품 소프트 삭제'}],
  ['advertising','광고상품',{view:'상품·주문 조회',create:'상품 등록',update:'상품·노출·판매 수정',delete:'상품 소프트 삭제'}],
  ['overview','대시보드',{view:'지표 조회'}],
  ['members','회원·크리에이터',{view:'목록·개별 조건·제한 이력·AI 사진 편집 허용 목록 조회',update:'인증 배지·광고 노출·이용 제한·AI 사진 편집 허용/해제·개별 조건 변경(조건은 운영 설정 변경 권한도 필요)'}],
