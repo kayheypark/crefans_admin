@@ -1,3 +1,8 @@
+## 2026-11-14 AI 실패 질문 조회 운영 완료
+- 소스89bb2cb dev/prod, 운영 crefans-admin:ai-failure-details-20261114. 운영로그 AI 생성 실패 필터/상세상단 원인·질문·옵션·공급사ID/30일만료 안내. 타입18단위·브라우저1통과, 운영login/console/logs200·비로그인상세401·번들반영 확인. 실제회원실패데이터 열람은 미실행.
+- 증거 .local/{admin-build.log,admin-deploy-retry.log,ship-ai-failure-details-20261114/deploy.log}, test-results/ai-failure-mobile.png. 첫교체시API복구경로중복으로변경전중단, admin별도경로재실행성공. 이전이미지·설정 외부 /Users/ethan/crefans-recovery/20261114/admin-ai-failure-details-20261114 SHA/OCI15blobs/태그검증후서버사본정리.
+- 서버9590338 API/worker와신규진단테이블동시반영. 질문조회권한은logs.view+members.view,암호화/만료/조회감사는서버담당. 추가요구대기.
+
 ## 2026-11-14 AI 실패 질문 조회 검증
 - npm run check 종료0(타입+18단위), CREFANS_SERVER_DIR=../crefans_server-ai-failure npx playwright test e2e/ai-failure.spec.ts 종료0(1/1). 실제Next/브라우저+로그API대역, 모바일390px·스크립트문자 안전표시·만료 비노출 확인. 증거 /tmp/crefans-admin-ai-failure-{check,e2e}.log, test-results/ai-failure-mobile.png. 실운영 조회 미검증.
 - 실패원인/질문 상세를 모달상단에 배치. 요청ID는 기존속성, 제공사ID와구분. 일반목록 질문미포함. base9d00610, feat/ai-failure-details. 운영 미반영.
