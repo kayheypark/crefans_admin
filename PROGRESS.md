@@ -1,3 +1,12 @@
+## 2026-11-14 AI 실패 질문 조회 검증
+- npm run check 종료0(타입+18단위), CREFANS_SERVER_DIR=../crefans_server-ai-failure npx playwright test e2e/ai-failure.spec.ts 종료0(1/1). 실제Next/브라우저+로그API대역, 모바일390px·스크립트문자 안전표시·만료 비노출 확인. 증거 /tmp/crefans-admin-ai-failure-{check,e2e}.log, test-results/ai-failure-mobile.png. 실운영 조회 미검증.
+- 실패원인/질문 상세를 모달상단에 배치. 요청ID는 기존속성, 제공사ID와구분. 일반목록 질문미포함. base9d00610, feat/ai-failure-details. 운영 미반영.
+
+## 2026-11-14 AI 실패 질문 조회 진행
+- 최신 origin/prod 9d00610에서 feat/ai-failure-details 분기. 운영 로그에 AI 생성 실패 빠른 필터, 상세에 질문/옵션/실패단계/공급사 코드·ID·만료일 추가. 사용자 30일 보관 결정, 서버 권한·암호화·조회감사에 맞춤.
+- 합격조건: 타입검사/기존18검사, 실제 화면에서 실패 상세와 만료/권한제한 표시. 서버도착 전 실패 질문은 수신불가, 기존로그 소급없음.
+- npm run check 종료0(타입/18개 통과). 서버 연계·화면 확인 및 운영 배포 미실행.
+
 ## 2026-11-13 AI 사진 보관형 리셋권 콘솔 — 운영 배포 완료(2026-11-13 16:4x KST)
 - `/console/ai-photo` 표에 '리셋권 n장' 칸, 행별 '리셋권' 창(사용 가능 합계·가장 빠른 만료, 지급분 목록 남음/지급·상태·만료·사유, 지급 수량 1~100+사유, 사용 가능 지급분 회수+사유). 이력 라벨 리셋권 지급·회수·사용(사용은 처리자 '크리에이터').
 - 검증: typecheck 0, npm test 18/18, e2e/ai-photo.spec.ts 3/3(실서버, 지급→3/3장→회수→0장→이력, 모바일 390 가로 넘침 없음).
