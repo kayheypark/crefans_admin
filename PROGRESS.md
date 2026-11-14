@@ -1,3 +1,11 @@
+## 2026-11-14 AI 시도 추적 화면 검증 완료
+- npm run check 종료0(타입18단위), CREFANS_SERVER_DIR=../crefans_server-ai-failure npx playwright test e2e/ai-failure.spec.ts 종료0(기존실패/신규추적2/2). 실제Next·Chromium390px,로그응답대역. 선택/요청/응답모델분리·미제공·unknown·기존질문만료확인. test-results/ai-attempt-mobile.png 열람완료.
+- 증거 .local/attempt-check.log,attempt-e2e.log. src/app/globals.css는추적타임라인줄바꿈만추가. base87dc13a,2026-11-14,운영반영전.
+
+## 2026-11-14 AI 생성 시도 추적 진행
+- origin/prod87dc13a 기준 feat/ai-attempt-tracing. 운영로그 AI생성이력 빠른필터,요청당상태·선택모델,상세모든검사/생성/저장의호출ID·모델·공급사ID·소요·오류·결과사진ID. 선택모델과실제호출모델분리,응답모델없으면미제공,10분미완료는확정실패아닌완료기록없음.
+- 성공질문을추가수집하지않고기존실패질문30일권한/암호화유지. 합격:타입18기존테스트·모바일상세·기존실패조회회귀.현재타입18통과,브라우저예정.
+
 ## 2026-11-14 AI 실패 질문 조회 운영 완료
 - 소스89bb2cb dev/prod, 운영 crefans-admin:ai-failure-details-20261114. 운영로그 AI 생성 실패 필터/상세상단 원인·질문·옵션·공급사ID/30일만료 안내. 타입18단위·브라우저1통과, 운영login/console/logs200·비로그인상세401·번들반영 확인. 실제회원실패데이터 열람은 미실행.
 - 증거 .local/{admin-build.log,admin-deploy-retry.log,ship-ai-failure-details-20261114/deploy.log}, test-results/ai-failure-mobile.png. 첫교체시API복구경로중복으로변경전중단, admin별도경로재실행성공. 이전이미지·설정 외부 /Users/ethan/crefans-recovery/20261114/admin-ai-failure-details-20261114 SHA/OCI15blobs/태그검증후서버사본정리.
