@@ -1,3 +1,8 @@
+## 2026-11-14 AI 모델 시도 추적 운영 완료
+- 소스89961e8 dev/prod, 운영 crefans-admin:admin-ai-attempt-tracing-20261114. AI생성이력목록·선택/요청/응답모델·단계별호출/시간/오류·미완료unknown표시. 기존실패질문30일조회유지.
+- 타입18단위·브라우저2통과, 운영로그인/로그화면200·비로그인AI목록401·실배포번들확인. .local/attempt-{check,e2e,build,deploy}.log 및 test-results/ai-attempt-mobile.png. 실회원데이터조회없음,브라우저데이터는대역.
+- 이전이미지·설정 외부 /Users/ethan/crefans-recovery/20261114/admin-ai-attempt-tracing-20261114 SHA/OCI15blobs/태그검증후서버사본정리. 서버76c1921 API/worker동시반영. 추가요구대기.
+
 ## 2026-11-14 AI 시도 추적 화면 검증 완료
 - npm run check 종료0(타입18단위), CREFANS_SERVER_DIR=../crefans_server-ai-failure npx playwright test e2e/ai-failure.spec.ts 종료0(기존실패/신규추적2/2). 실제Next·Chromium390px,로그응답대역. 선택/요청/응답모델분리·미제공·unknown·기존질문만료확인. test-results/ai-attempt-mobile.png 열람완료.
 - 증거 .local/attempt-check.log,attempt-e2e.log. src/app/globals.css는추적타임라인줄바꿈만추가. base87dc13a,2026-11-14,운영반영전.
