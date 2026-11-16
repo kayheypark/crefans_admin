@@ -1,3 +1,7 @@
+## 2026-11-17 회원 화면 '종료 정산 지급' 버튼 (feat/closing-payout, 운영 crefans-admin:closing-20261117)
+- 배지 없는 크리에이터 행에 표시(수동 지급 켜짐+revenue.create). 조회 → 막힌 사유 안내 또는 금액·계좌 확인창 → 시작. 이체·참조번호 기록은 수동 지급 목록에서. 서버가 모든 조건을 다시 검사.
+- 검증: tsc·lint·npm test 26/26, 배포 산출물에 문구 확인. 화면 실사용 확인은 미실시.
+
 ## 2026-11-16 AI 이용권 상품 종류(횟수형/구독형)·98원 원가 하한 (feat/ai-subscription-admin, 커밋·미배포)
 - 서버 짝 feat/ai-subscription(미배포) 계약: 관리자 상품 body/응답 `kind`('pack'|'subscription'), 응답 kindLabel·unitPrice. 화면 `components/console/ShopProducts.tsx`, 규칙 `lib/ai-shop.ts`(MIN_UNIT_PRICE=98 한 곳, SUBSCRIPTION_DAYS=30).
 - 편집 폼 종류 select(횟수형 단건 결제/구독형 매달 자동결제), 구독형은 유효기간 30일 고정·입력 비활성·'매달 같은 날 결제, 이월 없음'. 1회 단가 실시간 표시, 정수 아님/98원 미만이면 경고+저장 비활성. 목록에 종류·1회 단가 열(응답 없으면 kind 없음=횟수형, 단가는 금액÷수량). 저장 시 응답 전용 kindLabel·unitPrice는 보내지 않음.
