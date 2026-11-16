@@ -1,3 +1,6 @@
+## 2026-11-16 배지 해제 확인창에 멤버십 중지 안내 (feat/partner-sync, /pilot-work)
+- 서버가 배지 해제 시 판매 중인 멤버십을 중지(계약서 12조②)하므로 확인 문구에 '판매 중인 멤버십 모두 중지·기존 구독은 결제 기간까지(다음 갱신 없음)', 부여 시 '새 멤버십을 열 수 있음' 추가. tsc 0.
+
 ## 2026-11-14 횟수권 상점 운영 배포 완료
 - 기능 소스 front 26b7aa6, server db9f91e, admin 4618585를 dev→prod 통합. 운영 API/worker/admin ai-shop-20261114, frontend front-ai-shop-routes-20261114. 새 테이블3개 적용, 기존 DB/proxy·결제 설정 보존.
 - 운영 health/feed/admin/login/console/shop 정상, 새 API 비로그인401, 4컨테이너 실행·재시작0·OOM없음. 운영 상품/주문/사용0건. 판매가·횟수·유효기간 미정으로 상품을 임의 등록하지 않음.
