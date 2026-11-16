@@ -13,6 +13,7 @@ type Operator={id:string;name:string;email:string;phone:string;role:string;isAct
 export const permissionMenus:[string,string,Record<string,string>][]=[
  ['shop','상점',{view:'상품·구매·사용·환불 조회',create:'상품 등록',update:'상품·노출·판매 수정',delete:'상품 소프트 삭제'}],
  ['advertising','광고상품',{view:'상품·주문 조회',create:'상품 등록',update:'상품·노출·판매 수정',delete:'상품 소프트 삭제'}],
+ ['deposits','입금 확인',{view:'입금 계좌·무통장입금 주문·환불 이체 조회',update:'입금 계좌 설정·입금 확인·주문 취소·현금영수증 번호 보기·발급 기록·환불 계좌 보기·이체 완료·반려'}],
  ['overview','대시보드',{view:'지표 조회'}],
  ['members','회원·크리에이터',{view:'목록·개별 조건·제한 이력·AI 사진 편집 허용 목록 조회',update:'인증 배지·광고 노출·이용 제한·AI 사진 편집 허용/해제·개별 조건 변경(조건은 운영 설정 변경 권한도 필요)'}],
  ['reserved-handles','예약 핸들 관리',{view:'목록·사용 여부·변경 이력 조회',create:'후보·예약 등록',update:'후보 수정·예약·해제·복구',delete:'예약 핸들 삭제'}],
