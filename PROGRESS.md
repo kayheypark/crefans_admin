@@ -1,8 +1,17 @@
+## 2026-11-16 AI 이용권 상품 종류(횟수형/구독형)·98원 원가 하한 (feat/ai-subscription-admin, 커밋·미배포)
+- 서버 짝 feat/ai-subscription(미배포) 계약: 관리자 상품 body/응답 `kind`('pack'|'subscription'), 응답 kindLabel·unitPrice. 화면 `components/console/ShopProducts.tsx`, 규칙 `lib/ai-shop.ts`(MIN_UNIT_PRICE=98 한 곳, SUBSCRIPTION_DAYS=30).
+- 편집 폼 종류 select(횟수형 단건 결제/구독형 매달 자동결제), 구독형은 유효기간 30일 고정·입력 비활성·'매달 같은 날 결제, 이월 없음'. 1회 단가 실시간 표시, 정수 아님/98원 미만이면 경고+저장 비활성. 목록에 종류·1회 단가 열(응답 없으면 kind 없음=횟수형, 단가는 금액÷수량). 저장 시 응답 전용 kindLabel·unitPrice는 보내지 않음.
+- 검증(2026-11-16 17:03 KST): 변경 전 `npm run check` 0(23/23), 변경 후 0(26/26, 새 tests/ai-shop.test.cjs 3개). 대조: 하한 97·valid에서 단가 조건 제거 시 각각 실패 확인 후 원복. 브라우저·실서버 미검증.
+- 남은 일: 서버 배포 후 실서버 e2e, dev→prod 통합, 운영 배포(미실행). 구서버는 kind 무시(전부 횟수형 저장)이므로 서버 먼저 배포.
+
 ## 2026-11-16 무통장입금 '입금 확인' 메뉴 (feat/bank-transfer, 커밋·미배포)
 - 서버 짝 crefans_server-costume-merge feat/bank-transfer(미커밋·미배포)의 admin/bank-transfer 계약. 새 메뉴 `/console/deposits` '입금 확인', 권한 `deposits`(조회 view·수정 update, 권한표 추가). 화면 `components/console/Deposits.tsx`, 시각·기한 도우미 `lib/bank-transfer.ts`.
 - 입금 계좌 설정(은행·계좌번호·예금주·사용, 현재값 표시, 저장 확인창, 저장·사용 전 무통장입금 주문 차단 안내). 입금 대기·내역(상태 필터 기본 입금 대기, 30건 페이지, 종류 콩 충전/AI 이용권/광고상품, 남은 시간, 현금영수증 유형·발급). 입금 확인 창(실제 입금액이 주문 금액과 다르면 버튼 비활성+DEPOSIT_AMOUNT_MISMATCH 안내, 입금 시각은 KST로 ISO 변환, 거래 메모). 주문 취소는 사유+TypedConfirmDialog '주문 취소'(서버는 사유만 받음, 문구 검사 없음). 현금영수증 번호 보기(클릭 후 표시·감사·2분 뒤 숨김)·발급 기록. 환불 이체(상태 필터 기본 대기, 기한 지남 강조, 계좌 보기·이체 완료 기록·반려+구매 복원 안내, 서버 최대 100건).
 - 검증(2026-11-16 15:12~15:17 KST): 변경 전 `npm run check` 종료0(타입+18/18). 변경 후 종료0(타입+23/23, 새 tests/bank-transfer.test.cjs 5개: KST 변환·기한·환불 지연·메뉴/권한 연결; KST 오프셋·메뉴 등록을 되돌린 대조 검사 실패 확인). `npx playwright test --config=playwright.deposits.config.ts` 4/4(PC Chromium·iPhone13 WebKit, 모든 API 대역: 계좌 저장 요청값, 금액 불일치 차단·서버 오류 문구, 취소, 번호/계좌 보기, 반려, 조회 전용 권한). 실서버·실DB·운영 미검증.
 - 남은 일: 서버 브랜치 완료 후 실서버 e2e, dev→prod 통합, 운영 배포(미실행). 이체 기한은 서버가 주말만 제외(공휴일 미반영). 취소 확인 문구를 서버도 검사할지 결정 필요.
+
+## 2026-11-16 운영 로그: AI 생성 성공 요청도 질문 내용 표시 (feat/ai-request-log, 미배포)
+- 서버가 성공 요청도 암호화 30일 보관(outcome succeeded). Logs.tsx AiFailureContent: outcome에 따라 'AI 생성 요청'(결과·만든 사진 수·제공사·보관 만료)/'AI 생성 실패' 표시. npm run check 0(23/23).
 
 ## 2026-11-16 15:4x KST 입금 확인 콘솔 운영 배포 (prod 530862c, crefans-admin:bank-transfer-20261116)
 - npm run check 0(23/23). 서버에서 git archive 빌드, 새 이미지에만 '입금 계좌 설정' 문구(새 2/이전 0), admin만 교체, /console/deposits 200, 다른 컨테이너 불변. 이전 이미지 crefans-recovery/20261116/admin-bank-transfer 보관(태그·ID·SHA256 검증) 후 서버 사본 삭제.
