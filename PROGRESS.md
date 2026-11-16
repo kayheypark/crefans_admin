@@ -1,3 +1,9 @@
+## 2026-11-16 무통장입금 '입금 확인' 메뉴 (feat/bank-transfer, 커밋·미배포)
+- 서버 짝 crefans_server-costume-merge feat/bank-transfer(미커밋·미배포)의 admin/bank-transfer 계약. 새 메뉴 `/console/deposits` '입금 확인', 권한 `deposits`(조회 view·수정 update, 권한표 추가). 화면 `components/console/Deposits.tsx`, 시각·기한 도우미 `lib/bank-transfer.ts`.
+- 입금 계좌 설정(은행·계좌번호·예금주·사용, 현재값 표시, 저장 확인창, 저장·사용 전 무통장입금 주문 차단 안내). 입금 대기·내역(상태 필터 기본 입금 대기, 30건 페이지, 종류 콩 충전/AI 이용권/광고상품, 남은 시간, 현금영수증 유형·발급). 입금 확인 창(실제 입금액이 주문 금액과 다르면 버튼 비활성+DEPOSIT_AMOUNT_MISMATCH 안내, 입금 시각은 KST로 ISO 변환, 거래 메모). 주문 취소는 사유+TypedConfirmDialog '주문 취소'(서버는 사유만 받음, 문구 검사 없음). 현금영수증 번호 보기(클릭 후 표시·감사·2분 뒤 숨김)·발급 기록. 환불 이체(상태 필터 기본 대기, 기한 지남 강조, 계좌 보기·이체 완료 기록·반려+구매 복원 안내, 서버 최대 100건).
+- 검증(2026-11-16 15:12~15:17 KST): 변경 전 `npm run check` 종료0(타입+18/18). 변경 후 종료0(타입+23/23, 새 tests/bank-transfer.test.cjs 5개: KST 변환·기한·환불 지연·메뉴/권한 연결; KST 오프셋·메뉴 등록을 되돌린 대조 검사 실패 확인). `npx playwright test --config=playwright.deposits.config.ts` 4/4(PC Chromium·iPhone13 WebKit, 모든 API 대역: 계좌 저장 요청값, 금액 불일치 차단·서버 오류 문구, 취소, 번호/계좌 보기, 반려, 조회 전용 권한). 실서버·실DB·운영 미검증.
+- 남은 일: 서버 브랜치 완료 후 실서버 e2e, dev→prod 통합, 운영 배포(미실행). 이체 기한은 서버가 주말만 제외(공휴일 미반영). 취소 확인 문구를 서버도 검사할지 결정 필요.
+
 ## 2026-11-16 배지 해제 확인창에 멤버십 중지 안내 (feat/partner-sync, /pilot-work)
 - 서버가 배지 해제 시 판매 중인 멤버십을 중지(계약서 12조②)하므로 확인 문구에 '판매 중인 멤버십 모두 중지·기존 구독은 결제 기간까지(다음 갱신 없음)', 부여 시 '새 멤버십을 열 수 있음' 추가. tsc 0.
 

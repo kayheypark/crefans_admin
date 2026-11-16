@@ -373,3 +373,5 @@ button.danger{color:var(--danger)}
 @media(min-width:1080px){.top-profile .open-web{display:none}}
 
 .ai-attempt-timeline li{display:grid;gap:6px;overflow-wrap:anywhere}
+/* 무통장입금: deadline passed / refund overdue mark (text only, not the boxed .error alert). */
+.deposit-overdue{color:var(--danger);font-weight:600}
