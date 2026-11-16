@@ -4,6 +4,9 @@
 - 검증(2026-11-16 15:12~15:17 KST): 변경 전 `npm run check` 종료0(타입+18/18). 변경 후 종료0(타입+23/23, 새 tests/bank-transfer.test.cjs 5개: KST 변환·기한·환불 지연·메뉴/권한 연결; KST 오프셋·메뉴 등록을 되돌린 대조 검사 실패 확인). `npx playwright test --config=playwright.deposits.config.ts` 4/4(PC Chromium·iPhone13 WebKit, 모든 API 대역: 계좌 저장 요청값, 금액 불일치 차단·서버 오류 문구, 취소, 번호/계좌 보기, 반려, 조회 전용 권한). 실서버·실DB·운영 미검증.
 - 남은 일: 서버 브랜치 완료 후 실서버 e2e, dev→prod 통합, 운영 배포(미실행). 이체 기한은 서버가 주말만 제외(공휴일 미반영). 취소 확인 문구를 서버도 검사할지 결정 필요.
 
+## 2026-11-16 운영 로그: AI 생성 성공 요청도 질문 내용 표시 (feat/ai-request-log, 미배포)
+- 서버가 성공 요청도 암호화 30일 보관(outcome succeeded). Logs.tsx AiFailureContent: outcome에 따라 'AI 생성 요청'(결과·만든 사진 수·제공사·보관 만료)/'AI 생성 실패' 표시. npm run check 0(23/23).
+
 ## 2026-11-16 15:4x KST 입금 확인 콘솔 운영 배포 (prod 530862c, crefans-admin:bank-transfer-20261116)
 - npm run check 0(23/23). 서버에서 git archive 빌드, 새 이미지에만 '입금 계좌 설정' 문구(새 2/이전 0), admin만 교체, /console/deposits 200, 다른 컨테이너 불변. 이전 이미지 crefans-recovery/20261116/admin-bank-transfer 보관(태그·ID·SHA256 검증) 후 서버 사본 삭제.
 - 열린 질문: 주문 취소 확인 문구를 서버도 검사할지, 환불 기한 공휴일 반영, 환불 목록 100건 초과 시 페이지.
