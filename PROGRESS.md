@@ -4,6 +4,10 @@
 - 검증(2026-11-16 15:12~15:17 KST): 변경 전 `npm run check` 종료0(타입+18/18). 변경 후 종료0(타입+23/23, 새 tests/bank-transfer.test.cjs 5개: KST 변환·기한·환불 지연·메뉴/권한 연결; KST 오프셋·메뉴 등록을 되돌린 대조 검사 실패 확인). `npx playwright test --config=playwright.deposits.config.ts` 4/4(PC Chromium·iPhone13 WebKit, 모든 API 대역: 계좌 저장 요청값, 금액 불일치 차단·서버 오류 문구, 취소, 번호/계좌 보기, 반려, 조회 전용 권한). 실서버·실DB·운영 미검증.
 - 남은 일: 서버 브랜치 완료 후 실서버 e2e, dev→prod 통합, 운영 배포(미실행). 이체 기한은 서버가 주말만 제외(공휴일 미반영). 취소 확인 문구를 서버도 검사할지 결정 필요.
 
+## 2026-11-16 15:4x KST 입금 확인 콘솔 운영 배포 (prod 530862c, crefans-admin:bank-transfer-20261116)
+- npm run check 0(23/23). 서버에서 git archive 빌드, 새 이미지에만 '입금 계좌 설정' 문구(새 2/이전 0), admin만 교체, /console/deposits 200, 다른 컨테이너 불변. 이전 이미지 crefans-recovery/20261116/admin-bank-transfer 보관(태그·ID·SHA256 검증) 후 서버 사본 삭제.
+- 열린 질문: 주문 취소 확인 문구를 서버도 검사할지, 환불 기한 공휴일 반영, 환불 목록 100건 초과 시 페이지.
+
 ## 2026-11-16 배지 해제 확인창에 멤버십 중지 안내 (feat/partner-sync, /pilot-work)
 - 서버가 배지 해제 시 판매 중인 멤버십을 중지(계약서 12조②)하므로 확인 문구에 '판매 중인 멤버십 모두 중지·기존 구독은 결제 기간까지(다음 갱신 없음)', 부여 시 '새 멤버십을 열 수 있음' 추가. tsc 0.
 
