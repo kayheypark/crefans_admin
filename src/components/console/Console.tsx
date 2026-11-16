@@ -79,7 +79,7 @@ function Members({admin}:{admin:Admin}){const [search,setSearch]=useState(''),[d
 function CreatorVerification({row,canEdit,reload}:{row:Row;canEdit:boolean;reload:()=>void}){
  const [busy,setBusy]=useState(false),[error,setError]=useState(''),confirmAction=useConfirm();const verified=row.creator.is_verified===true;
  async function change(){
-  if(busy||!await confirmAction({title:verified?'인증 배지 해제':'인증 배지 부여',message:`${row.creator.display_name||row.nickname}님의 인증 배지를 ${verified?'해제':'부여'}할까요? 인증 배지는 크레팬스 파트너 계약 체결을 뜻합니다. ${verified?'해제하면 출금 신청이 막히고, 아직 지급되지 않은 출금 신청은 지급 목록에서 \'계약 미확인\'으로 보류됩니다(잔액은 유지).':'모두싸인 체결본을 확인한 뒤 부여하세요. 부여하면 바로 출금을 신청할 수 있습니다.'}`,actionLabel:verified?'해제':'부여',danger:verified}))return;
+  if(busy||!await confirmAction({title:verified?'인증 배지 해제':'인증 배지 부여',message:`${row.creator.display_name||row.nickname}님의 인증 배지를 ${verified?'해제':'부여'}할까요? 인증 배지는 크레팬스 파트너 계약 체결을 뜻합니다. ${verified?'해제하면 출금 신청이 막히고, 아직 지급되지 않은 출금 신청은 지급 목록에서 \'계약 미확인\'으로 보류됩니다(잔액은 유지). 판매 중인 멤버십은 모두 중지되며 기존 구독자는 결제한 기간까지만 이용합니다(다음 갱신 없음).':'모두싸인 체결본을 확인한 뒤 부여하세요. 부여하면 바로 출금을 신청하고 새 멤버십을 열 수 있습니다(중지된 멤버십은 크리에이터가 직접 다시 엽니다).'}`,actionLabel:verified?'해제':'부여',danger:verified}))return;
   setBusy(true);setError('');
   try{await api(`/admin/creators/${encodeURIComponent(row.id)}/verification`,{isVerified:!verified},'PUT');reload();}
   catch(e){setError(e instanceof Error?e.message:'인증 상태를 저장하지 못했습니다.');}
