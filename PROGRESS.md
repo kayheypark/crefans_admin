@@ -1,3 +1,7 @@
+## 2026-11-17 비회원 AI 체험 횟수 전체 초기화 버튼 (feat/guest-quota-reset, 운영 crefans-admin:guestreset-20261117)
+- AI 사진 편집 허용 화면에 '비회원 체험 횟수 전체 초기화' 버튼 + 확인 문구('전체 초기화')·사유 대화상자. 서버 POST /admin/ai-photo-guest-quota/reset(crefans-api:guestreset-20261117). 비회원 전체 하루 한도는 유지.
+- 검증: tsc 0, npm test 27/27.
+
 ## 2026-11-17 우대 종료일 하루 끝까지 적용 (fix/terms-end-inclusive, 운영 crefans-admin:night-20261117)
 - 사용자 결정(night-work 후속): 확인서 '종료일까지'에 맞춰 콘솔이 종료일 다음 날 0시(KST)를 저장하고 화면에는 고른 날짜를 보여 준다(src/lib/terms-window.ts). 서버는 종료 시각 미포함 비교 그대로. 같은 날 시작·종료(하루 우대) 허용.
 - 검증: tests/terms-window.test.cjs, npm test 27/27, tsc 0. 오늘 이전 방식으로 저장된 종료일이 있으면 하루 짧게 적용되므로 운영 데이터 확인 필요(미확인).
