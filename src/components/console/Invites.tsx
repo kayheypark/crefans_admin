@@ -6,6 +6,7 @@ import {api} from '@/lib/console-api';
 import {useData,State} from './ConsoleData';
 import {ConfirmDialog,TypedConfirmDialog,DialogActions} from './TypedConfirm';
 import {InfoTip} from './InfoTip';
+import {dayIso,endDay,endIso,kstDay} from '@/lib/terms-window';
 
 // Server signup-invites.ts: null keeps the platform default; fee values are basis points.
 // 2026-11-17 (signed contract Schedule A, 8(3)): a separate 콩 minimum and an optional special-term window (KST dates, server ISO).
@@ -15,16 +16,14 @@ type NumKey=Exclude<keyof Terms,'specialStartsAt'|'specialEndsAt'>;
 type Form={fee:string;hold:string;beanFee:string;min:string;minBeans:string;startsAt:string;endsAt:string};
 const POLICY_PHRASE='정책 변경';
 const emptyTerms:Terms={platformFeeBps:null,settlementHoldDays:null,beanWithdrawalFeeBps:null,minimumWithdrawalKrw:null,minimumWithdrawalBeans:null,specialStartsAt:null,specialEndsAt:null};
-const kstDay=(iso?:string|null)=>iso?new Date(new Date(iso).getTime()+9*3600000).toISOString().slice(0,10):'';
-const dayIso=(d:string)=>d===''?null:/^\d{4}-\d{2}-\d{2}$/.test(d)?new Date(`${d}T00:00:00+09:00`).toISOString():'invalid';
-const toForm=(t:Terms):Form=>({fee:t.platformFeeBps===null?'':String(t.platformFeeBps/100),hold:t.settlementHoldDays===null?'':String(t.settlementHoldDays),beanFee:t.beanWithdrawalFeeBps===null?'':String(t.beanWithdrawalFeeBps/100),min:t.minimumWithdrawalKrw===null?'':String(t.minimumWithdrawalKrw),minBeans:t.minimumWithdrawalBeans==null?'':String(t.minimumWithdrawalBeans),startsAt:kstDay(t.specialStartsAt),endsAt:kstDay(t.specialEndsAt)});
+const toForm=(t:Terms):Form=>({fee:t.platformFeeBps===null?'':String(t.platformFeeBps/100),hold:t.settlementHoldDays===null?'':String(t.settlementHoldDays),beanFee:t.beanWithdrawalFeeBps===null?'':String(t.beanWithdrawalFeeBps/100),min:t.minimumWithdrawalKrw===null?'':String(t.minimumWithdrawalKrw),minBeans:t.minimumWithdrawalBeans==null?'':String(t.minimumWithdrawalBeans),startsAt:kstDay(t.specialStartsAt),endsAt:endDay(t.specialEndsAt)});
 const percent=(v:string)=>v===''?null:/^\d+(\.\d{1,2})?$/.test(v)&&Number(v)<=100?Math.round(Number(v)*100):NaN;
 const whole=(v:string,max:number,step=1)=>v===''?null:/^\d+$/.test(v)&&Number(v)<=max&&Number(v)%step===0?Number(v):NaN;
-function toTerms(f:Form):Terms|null{const t={platformFeeBps:percent(f.fee),settlementHoldDays:whole(f.hold,365),beanWithdrawalFeeBps:percent(f.beanFee),minimumWithdrawalKrw:whole(f.min,100000000,100),minimumWithdrawalBeans:whole(f.minBeans,1000000)},s=dayIso(f.startsAt),e=dayIso(f.endsAt);
- if(Object.values(t).some(v=>Number.isNaN(v))||t.minimumWithdrawalKrw===0||t.minimumWithdrawalBeans===0||s==='invalid'||e==='invalid'||(s&&e&&e<=s))return null;return{...t,specialStartsAt:s,specialEndsAt:e};}
+function toTerms(f:Form):Terms|null{const t={platformFeeBps:percent(f.fee),settlementHoldDays:whole(f.hold,365),beanWithdrawalFeeBps:percent(f.beanFee),minimumWithdrawalKrw:whole(f.min,100000000,100),minimumWithdrawalBeans:whole(f.minBeans,1000000)},s=dayIso(f.startsAt),e=endIso(f.endsAt);
+ if(Object.values(t).some(v=>Number.isNaN(v))||t.minimumWithdrawalKrw===0||t.minimumWithdrawalBeans===0||s==='invalid'||e==='invalid'||(s&&e&&f.endsAt<f.startsAt))return null;return{...t,specialStartsAt:s,specialEndsAt:e};}
 const sameTerms=(a:Terms,b:Terms)=>(Object.keys(emptyTerms) as (keyof Terms)[]).every(k=>(a[k]??null)===(b[k]??null));
 const won=(n:number)=>n.toLocaleString('ko-KR')+'원';
-function termText(t:Terms,d?:Terms|null){const v=(k:NumKey,f:(n:number)=>string)=>t[k]===null?(d&&d[k]!==null?`기본 ${f(d[k]!)}`:d?'기본값(미설정)':'기본값'):f(t[k]!);return [['멤버십 판매 수수료',v('platformFeeBps',n=>n/100+'%')],['정산 보류',v('settlementHoldDays',n=>n+'일')],['콩 출금 수수료',v('beanWithdrawalFeeBps',n=>n/100+'%')],['최소 출금(멤버십)',v('minimumWithdrawalKrw',won)],['최소 출금(콩)',v('minimumWithdrawalBeans',n=>n.toLocaleString('ko-KR')+'콩')],['우대 기간',t.specialStartsAt||t.specialEndsAt?`${kstDay(t.specialStartsAt)||'즉시'} ~ ${kstDay(t.specialEndsAt)||'종료일 없음'}`:'기간 없음']] as const;}
+function termText(t:Terms,d?:Terms|null){const v=(k:NumKey,f:(n:number)=>string)=>t[k]===null?(d&&d[k]!==null?`기본 ${f(d[k]!)}`:d?'기본값(미설정)':'기본값'):f(t[k]!);return [['멤버십 판매 수수료',v('platformFeeBps',n=>n/100+'%')],['정산 보류',v('settlementHoldDays',n=>n+'일')],['콩 출금 수수료',v('beanWithdrawalFeeBps',n=>n/100+'%')],['최소 출금(멤버십)',v('minimumWithdrawalKrw',won)],['최소 출금(콩)',v('minimumWithdrawalBeans',n=>n.toLocaleString('ko-KR')+'콩')],['우대 기간',t.specialStartsAt||t.specialEndsAt?`${kstDay(t.specialStartsAt)||'즉시'} ~ ${endDay(t.specialEndsAt)||'종료일 없음'}`:'기간 없음']] as const;}
 export function TermsSummary({terms,defaults}:{terms:Terms;defaults?:Terms|null}){return sameTerms(terms,emptyTerms)?<span className="muted">기본 조건</span>:<small>{termText(terms,defaults).map(([l,v])=>`${l} ${v}`).join(' · ')}</small>;}
 // Label with an information tip beside it (outside <label>, so the tip button never takes the input's label).
 function Field({label,tip,children}:{label:string;tip:string;children:(id:string)=>React.ReactNode}){const id=useId();return <div className="field"><div className="field-label"><label htmlFor={id}>{label}</label><InfoTip text={tip} label={`${label} 안내`} below/></div>{children(id)}</div>;}
@@ -35,7 +34,7 @@ function termTips(d?:Terms|null){const now=(k:NumKey,f:(n:number)=>string)=>d&&d
  beanFee:`후원받은 콩을 현금으로 출금할 때 떼는 비율입니다. 콩 1개 = 100원으로 계산한 금액 × 비율(원 미만 버림)을 뺀 금액이 지급됩니다. 0~100%, 소수 둘째 자리까지 입력합니다. 비우면 기본값${now('beanWithdrawalFeeBps',n=>n/100+'%')}을 따릅니다. 출금을 신청하는 시점의 값이 적용됩니다.`,
  min:`멤버십 수익을 한 번에 신청할 수 있는 최소 출금 금액(수수료 차감 전)입니다. 콩 출금 최소는 아래 칸에서 따로 정합니다(계약 별지 A). 100원 단위로 100원~1억 원까지 입력합니다. 비우면 기본값${now('minimumWithdrawalKrw',won)}을 따릅니다. 출금을 신청하는 시점의 값이 적용됩니다.`,
  minBeans:`후원받은 콩을 한 번에 출금 신청할 수 있는 최소 콩 수(수수료 차감 전)입니다. 1~1,000,000콩. 비우면 기본값${now('minimumWithdrawalBeans',n=>n.toLocaleString('ko-KR')+'콩')}을 따릅니다(계약 별지 A의 후원 최소 신청 금액).`,
- window:`이 크리에이터의 개별 조건이 적용되는 기간(한국 시간 0시 기준)입니다. 시작일 전과 종료일부터는 기본 조건으로 돌아갑니다(계약 제8조③). 둘 다 비우면 기간 없이 계속 적용됩니다.`};}
+ window:`이 크리에이터의 개별 조건이 적용되는 기간(한국 시간 0시 기준)입니다. 종료일 하루 끝까지 적용하고, 시작일 전과 종료일 다음 날부터는 기본 조건으로 돌아갑니다(계약 제8조③). 둘 다 비우면 기간 없이 계속 적용됩니다.`};}
 function TermsFields({form,setForm,disabled,defaults,window=false}:{form:Form;setForm:(f:Form)=>void;disabled:boolean;defaults?:Terms|null;window?:boolean}){
  const hint=(k:NumKey,f:(n:number)=>string)=>defaults&&defaults[k]!==null?`비우면 기본 ${f(defaults[k]!)}`:'비우면 플랫폼 기본값',tips=termTips(defaults);
  return <fieldset className="editor"><legend>수수료·출금 조건</legend>
