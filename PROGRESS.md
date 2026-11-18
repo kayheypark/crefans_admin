@@ -1,3 +1,8 @@
+## 2026-11-18 11:3x KST AI 사진 체험 유입 표 (feat/funnel-stats, 미배포)
+- 대시보드(overview.view) 운영 현황 아래 'AI 사진 체험 유입 (최근 14일)' 읽기 전용 표: 단계 × 14일(KST), 14일 합계, 랜딩 대비(합계끼리 비율, 랜딩 0이면 –). 서버 GET /admin/funnel-stats(feat/funnel-stats).
+- 검증: tests/funnel-stats.test.cjs 3/3(대조: 0 나눗셈 보호 제거·대시보드 연결 제거 시 각 실패), npm test 30/30. tsc 오류 14건은 모두 기존 Categories.tsx(@dnd-kit 로컬 미설치).
+- 미실행: 화면 실행 확인, 통합·배포.
+
 ## 2026-11-17 비회원 AI 체험 횟수 전체 초기화 버튼 (feat/guest-quota-reset, 운영 crefans-admin:guestreset-20261117)
 - AI 사진 편집 허용 화면에 '비회원 체험 횟수 전체 초기화' 버튼 + 확인 문구('전체 초기화')·사유 대화상자. 서버 POST /admin/ai-photo-guest-quota/reset(crefans-api:guestreset-20261117). 비회원 전체 하루 한도는 유지.
 - 검증: tsc 0, npm test 27/27.
