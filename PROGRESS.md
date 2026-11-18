@@ -1,3 +1,8 @@
+## 2026-11-18 회원 휴대폰 번호 전체 보기: 사유 대화상자 + 최고관리자만 (feat/phone-reveal-audit, 미배포)
+- 사용자 결정(2026-11-18): 별도 권한 + 사유 + 감사. MemberPhone의 '전체 보기'는 admin.role==='SUPER_ADMIN'일 때만 표시, 누르면 ConfirmDialog에서 열람 사유(5~200자) 입력 후 POST /admin/members/:id/phone {reason}(URL에 사유 없음). 서버(crefans_server 같은 브랜치)가 권한·사유·횟수 제한을 다시 검사하고 감사 기록.
+- 검증(2026-11-18 11:22 KST, 기반 origin/prod da94149): 신규 tests/member-phone.test.cjs 3/3(소스 정적 검사), 대조: 두 파일을 되돌리면 3/3 실패 후 복원. npm test 30/30. typecheck: 오류 14건 모두 Categories.tsx(@dnd-kit이 메인 checkout node_modules에 없음, 기존 로컬 환경), 변경 파일 오류 0.
+- 미실행: 화면 실행·브라우저 확인, dev/prod 통합, 배포.
+
 ## 2026-11-17 비회원 AI 체험 횟수 전체 초기화 버튼 (feat/guest-quota-reset, 운영 crefans-admin:guestreset-20261117)
 - AI 사진 편집 허용 화면에 '비회원 체험 횟수 전체 초기화' 버튼 + 확인 문구('전체 초기화')·사유 대화상자. 서버 POST /admin/ai-photo-guest-quota/reset(crefans-api:guestreset-20261117). 비회원 전체 하루 한도는 유지.
 - 검증: tsc 0, npm test 27/27.
