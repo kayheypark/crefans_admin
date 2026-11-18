@@ -1,3 +1,6 @@
+## 2026-11-18 13:2x KST prod 승격 — feat/funnel-stats·feat/phone-reveal-audit
+- 사용자 승인(2026-11-18). origin/prod da94149에서 --no-ff 병합(PROGRESS 충돌만). git diff origin/dev HEAD: 코드 차이 0. 검증: npm test 33/33.
+
 ## 2026-11-18 11:3x KST AI 사진 체험 유입 표 (feat/funnel-stats, 미배포)
 - 대시보드(overview.view) 운영 현황 아래 'AI 사진 체험 유입 (최근 14일)' 읽기 전용 표: 단계 × 14일(KST), 14일 합계, 랜딩 대비(합계끼리 비율, 랜딩 0이면 –). 서버 GET /admin/funnel-stats(feat/funnel-stats).
 - 검증: tests/funnel-stats.test.cjs 3/3(대조: 0 나눗셈 보호 제거·대시보드 연결 제거 시 각 실패), npm test 30/30. tsc 오류 14건은 모두 기존 Categories.tsx(@dnd-kit 로컬 미설치).
