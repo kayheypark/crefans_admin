@@ -1,3 +1,7 @@
+## 2026-11-18 dev 통합 — 오늘 관리자 작업 2개 병합 (dev, 미배포·prod 미반영)
+- 병합 순서(--no-ff): feat/funnel-stats → feat/phone-reveal-audit. 충돌은 PROGRESS.md 상단 기록뿐(모두 유지).
+- 검증(2026-11-18 11:5x KST): npm test 33/33 통과(종료 0). tsc 종료 2 — 오류 14건 모두 기존 Categories.tsx(@dnd-kit 미설치), 새 오류 0. 서버 짝은 crefans_server dev 311af28. 실제 콘솔 화면·운영 검증 없음.
+
 ## 2026-11-18 11:3x KST AI 사진 체험 유입 표 (feat/funnel-stats, 미배포)
 - 대시보드(overview.view) 운영 현황 아래 'AI 사진 체험 유입 (최근 14일)' 읽기 전용 표: 단계 × 14일(KST), 14일 합계, 랜딩 대비(합계끼리 비율, 랜딩 0이면 –). 서버 GET /admin/funnel-stats(feat/funnel-stats).
 - 검증: tests/funnel-stats.test.cjs 3/3(대조: 0 나눗셈 보호 제거·대시보드 연결 제거 시 각 실패), npm test 30/30. tsc 오류 14건은 모두 기존 Categories.tsx(@dnd-kit 로컬 미설치).
