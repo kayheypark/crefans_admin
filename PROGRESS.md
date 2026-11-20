@@ -1042,3 +1042,8 @@
 - 검사: tsc(기존 Categories dnd-kit 미설치 오류 제외) 통과, eslint 0, 단위 33/33. 개발 DB 운영자는 사용자 계정(2차 인증) 1개뿐이라 화면 로그인 확인은 사용자 몫.
 - 개발 외부 주소: https://admin-dev.crefans.com (서버 PROGRESS 참고).
 - 같은 날 추가(사용자 요청 "PostHog 리플레이 고유번호도 연동"): 히스토리 요약에 리플레이 링크(https://us.posthog.com/replay/<세션 UUID>, 체험이 보고한 세션마다). 개발은 PostHog 키가 없어 링크가 생기지 않음 — 운영 확인 필요.
+
+### 2026-11-20 16:1x AI 사진 체험 관리·리플레이 연동 운영 배포
+- 사용자 지시 "운영배포해": api ai-trials-20261120(07:01Z), front replay-link-20261120(07:09Z), admin ai-trials-20261120(07:11Z). 점검: health·try·landing 200, 무쿠키 guest/replay-session 401, admin /login 200, 무인증 admin/ai-trials 401. 복구본 /Users/ethan/crefans-recovery/20261120/{ai-trials-20261120-api,replay-link-20261120-front,ai-trials-20261120-admin} 검증 OK.
+- 운영 실동작: 새 Playwright 브라우저(iPhone13)로 체험 동의 → guest/replay-session 201 recorded:true(운영 체험 1건 생김). 콘솔 화면·PostHog 링크 이동은 사용자 로그인 필요라 미확인.
+- 과거분: 사진·게시·생성 횟수는 보관 기간 내 표시, 의상·배경·요청 문장은 30일, 프리셋 이름과 리플레이 링크는 이번 배포 이후분만.
