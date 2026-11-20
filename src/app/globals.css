@@ -405,3 +405,9 @@ button.danger{color:var(--danger)}
 .landing-alert-cap .cap-presets{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.landing-alert-cap .cap-presets .chip{min-width:72px;padding:6px 12px;border:1px solid var(--line,#d1d5db);border-radius:999px;background:#fff;cursor:pointer;font-variant-numeric:tabular-nums}
 .landing-alert-cap .cap-presets .chip[aria-pressed=true]{border-color:#2563eb;background:#eff6ff;color:#1d4ed8;font-weight:600}
 .landing-alert-cap .cap-form{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.landing-alert-cap .cap-form input{width:120px}.landing-alert-cap .hint{margin:8px 0 0;color:#6b7280;font-size:13px}.landing-alert-cap .error{margin:8px 0 0}
+
+/* 2026-11-21 AI 체험 히스토리 사진 넘겨보기: swipe/drag, sideways scroll, ←/→ and these buttons (AiTrials PhotoViewer). */
+.ai-trial-viewer{touch-action:pan-y;user-select:none}.ai-trial-viewer img{-webkit-user-drag:none}
+.ai-trial-viewer-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:64px;padding:0;border:0;border-radius:12px;background:rgb(255 255 255 / .14);color:#fff;font-size:34px;line-height:1;cursor:pointer}
+.ai-trial-viewer-nav[data-side=prev]{left:8px}.ai-trial-viewer-nav[data-side=next]{right:8px}.ai-trial-viewer-nav:disabled{opacity:.25;cursor:default}
+.ai-trial-viewer-count{color:#9ca3af;font-variant-numeric:tabular-nums}
