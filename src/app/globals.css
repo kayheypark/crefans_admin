@@ -376,16 +376,17 @@ button.danger{color:var(--danger)}
 /* 무통장입금: deadline passed / refund overdue mark (text only, not the boxed .error alert). */
 .deposit-overdue{color:var(--danger);font-weight:600}
 .date-range{display:flex;align-items:center;gap:8px}.date-range input{flex:1;min-width:0}
-/* AI 체험관리 (2026-11-20): trial history dialog — photo grid, generation timeline, posts. */
-.dialog.ai-trial-dialog{width:min(980px,100%);max-height:calc(100vh - 32px)}
-.ai-trial-detail{overflow:auto;display:grid;gap:12px;padding-bottom:8px}
-.ai-trial-detail h3{margin:12px 0 0;font-size:15px}
-.ai-trial-summary{display:grid;gap:6px;margin:0}.ai-trial-summary div{display:flex;gap:10px;flex-wrap:wrap}.ai-trial-summary dt{min-width:72px;color:var(--muted,#6b7280)}.ai-trial-summary dd{margin:0;word-break:break-all}
+/* AI 사진 체험 관리 (2026-11-20): trial history dialog — photo grid, generation timeline, posts. Theme tokens only (light/dark). */
+.dialog.ai-trial-dialog{width:min(980px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+.ai-trial-detail{overflow:auto;display:grid;gap:12px;padding-bottom:4px;min-height:0}
+.ai-trial-detail h3{margin:8px 0 0;font-size:14px}
+.ai-trial-summary{display:grid;gap:6px;margin:0;font-size:13px}.ai-trial-summary div{display:flex;gap:10px;flex-wrap:wrap}.ai-trial-summary dt{min-width:72px;color:var(--text-2)}.ai-trial-summary dd{margin:0;word-break:break-all}
 .ai-trial-photos{display:flex;flex-wrap:wrap;gap:10px}
-.ai-trial-photo{margin:0;width:132px;display:grid;gap:4px}.ai-trial-photo img,.ai-trial-gone{width:132px;height:176px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;background:#f3f4f6;display:block}
-.ai-trial-gone{display:grid;place-items:center;color:#9ca3af;font-size:12px}.ai-trial-photo figcaption{font-size:11px;color:#6b7280;line-height:1.35}
-.ai-trial-timeline{list-style:none;margin:0;padding:0;display:grid;gap:10px}.ai-trial-timeline li{border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;display:grid;gap:8px}.ai-trial-timeline li[data-outcome=failed]{border-color:#fecaca;background:#fff7f7}
-.ai-trial-options{display:flex;flex-wrap:wrap;gap:6px;margin:0}.ai-trial-options div{display:flex;gap:4px;background:#f3f4f6;border-radius:999px;padding:3px 10px;font-size:12px}.ai-trial-options dt{color:#6b7280}.ai-trial-options dd{margin:0;font-weight:600}
-.ai-trial-prompt{margin:0;font-size:12px;color:#374151;white-space:pre-wrap;background:#f9fafb;border-radius:8px;padding:8px}
-.ai-trial-post{border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;display:grid;gap:8px}.ai-trial-post p{margin:0;white-space:pre-wrap;font-size:13px}
+.ai-trial-photo{margin:0;width:132px;display:grid;gap:4px}.ai-trial-photo img,.ai-trial-gone{width:132px;height:176px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);background:var(--surface-2);display:block}
+.ai-trial-gone{display:grid;place-items:center;color:var(--text-3);font-size:12px}.ai-trial-photo figcaption{font-size:11px;color:var(--text-2);line-height:1.35}
+.ai-trial-timeline{list-style:none;margin:0;padding:0;display:grid;gap:10px}.ai-trial-timeline li{border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:grid;gap:8px;background:var(--surface)}.ai-trial-timeline li[data-outcome=failed]{border-color:var(--danger);background:var(--danger-soft)}
+.ai-trial-when{font-size:13px}
+.ai-trial-options{display:flex;flex-wrap:wrap;gap:6px;margin:0}.ai-trial-options div{display:flex;gap:4px;background:var(--surface-3);border-radius:999px;padding:3px 10px;font-size:12px}.ai-trial-options dt{color:var(--text-2)}.ai-trial-options dd{margin:0;font-weight:600}
+.ai-trial-prompt{margin:0;font-size:12px;color:var(--text-2);white-space:pre-wrap;background:var(--surface-2);border-radius:var(--r-sm);padding:8px}
+.ai-trial-post{border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:grid;gap:8px}.ai-trial-post p{margin:0;white-space:pre-wrap;font-size:13px}
 @media(max-width:600px){.ai-trial-photo,.ai-trial-photo img,.ai-trial-gone{width:calc((100vw - 84px)/2)}.ai-trial-photo img,.ai-trial-gone{height:auto;aspect-ratio:3/4}}

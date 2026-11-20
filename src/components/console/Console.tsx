@@ -48,7 +48,7 @@ const canViewSection=(admin:Admin,section:string)=>can(admin,section==='membersh
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Row=Record<string,any>;
 type Column={key:string;label:string;numeric?:boolean;render?:(row:Row)=>React.ReactNode};
-const menus=[['overview','대시보드'],['members','회원·크리에이터'],['invites','초대 회원'],['reserved-handles','예약 핸들 관리'],['ai-photo','AI 사진 편집 허용'],['ai-trials','AI 체험관리'],['referrals','레퍼럴 관리'],['content','콘텐츠·신고'],['shop','상점'],['advertising','광고상품'],['deposits','입금 확인'],['memberships','멤버십·구독'],['revenue','매출·정산'],['beans','콩 후원·출금'],['support','고객지원'],['settings','운영 설정'],['logs','운영 로그'],['operators','운영자·권한'],['me','마이페이지']];
+const menus=[['overview','대시보드'],['members','회원·크리에이터'],['invites','초대 회원'],['reserved-handles','예약 핸들 관리'],['ai-photo','AI 사진 편집 허용'],['ai-trials','AI 사진 체험 관리'],['referrals','레퍼럴 관리'],['content','콘텐츠·신고'],['shop','상점'],['advertising','광고상품'],['deposits','입금 확인'],['memberships','멤버십·구독'],['revenue','매출·정산'],['beans','콩 후원·출금'],['support','고객지원'],['settings','운영 설정'],['logs','운영 로그'],['operators','운영자·권한'],['me','마이페이지']];
 const won=(v:number)=>new Intl.NumberFormat('ko-KR').format(v)+'원';
 const date=(v:string|null)=>v?new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'없음';
 const amount=(key:string,label:string):Column=>({key,label,numeric:true,render:r=>won(r[key])});
