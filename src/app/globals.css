@@ -389,6 +389,7 @@ button.danger{color:var(--danger)}
 .ai-trial-detail h3{margin:8px 0 0;font-size:14px}
 .ai-trial-summary{display:grid;gap:6px;margin:0;font-size:13px}.ai-trial-summary div{display:flex;gap:10px;flex-wrap:wrap}.ai-trial-summary dt{min-width:72px;color:var(--text-2)}.ai-trial-summary dd{margin:0;word-break:break-all}
 .ai-trial-replays{display:flex;flex-wrap:wrap;gap:4px 12px}.ai-trial-replays a{color:var(--brand)}
+.ai-trial-entry{max-width:220px;white-space:normal;word-break:break-all;font-size:12px}
 .ai-trial-photos{display:flex;flex-wrap:wrap;gap:10px}
 .ai-trial-photo{margin:0;width:132px;display:grid;gap:4px}.ai-trial-photo img,.ai-trial-gone{width:132px;height:176px;object-fit:cover;border-radius:var(--r);border:1px solid var(--border);background:var(--surface-2);display:block}
 .ai-trial-gone{display:grid;place-items:center;color:var(--text-3);font-size:12px}.ai-trial-photo figcaption{font-size:11px;color:var(--text-2);line-height:1.35}
