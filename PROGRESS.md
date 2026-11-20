@@ -1043,3 +1043,7 @@
 - 검사: tsc(기존 Categories dnd-kit 미설치 오류 제외) 통과, eslint 0, 단위 33/33. 개발 DB 운영자는 사용자 계정(2차 인증) 1개뿐이라 화면 로그인 확인은 사용자 몫.
 - 개발 외부 주소: https://admin-dev.crefans.com (서버 PROGRESS 참고).
 - 같은 날 추가(사용자 요청 "PostHog 리플레이 고유번호도 연동"): 히스토리 요약에 리플레이 링크(https://us.posthog.com/replay/<세션 UUID>, 체험이 보고한 세션마다). 개발은 PostHog 키가 없어 링크가 생기지 않음 — 운영 확인 필요.
+
+### 2026-11-20 17:2x 체험 히스토리 창 모바일 닫기·사진 전체 화면 (dev만, 운영 미배포)
+- 사용자 제보: 모바일에서 닫기 버튼이 안 보임(창 높이 100vh가 iOS 보이는 화면보다 김). 수정: 기본 .dialog의 100dvh 유지·내용만 스크롤·위쪽 X(log-detail-close) 추가. 사진은 새 탭 대신 전체 화면 오버레이(닫기 버튼·Esc·배경 탭, Esc는 사진만 닫음).
+- fix/ai-trial-dialog-mobile(origin/prod 기준) → dev fbc4599. tsc·eslint·단위 33/33. 개발 콘솔(localhost:8089, iPhone13 WebKit, 사용자 지정 개발 운영자 계정): 창 16~648/664, 위 X 37~81·아래 닫기 590~627 모두 화면 안, 사진 오버레이 이미지 로드 OK, Esc 후 오버레이만 닫힘.
