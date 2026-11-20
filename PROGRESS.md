@@ -1036,3 +1036,10 @@
 - (추가, 사용자 결정) `window.prompt()` 3곳도 교체: 같은 provider 에 입력 모드를 붙여 `usePrompt()`(→ 앞뒤 공백 제거한 값 또는 null)를 만들었다. 콩 출금 "이체 완료 기록"(참조번호), "반려"(사유, 빨간 버튼), 수동 지급 "예금주 확인 완료"(확인 내용). 입력란이 자동 포커스되고 빈 값·공백만이면 확정 버튼이 꺼진다. **콘솔 전체 네이티브 confirm/prompt/alert 0건.**
 - 추가 E2E `e2e/bean-payout-prompts.spec.ts`: 빈 값 차단, 취소·Esc 시 미전송, 재오픈 시 입력 초기화, Enter 확정, 공백 제거 전송, 반려 버튼 danger, 네이티브 창 0건. `manual-payouts.spec`(ADMIN_E2E_MANUAL_PAYOUTS=1)도 새 입력창으로 갱신해 통과. 공지 저장은 PC·모바일(WebKit) 둘 다 통과.
 - 운영 배포는 사용자 승인(2026-11-06).
+
+## 2026-11-20 AI 사진 체험 관리 메뉴 (dev만, 운영 미배포)
+- 운영 관리 그룹 'AI 사진 편집 허용' 다음에 'AI 사진 체험 관리'(/console/ai-trials, members.view). `src/components/console/AiTrials.tsx`: 목록(시작·마지막 활동·올린 사진/샘플·생성 성공·실패·결과·게시·가입 연결, 총 N건 쪽 이동) + 히스토리 창(올린 사진, 생성별 의상·배경·프리셋·방식·요청 문장(logs.view)·결과 사진, 그 밖의 결과, 게시글). 사진은 /api/v1/admin/ai-trials/:id/media/:mediaId(감사로그).
+- 사용자 요청으로 이웃 메뉴 톤 맞춤: .notice 안내, 공통 pager·EmptyState·actions·DialogActions 닫기, 테마 토큰 색(다크 대응).
+- 검사: tsc(기존 Categories dnd-kit 미설치 오류 제외) 통과, eslint 0, 단위 33/33. 개발 DB 운영자는 사용자 계정(2차 인증) 1개뿐이라 화면 로그인 확인은 사용자 몫.
+- 개발 외부 주소: https://admin-dev.crefans.com (서버 PROGRESS 참고).
+- 같은 날 추가(사용자 요청 "PostHog 리플레이 고유번호도 연동"): 히스토리 요약에 리플레이 링크(https://us.posthog.com/replay/<세션 UUID>, 체험이 보고한 세션마다). 개발은 PostHog 키가 없어 링크가 생기지 않음 — 운영 확인 필요.

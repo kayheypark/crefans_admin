@@ -11,7 +11,7 @@ type TrialList={items:TrialRow[];total:number;page:number;pageSize:number};
 type Photo={id:string;at:string;deleted:boolean;ready:boolean};
 type Generation={at:string;outcome:'succeeded'|'failed';requestId:string|null;errorCode:string|null;resultId:string|null;detail:'available'|'expired';prompt?:string|null;
  options:{mode:string|null;kind:string|null;editKinds:string[]|null;targetGender:string|null;costumes:{id:string;name:string}[];backgroundId:string|null;presets:{kind:string;key:string}[];aspectRatio:string|null;generationMethod:string|null}|null};
-type TrialDetail={id:string;startedAt:string;consents:{at:string;version:string|null}[];claimed:{at:string}|null;promptVisible:boolean;
+type TrialDetail={id:string;startedAt:string;consents:{at:string;version:string|null}[];claimed:{at:string}|null;promptVisible:boolean;replays?:{sessionId:string;at:string;url:string}[];
  uploads:(Photo&{sample:boolean;results:string[]})[];results:(Photo&{sourceId:string|null;croppedFrom:string|null})[];generations:Generation[];
  posts:{id:string;title:string;body:string;status:string;public:boolean;deleted:boolean;hidden:boolean;publishedAt:string|null;createdAt:string;mediaIds:string[]}[]};
 const date=(v:string|null)=>v?new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'없음';
@@ -64,6 +64,7 @@ function TrialContent({id}:{id:string}){
    <div><dt>체험 ID</dt><dd><code>{d.id}</code></dd></div>
    <div><dt>동의</dt><dd>{d.consents.map(c=>`${date(c.at)}${c.version?` (${c.version})`:''}`).join(' / ')}</dd></div>
    <div><dt>가입 연결</dt><dd>{d.claimed?date(d.claimed.at):'안 함'}</dd></div>
+   <div><dt>리플레이</dt><dd>{d.replays?.length?<span className="ai-trial-replays">{d.replays.map((r,i)=><a key={r.sessionId} href={r.url} target="_blank" rel="noopener noreferrer" title={r.sessionId}>PostHog {i+1} · {date(r.at)}</a>)}</span>:'연결된 리플레이 없음'}</dd></div>
   </dl>
   <h3>올린 사진 {d.uploads.length}장</h3>
   {d.uploads.length?<div className="ai-trial-photos">{d.uploads.map(u=><Thumb key={u.id} trial={d.id} media={u.id} deleted={u.deleted} label={`${u.sample?'샘플 원본':'직접 올린 사진'} · ${date(u.at)}`}/>)}</div>:<EmptyState>올린 사진이 없습니다.</EmptyState>}
