@@ -1,5 +1,5 @@
 'use client';
-import {createContext,useContext,useEffect,useRef,useState} from 'react';
+import {createContext,useContext,useEffect,useRef,useState,useMemo} from 'react';
 import {ConsoleIcon} from './ConsoleIcon';
 import {useData,State} from './ConsoleData';
 import {ConfirmDialog,DialogActions} from './TypedConfirm';
@@ -39,21 +39,39 @@ export function AiTrials(){
 }
 
 // 2026-11-20 user request: tapping a photo opens it full screen over the history dialog (it used to open a new tab).
-type Viewer={url:string;label:string};
-const ViewerContext=createContext<(photo:Viewer)=>void>(()=>{});
+// 2026-11-21 user request: the full-screen view moves to the previous/next photo by swiping (touch or mouse drag), a sideways
+// trackpad/mouse scroll, ←/→ keys or the buttons. The order is the history's: uploads, generation results, other results, post photos
+// (deleted photos skipped, each photo once).
+type Viewer={media:string;url:string;label:string};
+const ViewerContext=createContext<(media:string)=>void>(()=>{});
 function Thumb({trial,media,label,deleted}:{trial:string;media:string;label:string;deleted?:boolean}){
  const open=useContext(ViewerContext),url=photoUrl(trial,media);
  // eslint-disable-next-line @next/next/no-img-element -- authenticated admin route, not an optimizable public image
- return <figure className="ai-trial-photo">{deleted?<div className="ai-trial-gone">삭제됨</div>:<button type="button" className="ai-trial-thumb" aria-label={`${label} 크게 보기`} onClick={()=>open({url,label})}><img src={url} alt={label} loading="lazy"/></button>}<figcaption>{label}</figcaption></figure>;
+ return <figure className="ai-trial-photo">{deleted?<div className="ai-trial-gone">삭제됨</div>:<button type="button" className="ai-trial-thumb" aria-label={`${label} 크게 보기`} onClick={()=>open(media)}><img src={url} alt={label} loading="lazy"/></button>}<figcaption>{label}</figcaption></figure>;
 }
-function PhotoViewer({photo,onClose}:{photo:Viewer;onClose:()=>void}){
- const close=useRef<HTMLButtonElement>(null);
- useEffect(()=>{close.current?.focus({preventScroll:true});
+export const SWIPE_MIN=50,WHEEL_MIN=40;
+/** -1 previous, 1 next, 0 nothing: a mostly horizontal swipe of at least SWIPE_MIN px (finger moving left shows the next photo). */
+export function swipeStep(dx:number,dy:number){return Math.abs(dx)>=SWIPE_MIN&&Math.abs(dx)>Math.abs(dy)?(dx<0?1:-1):0;}
+/** Same for a sideways wheel/trackpad scroll (deltaX > 0 scrolls right → next). */
+export function wheelStep(dx:number,dy:number){return Math.abs(dx)>=WHEEL_MIN&&Math.abs(dx)>Math.abs(dy)?(dx>0?1:-1):0;}
+export function PhotoViewer({photos,index,onIndex,onClose}:{photos:Viewer[];index:number;onIndex:(next:number)=>void;onClose:()=>void}){
+ const close=useRef<HTMLButtonElement>(null),start=useRef<{x:number;y:number}|null>(null),wheelLock=useRef(0),photo=photos[index];
+ const go=(step:number)=>{const next=index+step;if(step&&next>=0&&next<photos.length)onIndex(next);};
+ useEffect(()=>{close.current?.focus({preventScroll:true});},[]);
+ useEffect(()=>{
   // Window capture runs before the dialog's own Escape handler, so Esc closes only the photo.
-  const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();onClose();}};
-  window.addEventListener('keydown',key,true);return()=>window.removeEventListener('keydown',key,true);},[onClose]);
+  const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();onClose();}else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();go(e.key==='ArrowLeft'?-1:1);}};
+  window.addEventListener('keydown',key,true);return()=>window.removeEventListener('keydown',key,true);});
+ if(!photo)return null;
  // eslint-disable-next-line @next/next/no-img-element -- authenticated admin route
- return <div className="ai-trial-viewer" role="dialog" aria-modal="true" aria-label={photo.label} onClick={e=>{if(e.target===e.currentTarget)onClose();}}><button ref={close} type="button" className="ai-trial-viewer-close" aria-label="사진 닫기" onClick={onClose}><ConsoleIcon name="close"/></button><img src={photo.url} alt={photo.label}/><p>{photo.label}</p></div>;
+ return <div className="ai-trial-viewer" role="dialog" aria-modal="true" aria-label={photo.label} aria-roledescription="사진 넘겨보기" onClick={e=>{if(e.target===e.currentTarget)onClose();}}
+  onPointerDown={e=>{start.current={x:e.clientX,y:e.clientY};}} onPointerUp={e=>{const s0=start.current;start.current=null;if(s0)go(swipeStep(e.clientX-s0.x,e.clientY-s0.y));}} onPointerCancel={()=>{start.current=null;}}
+  onWheel={e=>{const step=wheelStep(e.deltaX,e.deltaY);if(!step)return;const now=Date.now();if(now-wheelLock.current<400)return;wheelLock.current=now;go(step);}}>
+  <button ref={close} type="button" className="ai-trial-viewer-close" aria-label="사진 닫기" onClick={onClose}><ConsoleIcon name="close"/></button>
+  {photos.length>1&&<><button type="button" className="ai-trial-viewer-nav" data-side="prev" aria-label="이전 사진" disabled={index===0} onClick={()=>go(-1)}>‹</button><button type="button" className="ai-trial-viewer-nav" data-side="next" aria-label="다음 사진" disabled={index===photos.length-1} onClick={()=>go(1)}>›</button></>}
+  <img key={photo.media} src={photo.url} alt={photo.label} draggable={false}/>
+  <p><span>{photo.label}</span>{photos.length>1&&<span className="ai-trial-viewer-count" aria-live="polite"> · {index+1} / {photos.length}</span>}</p>
+ </div>;
 }
 
 function Options({g}:{g:Generation}){
@@ -69,12 +87,24 @@ function Options({g}:{g:Generation}){
  return items.length?<dl className="ai-trial-options">{items.map(([k,v],i)=><div key={k+i}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>:<span className="muted">고른 프리셋 없음</span>;
 }
 
+/** Every viewable photo of a trial in history order (uploads, generation results, other results, post photos), once each. */
+export function trialPhotos(d:TrialDetail):Viewer[]{
+ const deleted=new Map([...d.uploads.map(u=>[u.id,!!u.deleted] as const),...d.results.map(r=>[r.id,!!r.deleted] as const)]),seen=new Set<string>(),list:Viewer[]=[];
+ const add=(media:string|null|undefined,label:string)=>{if(!media||seen.has(media)||deleted.get(media))return;seen.add(media);list.push({media,url:photoUrl(d.id,media),label});};
+ for(const u of d.uploads)add(u.id,`${u.sample?'샘플 원본':'직접 올린 사진'} · ${date(u.at)}`);
+ for(const g of d.generations)add(g.resultId,'생성 결과');
+ for(const r of d.results)add(r.id,`${r.croppedFrom?'자른 사진':'생성 결과'} · ${date(r.at)}`);
+ for(const p of d.posts)for(const m of p.mediaIds)add(m,'게시 사진');
+ return list;
+}
 function TrialContent({id}:{id:string}){
- const [viewer,setViewer]=useState<Viewer|null>(null);
+ const [viewer,setViewer]=useState<number|null>(null);
  const state=useData<TrialDetail>(`/admin/ai-trials/${encodeURIComponent(id)}`),d=state.data;
+ const photos=useMemo(()=>d?trialPhotos(d):[],[d]);
  if(!d)return <State {...state}/>;
  const resultDeleted=new Map(d.results.map(r=>[r.id,r.deleted]));
- return <ViewerContext.Provider value={setViewer}><div className="ai-trial-detail">
+ const open=(media:string)=>{const i=photos.findIndex(p=>p.media===media);if(i>=0)setViewer(i);};
+ return <ViewerContext.Provider value={open}><div className="ai-trial-detail">
   <dl className="ai-trial-summary">
    <div><dt>체험 ID</dt><dd><code>{d.id}</code></dd></div>
    <div><dt>동의</dt><dd>{d.consents.map(c=>`${date(c.at)}${c.version?` (${c.version})`:''}`).join(' / ')}</dd></div>
@@ -97,5 +127,5 @@ function TrialContent({id}:{id:string}){
    <p>{p.body}</p>
    <div className="ai-trial-photos">{p.mediaIds.map(m=><Thumb key={m} trial={d.id} media={m} label="게시 사진"/>)}</div>
   </article>):<EmptyState>게시하지 않았습니다.</EmptyState>}
- </div>{viewer&&<PhotoViewer photo={viewer} onClose={()=>setViewer(null)}/>}</ViewerContext.Provider>;
+ </div>{viewer!==null&&<PhotoViewer photos={photos} index={viewer} onIndex={setViewer} onClose={()=>setViewer(null)}/>}</ViewerContext.Provider>;
 }
