@@ -1,5 +1,6 @@
 'use client';
-import {useState} from 'react';
+import {createContext,useContext,useEffect,useRef,useState} from 'react';
+import {ConsoleIcon} from './ConsoleIcon';
 import {useData,State} from './ConsoleData';
 import {ConfirmDialog,DialogActions} from './TypedConfirm';
 import {EmptyState} from './EmptyState';
@@ -33,13 +34,26 @@ export function AiTrials(){
     <td>{r.posts>0?`${r.posts}건`:'미게시'}</td><td>{r.claimed?'연결됨':'없음'}</td>
     <td><div className="actions"><button type="button" onClick={()=>setSelected(r.id)}>히스토리</button></div></td></tr>)}</tbody></table></div>:<EmptyState>아직 체험 기록이 없습니다.</EmptyState>}
    <div className="pager"><span>총 {d.total.toLocaleString()}건</span><button type="button" disabled={state.loading||page<=1} onClick={()=>setPage(v=>v-1)}>이전</button><span>{page} / {Math.max(1,Math.ceil(d.total/d.pageSize))}</span><button type="button" disabled={state.loading||page*d.pageSize>=d.total} onClick={()=>setPage(v=>v+1)}>다음</button></div></>}
-  {selected&&<ConfirmDialog title={`체험 ${short(selected)} 히스토리`} onCancel={()=>setSelected(null)} className="ai-trial-dialog"><TrialContent id={selected}/><DialogActions><button type="button" onClick={()=>setSelected(null)}>닫기</button></DialogActions></ConfirmDialog>}
+  {selected&&<ConfirmDialog title={`체험 ${short(selected)} 히스토리`} onCancel={()=>setSelected(null)} className="ai-trial-dialog"><button type="button" className="log-detail-close" aria-label="체험 히스토리 닫기" onClick={()=>setSelected(null)}><ConsoleIcon name="close"/></button><TrialContent id={selected}/><DialogActions><button type="button" onClick={()=>setSelected(null)}>닫기</button></DialogActions></ConfirmDialog>}
  </section>;
 }
 
+// 2026-11-20 user request: tapping a photo opens it full screen over the history dialog (it used to open a new tab).
+type Viewer={url:string;label:string};
+const ViewerContext=createContext<(photo:Viewer)=>void>(()=>{});
 function Thumb({trial,media,label,deleted}:{trial:string;media:string;label:string;deleted?:boolean}){
+ const open=useContext(ViewerContext),url=photoUrl(trial,media);
  // eslint-disable-next-line @next/next/no-img-element -- authenticated admin route, not an optimizable public image
- return <figure className="ai-trial-photo">{deleted?<div className="ai-trial-gone">삭제됨</div>:<a href={photoUrl(trial,media)} target="_blank" rel="noopener noreferrer"><img src={photoUrl(trial,media)} alt={label} loading="lazy"/></a>}<figcaption>{label}</figcaption></figure>;
+ return <figure className="ai-trial-photo">{deleted?<div className="ai-trial-gone">삭제됨</div>:<button type="button" className="ai-trial-thumb" aria-label={`${label} 크게 보기`} onClick={()=>open({url,label})}><img src={url} alt={label} loading="lazy"/></button>}<figcaption>{label}</figcaption></figure>;
+}
+function PhotoViewer({photo,onClose}:{photo:Viewer;onClose:()=>void}){
+ const close=useRef<HTMLButtonElement>(null);
+ useEffect(()=>{close.current?.focus({preventScroll:true});
+  // Window capture runs before the dialog's own Escape handler, so Esc closes only the photo.
+  const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();onClose();}};
+  window.addEventListener('keydown',key,true);return()=>window.removeEventListener('keydown',key,true);},[onClose]);
+ // eslint-disable-next-line @next/next/no-img-element -- authenticated admin route
+ return <div className="ai-trial-viewer" role="dialog" aria-modal="true" aria-label={photo.label} onClick={e=>{if(e.target===e.currentTarget)onClose();}}><button ref={close} type="button" className="ai-trial-viewer-close" aria-label="사진 닫기" onClick={onClose}><ConsoleIcon name="close"/></button><img src={photo.url} alt={photo.label}/><p>{photo.label}</p></div>;
 }
 
 function Options({g}:{g:Generation}){
@@ -56,10 +70,11 @@ function Options({g}:{g:Generation}){
 }
 
 function TrialContent({id}:{id:string}){
+ const [viewer,setViewer]=useState<Viewer|null>(null);
  const state=useData<TrialDetail>(`/admin/ai-trials/${encodeURIComponent(id)}`),d=state.data;
  if(!d)return <State {...state}/>;
  const resultDeleted=new Map(d.results.map(r=>[r.id,r.deleted]));
- return <div className="ai-trial-detail">
+ return <ViewerContext.Provider value={setViewer}><div className="ai-trial-detail">
   <dl className="ai-trial-summary">
    <div><dt>체험 ID</dt><dd><code>{d.id}</code></dd></div>
    <div><dt>동의</dt><dd>{d.consents.map(c=>`${date(c.at)}${c.version?` (${c.version})`:''}`).join(' / ')}</dd></div>
@@ -82,5 +97,5 @@ function TrialContent({id}:{id:string}){
    <p>{p.body}</p>
    <div className="ai-trial-photos">{p.mediaIds.map(m=><Thumb key={m} trial={d.id} media={m} label="게시 사진"/>)}</div>
   </article>):<EmptyState>게시하지 않았습니다.</EmptyState>}
- </div>;
+ </div>{viewer&&<PhotoViewer photo={viewer} onClose={()=>setViewer(null)}/>}</ViewerContext.Provider>;
 }
