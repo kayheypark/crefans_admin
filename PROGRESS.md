@@ -1047,3 +1047,11 @@
 ### 2026-11-20 17:2x 체험 히스토리 창 모바일 닫기·사진 전체 화면 (dev만, 운영 미배포)
 - 사용자 제보: 모바일에서 닫기 버튼이 안 보임(창 높이 100vh가 iOS 보이는 화면보다 김). 수정: 기본 .dialog의 100dvh 유지·내용만 스크롤·위쪽 X(log-detail-close) 추가. 사진은 새 탭 대신 전체 화면 오버레이(닫기 버튼·Esc·배경 탭, Esc는 사진만 닫음).
 - fix/ai-trial-dialog-mobile(origin/prod 기준) → dev fbc4599. tsc·eslint·단위 33/33. 개발 콘솔(localhost:8089, iPhone13 WebKit, 사용자 지정 개발 운영자 계정): 창 16~648/664, 위 X 37~81·아래 닫기 590~627 모두 화면 안, 사진 오버레이 이미지 로드 OK, Esc 후 오버레이만 닫힘.
+
+## 2026-11-20 19:0x 배경 '내 사진'·체험 유입 경로 (dev만, 운영 미배포)
+- 사용자 요청: ① 올린 장소 사진을 결과 배경으로 합성(결정: AI 자동 판별 대신 배경 탭에서 사용자가 고름) ② 콘솔 체험 히스토리에 유입 경로.
+- ①: 배경 탭 [실내·아웃도어·내 사진]. 내 사진=원본 외 올린 사진 + '배경 사진 올리기'(uploadContentMedia). 선택 시 배경 프리셋 대체(배경 1개), 요청에 backgroundMediaId. 서버는 본인·완료·미삭제·원본과 다른 사진만, 개인 배경 참고(LIBRARY_REFERENCE_RULES.background)로 첨부·안전검사, 공용/보관함 배경과 동시 불가. 테스트 platform-ai-photo 'own background photo'(첨부 제거 시 실패 대조), 전체 실패 8건은 운영 코드 기준선과 동일.
+- ②: 탭 첫 페이지와 유입(외부 사이트 host·utm_*·첫 경로)을 sessionStorage에 기억(rememberEntrySource), 체험 동의 때 source로 전송 → guest.entry_source 감사(체험당 1회, 감사 허용 키에 referrerHost·utm*·landingPath 추가). 콘솔 목록 '유입' 열·히스토리 '유입 경로'. 이전 체험은 '기록 없음'.
+- 개발 서버 확인(Chromium iPhone13 에뮬레이션, WebKit은 맥 로컬망 차단으로 대체): 배경 탭 내 사진 업로드·선택, 가로 넘침 없음(scrollWidth 390). 콘솔 목록·히스토리 '당근 · utm_source=daangn · … · 첫 페이지 /service/landing-ai-image-generation'. 실제 AI 생성(배경 합성 결과)은 비용 때문에 미실행.
+- 같은 수정: 생성 방식 안내 두 문장 사이 띄어쓰기 누락(운영에도 있음) 수정 — 운영 배포 필요.
+- 개발 배포 중 Node SIGSEGV(빌드·단순 연산 반복 실패)가 재부팅 직후 20여 분 지속 후 사라짐. 하드웨어 변경 없음(사용자 확인), 커널·패키지·도커 변화 없음. 원인 미확정.
