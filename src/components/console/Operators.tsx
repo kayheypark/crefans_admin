@@ -23,7 +23,7 @@ export const permissionMenus:[string,string,Record<string,string>][]=[
  ['revenue','매출·정산',{view:'매출·결제·출금 조회',create:'PG 입금 대사 기록'}],
  ['beans','콩 후원·출금',{view:'지표·지갑 조회',create:'프로모션콩 지급·입금 대사',update:'출금 승인·반려'}],
  ['support','고객지원',{view:'문의·공지 조회',create:'공지·FAQ 작성',update:'문의 답변·문서 수정'}],
- ['settings','운영 설정',{view:'금융 정책 조회',update:'금융 정책 변경'}],
+ ['settings','운영 설정',{view:'금융 정책 조회',update:'금융 정책·랜딩 알림 상한 변경'}],
  ['logs','운영 로그',{view:'로그 조회'}],
 ];
 const actions:[string,string][]=[['view','입장(조회)'],['create','생성'],['update','수정'],['delete','삭제']];

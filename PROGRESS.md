@@ -1,3 +1,12 @@
+## 2026-11-21 랜딩 방문 알림 하루 상한 설정 화면 (feat/landing-alert-cap-setting) — 개발
+
+- 사용자 지시: 대시보드에서 랜딩 방문 텔레그램 알림 하루 상한을 숫자로 설정, 입력란 + 100~1000 프리셋 10개.
+- `LandingAlertCap.tsx`(새 파일): 「AI 사진 체험 유입」 표 아래, 현재 값(기본값 표시), 프리셋 버튼(현재 값 aria-pressed), 직접 입력 1~10000 정수, 값이 바뀐 때만 저장 → `PUT /admin/funnel-stats/landing-alert-cap {cap}` 후 다시 읽기. 운영 설정 수정 권한(settings.update)이 없으면 현재 값만 보이고 버튼·입력 없음. FunnelStats.tsx는 읽기 전용 원칙 유지(버튼·폼 없음, 별도 파일). 권한표 settings.update 라벨 「금융 정책·랜딩 알림 상한 변경」. 서버는 crefans_server 같은 이름 브랜치.
+- 검증(맥): `npm run typecheck` 통과, `npm test` 34/34(새 테스트: 프리셋 10개 순서·현재 값 눌림, 입력 범위, 값 같으면 저장 비활성, 권한 없으면 버튼·입력 없음, PUT 경로, Console 권한 연결).
+
+## 2026-11-18 dev 통합 — 오늘 관리자 작업 2개 병합 (dev, 미배포·prod 미반영)
+- 병합 순서(--no-ff): feat/funnel-stats → feat/phone-reveal-audit. 충돌은 PROGRESS.md 상단 기록뿐(모두 유지).
+- 검증(2026-11-18 11:5x KST): npm test 33/33 통과(종료 0). tsc 종료 2 — 오류 14건 모두 기존 Categories.tsx(@dnd-kit 미설치), 새 오류 0. 서버 짝은 crefans_server dev 311af28. 실제 콘솔 화면·운영 검증 없음.
 ## 2026-11-18 13:2x KST prod 승격 — feat/funnel-stats·feat/phone-reveal-audit
 - 사용자 승인(2026-11-18). origin/prod da94149에서 --no-ff 병합(PROGRESS 충돌만). git diff origin/dev HEAD: 코드 차이 0. 검증: npm test 33/33.
 

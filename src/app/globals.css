@@ -398,3 +398,9 @@ button.danger{color:var(--danger)}
 .ai-trial-prompt{margin:0;font-size:12px;color:var(--text-2);white-space:pre-wrap;background:var(--surface-2);border-radius:var(--r-sm);padding:8px}
 .ai-trial-post{border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;display:grid;gap:8px}.ai-trial-post p{margin:0;white-space:pre-wrap;font-size:13px}
 @media(max-width:600px){.ai-trial-photo,.ai-trial-photo img,.ai-trial-gone{width:calc((100vw - 84px)/2)}.ai-trial-photo img,.ai-trial-gone{height:auto;aspect-ratio:3/4}}
+
+/* 2026-11-21 랜딩 방문 알림 하루 상한 (FunnelStats LandingAlertCap): presets + free input under the funnel table. */
+.landing-alert-cap{margin-top:20px;padding:16px;border:1px solid var(--line,#e5e7eb);border-radius:12px}.landing-alert-cap h3{margin:0 0 4px;font-size:15px}
+.landing-alert-cap .cap-presets{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.landing-alert-cap .cap-presets .chip{min-width:72px;padding:6px 12px;border:1px solid var(--line,#d1d5db);border-radius:999px;background:#fff;cursor:pointer;font-variant-numeric:tabular-nums}
+.landing-alert-cap .cap-presets .chip[aria-pressed=true]{border-color:#2563eb;background:#eff6ff;color:#1d4ed8;font-weight:600}
+.landing-alert-cap .cap-form{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.landing-alert-cap .cap-form input{width:120px}.landing-alert-cap .hint{margin:8px 0 0;color:#6b7280;font-size:13px}.landing-alert-cap .error{margin:8px 0 0}
