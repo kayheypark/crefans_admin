@@ -21,7 +21,40 @@ const kinds:Record<string,string>={makeup:'메이크업',expression:'표정',pos
 const methods:Record<string,string>={fast:'빠른 생성',precise:'정밀 생성'};
 const photoUrl=(trial:string,media:string)=>`/api/v1/admin/ai-trials/${encodeURIComponent(trial)}/media/${encodeURIComponent(media)}`;
 
+// 2026-11-21 user request: AI photo reviews (stars, choice, words) in the same menu, next to the trial list.
 export function AiTrials(){
+ const [view,setView]=useState<'trials'|'reviews'>('trials');
+ return <>
+  <div className="period-pills ai-trials-views" role="group" aria-label="AI 체험관리 보기"><button type="button" aria-pressed={view==='trials'} onClick={()=>setView('trials')}>체험 기록</button><button type="button" aria-pressed={view==='reviews'} onClick={()=>setView('reviews')}>리뷰</button></div>
+  {view==="trials"?<TrialsView/>:<AiReviews/>}
+ </>;
+}
+
+type ReviewRow={id:string;guest:boolean;userId:string;nickname:string|null;rating:number;sentiment:'good'|'bad'|'unsure';comment:string;rewardHearts:number;rewardTickets:number;createdAt:string};
+type ReviewList={items:ReviewRow[];total:number;page:number;pageSize:number;summary:{count:number;averageRating:number;bySentiment:Record<'good'|'bad'|'unsure',number>}};
+const sentimentLabel={good:'좋아요',bad:'별로예요',unsure:'잘 모르겠어요'} as const;
+export const stars=(n:number)=>'★'.repeat(n)+'☆'.repeat(5-n);
+function AiReviews(){
+ const [page,setPage]=useState(1),[who,setWho]=useState(''),[sentiment,setSentiment]=useState(''),[rating,setRating]=useState('');
+ const q=new URLSearchParams({page:String(page),...(who?{who}:{}),...(sentiment?{sentiment}:{}),...(rating?{rating}:{})});
+ const state=useData<ReviewList>(`/admin/ai-photo-reviews?${q}`),d=state.data;
+ const filter=(set:(v:string)=>void)=>(e:{target:{value:string}})=>{set(e.target.value);setPage(1);};
+ return <section className="ai-reviews">
+  <p className="notice">AI 사진을 한 번 이상 만든 사람이 다시 만들 때 하트 게임 대신 남긴 리뷰입니다. 회원은 하트 20개, 비회원은 체험 이용권 0.5장을 받습니다.</p>
+  <div className="filters"><label>작성자<select value={who} onChange={filter(setWho)}><option value="">전체</option><option value="member">회원</option><option value="guest">비회원</option></select></label>
+   <label>평가<select value={sentiment} onChange={filter(setSentiment)}><option value="">전체</option>{(['good','bad','unsure'] as const).map(k=><option key={k} value={k}>{sentimentLabel[k]}</option>)}</select></label>
+   <label>별점<select value={rating} onChange={filter(setRating)}><option value="">전체</option>{[5,4,3,2,1].map(n=><option key={n} value={n}>{n}점</option>)}</select></label></div>
+  <State {...state}/>{d&&<>
+   <p className="ai-reviews-summary"><strong>평균 {d.summary.count?d.summary.averageRating.toFixed(1):'-'}</strong><span className="ai-reviews-stars" aria-hidden="true">{stars(Math.round(d.summary.averageRating))}</span><span className="muted">리뷰 {d.summary.count.toLocaleString()}개 · 좋아요 {d.summary.bySentiment.good} · 별로예요 {d.summary.bySentiment.bad} · 잘 모르겠어요 {d.summary.bySentiment.unsure}</span></p>
+   {d.items.length?<div className="table-wrap"><table><thead><tr><th>작성</th><th>작성자</th><th>별점</th><th>평가</th><th>하고 싶은 말</th><th>보상</th></tr></thead>
+    <tbody>{d.items.map(r=><tr key={r.id}><td>{date(r.createdAt)}</td><td>{r.guest?<span title={r.userId}>비회원 {short(r.userId)}</span>:<span title={r.userId}>{r.nickname||'회원'}</span>}</td>
+     <td><span className="ai-reviews-stars" aria-label={`별 ${r.rating}개`}>{stars(r.rating)}</span></td><td><span className="ai-reviews-chip" data-kind={r.sentiment}>{sentimentLabel[r.sentiment]}</span></td>
+     <td className="ai-reviews-comment">{r.comment||<span className="muted">없음</span>}</td><td>{r.guest?(r.rewardTickets?`이용권 ${r.rewardTickets}장`:'한도 초과'):(r.rewardHearts?`하트 ${r.rewardHearts}개`:'한도 초과')}</td></tr>)}</tbody></table></div>:<EmptyState>아직 리뷰가 없습니다.</EmptyState>}
+   <div className="pager"><span>총 {d.total.toLocaleString()}건</span><button type="button" disabled={state.loading||page<=1} onClick={()=>setPage(v=>v-1)}>이전</button><span>{page} / {Math.max(1,Math.ceil(d.total/d.pageSize))}</span><button type="button" disabled={state.loading||page*d.pageSize>=d.total} onClick={()=>setPage(v=>v+1)}>다음</button></div></>}
+ </section>;
+}
+
+function TrialsView(){
  const [page,setPage]=useState(1),[selected,setSelected]=useState<string|null>(null);
  const state=useData<TrialList>(`/admin/ai-trials?page=${page}`),d=state.data;
  return <section className="ai-trials">
