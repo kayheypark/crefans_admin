@@ -438,3 +438,11 @@ button.danger{color:var(--danger)}
 .ai-presets-detail dt{color:var(--text-3)}.ai-presets-detail dd{margin:0;overflow-wrap:anywhere}
 .ai-presets-prompt{white-space:pre-wrap;background:var(--surface-2);padding:10px;border-radius:var(--r-sm);line-height:1.55}
 @media(max-width:600px){.ai-presets-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ai-presets-detail{grid-template-columns:1fr}.ai-presets-detail img{max-height:50dvh;object-fit:contain}.ai-presets-groups{width:auto}}
+/* 2026-11-21 유입 분석·랜딩 링크: generated URL, preset pills and the UTM field grid in the link dialog. */
+.landing-link-url{display:block;font-size:12px;line-height:1.5;word-break:break-all;user-select:all;padding:6px 8px;margin-bottom:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-1)}
+.landing-link-presets{flex-wrap:wrap}.landing-link-presets small{color:var(--text-3);font-size:11px;margin-left:2px}
+.landing-link-utm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.field-error{font-size:12px;color:var(--danger)}
+.utm-subtotal>*{background:var(--surface-2)}.utm-subtotal>th{font-size:12px;color:var(--text-1)}
+.landing-links .section-head .tabs{margin:0;flex:0 1 auto}
+@media(max-width:600px){.landing-link-utm{grid-template-columns:1fr}.landing-links .section-head .tabs{flex:1 1 100%}}
