@@ -49,27 +49,33 @@ function Thumb({trial,media,label,deleted}:{trial:string;media:string;label:stri
  // eslint-disable-next-line @next/next/no-img-element -- authenticated admin route, not an optimizable public image
  return <figure className="ai-trial-photo">{deleted?<div className="ai-trial-gone">삭제됨</div>:<button type="button" className="ai-trial-thumb" aria-label={`${label} 크게 보기`} onClick={()=>open(media)}><img src={url} alt={label} loading="lazy"/></button>}<figcaption>{label}</figcaption></figure>;
 }
-export const SWIPE_MIN=50,WHEEL_MIN=40;
-/** -1 previous, 1 next, 0 nothing: a mostly horizontal swipe of at least SWIPE_MIN px (finger moving left shows the next photo). */
-export function swipeStep(dx:number,dy:number){return Math.abs(dx)>=SWIPE_MIN&&Math.abs(dx)>Math.abs(dy)?(dx<0?1:-1):0;}
-/** Same for a sideways wheel/trackpad scroll (deltaX > 0 scrolls right → next). */
-export function wheelStep(dx:number,dy:number){return Math.abs(dx)>=WHEEL_MIN&&Math.abs(dx)>Math.abs(dy)?(dx>0?1:-1):0;}
+/** Slide index shown by a horizontal scroll-snap strip (each slide is one strip width). */
+export function slideAt(scrollLeft:number,width:number,count:number){return width>0?Math.max(0,Math.min(count-1,Math.round(scrollLeft/width))):0;}
+// 2026-11-21 user report "스와이프가 안 된다": the photos sit side by side in a native scroll-snap strip, so a finger, trackpad or
+// shift+wheel drags the photo itself and it snaps to the previous/next one (the earlier version only switched on release).
 export function PhotoViewer({photos,index,onIndex,onClose}:{photos:Viewer[];index:number;onIndex:(next:number)=>void;onClose:()=>void}){
- const close=useRef<HTMLButtonElement>(null),start=useRef<{x:number;y:number}|null>(null),wheelLock=useRef(0),photo=photos[index];
- const go=(step:number)=>{const next=index+step;if(step&&next>=0&&next<photos.length)onIndex(next);};
- useEffect(()=>{close.current?.focus({preventScroll:true});},[]);
+ const close=useRef<HTMLButtonElement>(null),strip=useRef<HTMLDivElement>(null),shown=useRef(index),target=useRef<number|null>(null),photo=photos[index];
+ // While a button/key scroll is animating, the passing positions must not change the photo back (target is cleared on arrival).
+ const scrollTo=(i:number,smooth:boolean)=>{const el=strip.current;if(!el)return;target.current=smooth?i:null;if(smooth)window.setTimeout(()=>{if(target.current===i)target.current=null;},800);el.scrollTo({left:i*el.clientWidth,behavior:smooth?'smooth':'auto'});};
+ const go=(step:number)=>{const next=index+step;if(step&&next>=0&&next<photos.length){shown.current=next;onIndex(next);scrollTo(next,true);}};
+ useEffect(()=>{close.current?.focus({preventScroll:true});scrollTo(index,false);},[]);// eslint-disable-line react-hooks/exhaustive-deps
  useEffect(()=>{
   // Window capture runs before the dialog's own Escape handler, so Esc closes only the photo.
   const key=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();onClose();}else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();go(e.key==='ArrowLeft'?-1:1);}};
-  window.addEventListener('keydown',key,true);return()=>window.removeEventListener('keydown',key,true);});
+  const resize=()=>scrollTo(shown.current,false);
+  window.addEventListener('keydown',key,true);window.addEventListener('resize',resize);
+  return()=>{window.removeEventListener('keydown',key,true);window.removeEventListener('resize',resize);};});
  if(!photo)return null;
- // eslint-disable-next-line @next/next/no-img-element -- authenticated admin route
- return <div className="ai-trial-viewer" role="dialog" aria-modal="true" aria-label={photo.label} aria-roledescription="사진 넘겨보기" onClick={e=>{if(e.target===e.currentTarget)onClose();}}
-  onPointerDown={e=>{start.current={x:e.clientX,y:e.clientY};}} onPointerUp={e=>{const s0=start.current;start.current=null;if(s0)go(swipeStep(e.clientX-s0.x,e.clientY-s0.y));}} onPointerCancel={()=>{start.current=null;}}
-  onWheel={e=>{const step=wheelStep(e.deltaX,e.deltaY);if(!step)return;const now=Date.now();if(now-wheelLock.current<400)return;wheelLock.current=now;go(step);}}>
+ return <div className="ai-trial-viewer" role="dialog" aria-modal="true" aria-label={photo.label} aria-roledescription="사진 넘겨보기">
   <button ref={close} type="button" className="ai-trial-viewer-close" aria-label="사진 닫기" onClick={onClose}><ConsoleIcon name="close"/></button>
   {photos.length>1&&<><button type="button" className="ai-trial-viewer-nav" data-side="prev" aria-label="이전 사진" disabled={index===0} onClick={()=>go(-1)}>‹</button><button type="button" className="ai-trial-viewer-nav" data-side="next" aria-label="다음 사진" disabled={index===photos.length-1} onClick={()=>go(1)}>›</button></>}
-  <img key={photo.media} src={photo.url} alt={photo.label} draggable={false}/>
+  <div ref={strip} className="ai-trial-viewer-strip" data-testid="ai-trial-viewer-strip" onScroll={e=>{const el=e.currentTarget;if(target.current!==null){if(Math.abs(el.scrollLeft-target.current*el.clientWidth)>2)return;target.current=null;}const i=slideAt(el.scrollLeft,el.clientWidth,photos.length);if(i!==shown.current){shown.current=i;onIndex(i);}}}
+   onTouchStart={()=>{target.current=null;}} onWheel={()=>{target.current=null;}}>
+   {photos.map((p,i)=><div key={p.media} className="ai-trial-viewer-slide" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    {/* eslint-disable-next-line @next/next/no-img-element -- authenticated admin route */}
+    <img src={p.url} alt={p.label} draggable={false} loading={Math.abs(i-index)<=1?'eager':'lazy'}/>
+   </div>)}
+  </div>
   <p><span>{photo.label}</span>{photos.length>1&&<span className="ai-trial-viewer-count" aria-live="polite"> · {index+1} / {photos.length}</span>}</p>
  </div>;
 }
