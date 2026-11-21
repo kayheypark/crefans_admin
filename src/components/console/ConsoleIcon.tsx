@@ -1,5 +1,6 @@
 const paths:Record<string,string[]>={
  'reserved-handles':['M5 10h14v11H5z','M8 10V7a4 4 0 0 1 8 0v3','M12 14v3'],
+ 'ai-presets':['M4 4h7v7H4z','M13 4h7v7h-7z','M4 13h7v7H4z','M13 13h7v7h-7z'],
  'ai-trials':['M4 5h11v14H4z','M7 9h5','M7 13h5','M18 8v8','M15.5 12H20.5'],
  'ai-photo':['M4 6h16v13H4z','M4 16l5-5 4 4 3-3 4 4','M17 3l.7 1.6L19.3 5.3 17.7 6 17 7.6 16.3 6 14.7 5.3 16.3 4.6z'],
  shop:['M3 9h18l-2-6H5L3 9','M5 9v12h14V9','M9 21v-7h6v7'],
