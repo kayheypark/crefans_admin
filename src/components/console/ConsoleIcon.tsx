@@ -3,6 +3,8 @@ const paths:Record<string,string[]>={
  'ai-presets':['M4 4h7v7H4z','M13 4h7v7h-7z','M4 13h7v7H4z','M13 13h7v7h-7z'],
  'ai-trials':['M4 5h11v14H4z','M7 9h5','M7 13h5','M18 8v8','M15.5 12H20.5'],
  'ai-photo':['M4 6h16v13H4z','M4 16l5-5 4 4 3-3 4 4','M17 3l.7 1.6L19.3 5.3 17.7 6 17 7.6 16.3 6 14.7 5.3 16.3 4.6z'],
+ traffic:['M4 20h16','M6 16l4-5 3 3 5-7','M15 7h3v3'],
+ 'landing-links':['M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1','M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1','M18 16v5M15.5 18.5h5'],
  shop:['M3 9h18l-2-6H5L3 9','M5 9v12h14V9','M9 21v-7h6v7'],
  deposits:['M3 10 12 4l9 6','M5 10v8M9.5 10v8M14.5 10v8M19 10v8','M3 20h18'],
  advertising:['M3 10v4h4l9 5V5L7 10H3','M7 14l2 7h3l-2-6','M20 9v6'],
