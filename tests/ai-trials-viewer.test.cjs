@@ -7,9 +7,9 @@ function load(path,dependencies={}){
 }
 const stub=()=>null;
 const m=load('src/components/console/AiTrials.tsx',{'./ConsoleIcon':{ConsoleIcon:stub},'./ConsoleData':{useData(){return{}},State:stub},'./TypedConfirm':{ConfirmDialog:stub,DialogActions:stub},'./EmptyState':{EmptyState:stub},'./TableContent':{TableContent:stub},'@/lib/console-api':{api:async()=>({})}});
-test('swipe and sideways scroll: at least the threshold and mostly horizontal; left swipe / right scroll = next',()=>{
- assert.equal(m.swipeStep(-60,5),1);assert.equal(m.swipeStep(60,5),-1);assert.equal(m.swipeStep(-49,0),0,'short swipe ignored');assert.equal(m.swipeStep(-60,80),0,'vertical scroll ignored');
- assert.equal(m.wheelStep(45,3),1);assert.equal(m.wheelStep(-45,3),-1);assert.equal(m.wheelStep(20,0),0);assert.equal(m.wheelStep(45,90),0);
+test('scroll-snap strip: the slide nearest the scroll position, clamped to the photos',()=>{
+ assert.equal(m.slideAt(0,400,3),0);assert.equal(m.slideAt(390,400,3),1,'snaps to the nearest slide');assert.equal(m.slideAt(810,400,3),2);
+ assert.equal(m.slideAt(5000,400,3),2,'clamped to the last');assert.equal(m.slideAt(-20,400,3),0);assert.equal(m.slideAt(100,0,3),0,'no width yet');
 });
 test('photos in history order, each once, deleted ones skipped',()=>{
  const d={id:'guest:abc',uploads:[{id:'u1',at:'2026-11-21T00:00:00Z',sample:false,results:[]},{id:'u2',at:'2026-11-21T00:00:00Z',sample:true,results:[],deleted:true}],
@@ -20,7 +20,7 @@ test('photos in history order, each once, deleted ones skipped',()=>{
 test('viewer shows position, prev/next buttons and disables them at the ends; one photo has no buttons',()=>{
  const photos=['a','b','c'].map(x=>({media:x,url:'/'+x,label:'사진 '+x}));
  const first=renderToStaticMarkup(React.createElement(m.PhotoViewer,{photos,index:0,onIndex(){},onClose(){}}));
- assert.match(first,/1 \/ 3/);assert.match(first,/aria-label="이전 사진" disabled=""/);assert.doesNotMatch(first,/aria-label="다음 사진" disabled/);assert.match(first,/src="\/a"/);
+ assert.match(first,/1 \/ 3/);assert.match(first,/aria-label="이전 사진" disabled=""/);assert.doesNotMatch(first,/aria-label="다음 사진" disabled/);assert.match(first,/src="\/a"/);assert.match(first,/src="\/b"/);assert.match(first,/src="\/c"/);assert.match(first,/data-testid="ai-trial-viewer-strip"/);
  const last=renderToStaticMarkup(React.createElement(m.PhotoViewer,{photos,index:2,onIndex(){},onClose(){}}));
  assert.match(last,/3 \/ 3/);assert.match(last,/aria-label="다음 사진" disabled=""/);
  const single=renderToStaticMarkup(React.createElement(m.PhotoViewer,{photos:photos.slice(0,1),index:0,onIndex(){},onClose(){}}));
