@@ -4,15 +4,16 @@ import {ConsoleIcon} from './ConsoleIcon';
 import {useData,State} from './ConsoleData';
 import {ConfirmDialog,DialogActions} from './TypedConfirm';
 import {EmptyState} from './EmptyState';
+import {api} from '@/lib/console-api';
 // 2026-11-20 user request: "AI 체험관리" — each signed-out AI photo trial: uploaded photos (the built-in sample marked as the sample),
 // every generation with the presets used and its result photo, and whether a post followed. Server: crefans_server
 // src/platform/admin-ai-trials.ts (members.view; prompts need logs.view; every detail and photo opened is audit-logged).
-type TrialRow={id:string;startedAt:string;lastActivityAt:string;uploads:number;sampleUploads:number;generated:number;succeeded:number;failed:number;posts:number;claimed:boolean;entry:string|null};
+type TrialRow={/** 2026-11-22: starred by the signed-in operator. */favorite?:boolean;id:string;startedAt:string;lastActivityAt:string;uploads:number;sampleUploads:number;generated:number;succeeded:number;failed:number;posts:number;claimed:boolean;entry:string|null};
 type TrialList={items:TrialRow[];total:number;page:number;pageSize:number};
 type Photo={id:string;at:string;deleted:boolean;ready:boolean};
 type Generation={at:string;outcome:'succeeded'|'failed';requestId:string|null;errorCode:string|null;resultId:string|null;detail:'available'|'expired';prompt?:string|null;
  options:{mode:string|null;kind:string|null;editKinds:string[]|null;targetGender:string|null;costumes:{id:string;name:string}[];backgroundId:string|null;presets:{kind:string;key:string}[];aspectRatio:string|null;generationMethod:string|null}|null};
-type TrialDetail={id:string;startedAt:string;consents:{at:string;version:string|null}[];claimed:{at:string}|null;promptVisible:boolean;replays?:{sessionId:string;at:string;url:string}[];entry?:{label:string;landingPath:string|null;at:string}|null;
+type TrialDetail={favorite?:boolean;id:string;startedAt:string;consents:{at:string;version:string|null}[];claimed:{at:string}|null;promptVisible:boolean;replays?:{sessionId:string;at:string;url:string}[];entry?:{label:string;landingPath:string|null;at:string}|null;
  uploads:(Photo&{sample:boolean;results:string[]})[];results:(Photo&{sourceId:string|null;croppedFrom:string|null})[];generations:Generation[];
  posts:{id:string;title:string;body:string;status:string;public:boolean;deleted:boolean;hidden:boolean;publishedAt:string|null;createdAt:string;mediaIds:string[]}[]};
 const date=(v:string|null)=>v?new Date(v).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'없음';
@@ -54,23 +55,30 @@ function AiReviews(){
  </section>;
 }
 
+// 2026-11-22 user request: each signed-in operator stars trials (server keeps one list per operator) and can list only the stars.
+function Star({id,on,onChange}:{id:string;on:boolean;onChange:()=>void}){
+ const [busy,setBusy]=useState(false);
+ return <button type="button" className="ai-trial-star" aria-pressed={on} disabled={busy} aria-label={on?'즐겨찾기 해제':'즐겨찾기'} title={on?'즐겨찾기 해제':'즐겨찾기'}
+  onClick={async()=>{setBusy(true);try{await api(`/admin/ai-trials/${encodeURIComponent(id)}/favorite`,{favorite:!on});onChange();}catch{}finally{setBusy(false);}}}>{on?'★':'☆'}</button>;
+}
+
 function TrialsView(){
- const [page,setPage]=useState(1),[selected,setSelected]=useState<string|null>(null),[draft,setDraft]=useState(''),[search,setSearch]=useState('');
+ const [page,setPage]=useState(1),[selected,setSelected]=useState<string|null>(null),[draft,setDraft]=useState(''),[search,setSearch]=useState(''),[starred,setStarred]=useState(false);
  // 2026-11-22 user request: find a trial by its id or a PostHog number (replay session or visitor/distinct_id) — server validates.
- const state=useData<TrialList>(`/admin/ai-trials?${new URLSearchParams({page:String(page),...(search?{q:search}:{})})}`),d=state.data;
+ const state=useData<TrialList>(`/admin/ai-trials?${new URLSearchParams({page:String(page),...(search?{q:search}:{}),...(starred?{favorites:'1'}:{})})}`),d=state.data;
  const find=(value:string)=>{setSearch(value.trim());setPage(1);};
  return <section className="ai-trials">
   <p className="notice">로그인하지 않은 방문자의 AI 사진 체험입니다. 체험을 시작한 순서로 보이며, 히스토리에서 올린 사진·생성 기록·결과 사진·게시글을 확인할 수 있습니다. 히스토리와 사진을 열면 운영 감사 기록에 남고, 유입은 체험에 동의할 때의 첫 방문 기준이며 2026-11-20 이후 체험부터 기록됩니다. 체험 자료는 원래 보관 기간(미사용 사진 7일·게시물 30일·요청 기록 30일)이 지나면 함께 사라집니다.</p>
-  <form className="filters" onSubmit={e=>{e.preventDefault();find(draft);}}><label>검색<input type="search" maxLength={100} placeholder="체험 번호(guest:…) 또는 PostHog 세션·방문자 번호" value={draft} onChange={e=>setDraft(e.target.value)}/></label><button type="submit">검색</button>{search&&<button type="button" onClick={()=>{setDraft('');find('');}}>전체 보기</button>}</form>
+  <form className="filters" onSubmit={e=>{e.preventDefault();find(draft);}}><label>검색<input type="search" maxLength={100} placeholder="체험 번호(guest:…) 또는 PostHog 세션·방문자 번호" value={draft} onChange={e=>setDraft(e.target.value)}/></label><button type="submit">검색</button>{search&&<button type="button" onClick={()=>{setDraft('');find('');}}>전체 보기</button>}<button type="button" className="ai-trial-starred" aria-pressed={starred} onClick={()=>{setStarred(v=>!v);setPage(1);}}>{starred?'★ 즐겨찾기만':'☆ 즐겨찾기만'}</button></form>
   <State {...state}/>{d&&<>{d.items.length?<div className="table-wrap"><table><thead><tr><th>체험</th><th>시작</th><th>유입</th><th>마지막 활동</th><th>올린 사진</th><th>생성 성공·실패</th><th>결과 사진</th><th>게시</th><th>가입 연결</th><th>관리</th></tr></thead>
    <tbody>{d.items.map(r=><tr key={r.id}>
-    <td><strong title={r.id}>{short(r.id)}</strong></td><td>{date(r.startedAt)}</td><td className="ai-trial-entry">{r.entry||'기록 없음'}</td><td>{date(r.lastActivityAt)}</td>
+    <td><Star id={r.id} on={!!r.favorite} onChange={state.reload}/> <strong title={r.id}>{short(r.id)}</strong></td><td>{date(r.startedAt)}</td><td className="ai-trial-entry">{r.entry||'기록 없음'}</td><td>{date(r.lastActivityAt)}</td>
     <td>{r.uploads}장{r.sampleUploads>0&&<small className="muted"> 샘플 {r.sampleUploads}</small>}</td>
     <td>{r.succeeded}회 · {r.failed}회</td><td>{r.generated}장</td>
     <td>{r.posts>0?`${r.posts}건`:'미게시'}</td><td>{r.claimed?'연결됨':'없음'}</td>
-    <td><div className="actions"><button type="button" onClick={()=>setSelected(r.id)}>히스토리</button></div></td></tr>)}</tbody></table></div>:<EmptyState>{search?'검색한 번호의 체험이 없습니다.':'아직 체험 기록이 없습니다.'}</EmptyState>}
+    <td><div className="actions"><button type="button" onClick={()=>setSelected(r.id)}>히스토리</button></div></td></tr>)}</tbody></table></div>:<EmptyState>{starred?'즐겨찾기한 체험이 없습니다.':search?'검색한 번호의 체험이 없습니다.':'아직 체험 기록이 없습니다.'}</EmptyState>}
    <div className="pager"><span>총 {d.total.toLocaleString()}건</span><button type="button" disabled={state.loading||page<=1} onClick={()=>setPage(v=>v-1)}>이전</button><span>{page} / {Math.max(1,Math.ceil(d.total/d.pageSize))}</span><button type="button" disabled={state.loading||page*d.pageSize>=d.total} onClick={()=>setPage(v=>v+1)}>다음</button></div></>}
-  {selected&&<ConfirmDialog title={`체험 ${short(selected)} 히스토리`} onCancel={()=>setSelected(null)} className="ai-trial-dialog"><button type="button" className="log-detail-close" aria-label="체험 히스토리 닫기" onClick={()=>setSelected(null)}><ConsoleIcon name="close"/></button><TrialContent id={selected}/><DialogActions><button type="button" onClick={()=>setSelected(null)}>닫기</button></DialogActions></ConfirmDialog>}
+  {selected&&<ConfirmDialog title={`체험 ${short(selected)} 히스토리`} onCancel={()=>{setSelected(null);state.reload();}} className="ai-trial-dialog"><button type="button" className="log-detail-close" aria-label="체험 히스토리 닫기" onClick={()=>{setSelected(null);state.reload();}}><ConsoleIcon name="close"/></button><TrialContent id={selected}/><DialogActions><button type="button" onClick={()=>setSelected(null)}>닫기</button></DialogActions></ConfirmDialog>}
  </section>;
 }
 
@@ -148,7 +156,7 @@ function TrialContent({id}:{id:string}){
  const open=(media:string)=>{const i=photos.findIndex(p=>p.media===media);if(i>=0)setViewer(i);};
  return <ViewerContext.Provider value={open}><div className="ai-trial-detail">
   <dl className="ai-trial-summary">
-   <div><dt>체험 ID</dt><dd><code>{d.id}</code></dd></div>
+   <div><dt>체험 ID</dt><dd><Star id={d.id} on={!!d.favorite} onChange={state.reload}/> <code>{d.id}</code></dd></div>
    <div><dt>동의</dt><dd>{d.consents.map(c=>`${date(c.at)}${c.version?` (${c.version})`:''}`).join(' / ')}</dd></div>
    <div><dt>유입 경로</dt><dd>{d.entry?<>{d.entry.label}{d.entry.landingPath&&<span className="muted"> · 첫 페이지 /{d.entry.landingPath.replace(/:/g,'/')}</span>}</>:'기록 없음(유입 기록 전 체험)'}</dd></div>
    <div><dt>가입 연결</dt><dd>{d.claimed?date(d.claimed.at):'안 함'}</dd></div>

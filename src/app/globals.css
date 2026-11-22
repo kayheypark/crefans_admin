@@ -453,3 +453,9 @@ button.danger{color:var(--danger)}
 .ai-reviews-chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--surface-3);color:var(--text-2)}
 .ai-reviews-chip[data-kind=good]{background:var(--brand-soft);color:var(--brand-ink)}.ai-reviews-chip[data-kind=bad]{background:var(--danger-soft);color:var(--danger)}
 .ai-reviews-comment{min-width:220px;max-width:420px;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+
+/* 2026-11-22 AI 체험 즐겨찾기: star toggle in the list/detail and the 'only starred' filter. */
+.ai-trial-star{border:0;background:none;padding:0 2px;font-size:17px;line-height:1;color:#c9a227;cursor:pointer;vertical-align:-1px}
+.ai-trial-star[aria-pressed="false"]{color:#b8b8b8}
+.ai-trial-star:disabled{opacity:.5;cursor:default}
+.ai-trial-starred[aria-pressed="true"]{background:#fff6d6;border-color:#e3c35a;color:#7a5a00}
