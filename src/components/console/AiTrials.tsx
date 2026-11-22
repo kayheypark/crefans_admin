@@ -55,17 +55,20 @@ function AiReviews(){
 }
 
 function TrialsView(){
- const [page,setPage]=useState(1),[selected,setSelected]=useState<string|null>(null);
- const state=useData<TrialList>(`/admin/ai-trials?page=${page}`),d=state.data;
+ const [page,setPage]=useState(1),[selected,setSelected]=useState<string|null>(null),[draft,setDraft]=useState(''),[search,setSearch]=useState('');
+ // 2026-11-22 user request: find a trial by its id or a PostHog number (replay session or visitor/distinct_id) — server validates.
+ const state=useData<TrialList>(`/admin/ai-trials?${new URLSearchParams({page:String(page),...(search?{q:search}:{})})}`),d=state.data;
+ const find=(value:string)=>{setSearch(value.trim());setPage(1);};
  return <section className="ai-trials">
   <p className="notice">로그인하지 않은 방문자의 AI 사진 체험입니다. 체험을 시작한 순서로 보이며, 히스토리에서 올린 사진·생성 기록·결과 사진·게시글을 확인할 수 있습니다. 히스토리와 사진을 열면 운영 감사 기록에 남고, 체험 자료는 원래 보관 기간(미사용 사진 7일·게시물 30일·요청 기록 30일)이 지나면 함께 사라집니다.</p>
+  <form className="filters" onSubmit={e=>{e.preventDefault();find(draft);}}><label>검색<input type="search" maxLength={100} placeholder="체험 번호(guest:…) 또는 PostHog 세션·방문자 번호" value={draft} onChange={e=>setDraft(e.target.value)}/></label><button type="submit">검색</button>{search&&<button type="button" onClick={()=>{setDraft('');find('');}}>전체 보기</button>}</form>
   <State {...state}/>{d&&<>{d.items.length?<div className="table-wrap"><table><thead><tr><th>체험</th><th>시작</th><th>마지막 활동</th><th>올린 사진</th><th>생성 성공·실패</th><th>결과 사진</th><th>게시</th><th>가입 연결</th><th>관리</th></tr></thead>
    <tbody>{d.items.map(r=><tr key={r.id}>
     <td><strong title={r.id}>{short(r.id)}</strong></td><td>{date(r.startedAt)}</td><td>{date(r.lastActivityAt)}</td>
     <td>{r.uploads}장{r.sampleUploads>0&&<small className="muted"> 샘플 {r.sampleUploads}</small>}</td>
     <td>{r.succeeded}회 · {r.failed}회</td><td>{r.generated}장</td>
     <td>{r.posts>0?`${r.posts}건`:'미게시'}</td><td>{r.claimed?'연결됨':'없음'}</td>
-    <td><div className="actions"><button type="button" onClick={()=>setSelected(r.id)}>히스토리</button></div></td></tr>)}</tbody></table></div>:<EmptyState>아직 체험 기록이 없습니다.</EmptyState>}
+    <td><div className="actions"><button type="button" onClick={()=>setSelected(r.id)}>히스토리</button></div></td></tr>)}</tbody></table></div>:<EmptyState>{search?'검색한 번호의 체험이 없습니다.':'아직 체험 기록이 없습니다.'}</EmptyState>}
    <div className="pager"><span>총 {d.total.toLocaleString()}건</span><button type="button" disabled={state.loading||page<=1} onClick={()=>setPage(v=>v-1)}>이전</button><span>{page} / {Math.max(1,Math.ceil(d.total/d.pageSize))}</span><button type="button" disabled={state.loading||page*d.pageSize>=d.total} onClick={()=>setPage(v=>v+1)}>다음</button></div></>}
   {selected&&<ConfirmDialog title={`체험 ${short(selected)} 히스토리`} onCancel={()=>setSelected(null)} className="ai-trial-dialog"><button type="button" className="log-detail-close" aria-label="체험 히스토리 닫기" onClick={()=>setSelected(null)}><ConsoleIcon name="close"/></button><TrialContent id={selected}/><DialogActions><button type="button" onClick={()=>setSelected(null)}>닫기</button></DialogActions></ConfirmDialog>}
  </section>;

@@ -25,3 +25,14 @@ test('review list: average, choice counts, member nickname vs visitor id, words 
  assert.match(html,/비회원 aaaaaaaa/);assert.match(html,/민지/);assert.match(html,/얼굴이 달라요/);assert.match(html,/이용권 0\.5장/);assert.match(html,/하트 20개/);
  assert.match(html,/aria-label="별 2개"/);
 });
+// 2026-11-22 user request: the trial list is searchable by the trial id or a PostHog session/visitor number (server validates the value).
+test('trial list: search box sends q only after a search and resets to page 1',()=>{
+ const deps={'./ConsoleIcon':{ConsoleIcon:stub},'./ConsoleData':{useData(url){urls.push(url);return {}},State:stub},'./TypedConfirm':{ConfirmDialog:stub,DialogActions:stub},'./EmptyState':{EmptyState:stub}};
+ urls=[];const html=renderToStaticMarkup(React.createElement(load('src/components/console/AiTrials.tsx',deps).AiTrials));
+ assert.match(html,/type="search"/);assert.match(html,/PostHog 세션·방문자 번호/);assert.ok(urls.includes('/admin/ai-trials?page=1'),urls.join());
+ const src=fs.readFileSync('src/components/console/AiTrials.tsx','utf8'),visitor='01a1fed7-cf73-70dd-a3cc-d7fa51441651';
+ fs.writeFileSync('.ai-trials-search.tmp.tsx',src.replace("[search,setSearch]=useState('')",`[search,setSearch]=useState('${visitor}')`));
+ try{urls=[];renderToStaticMarkup(React.createElement(load('.ai-trials-search.tmp.tsx',deps).AiTrials));}finally{fs.unlinkSync('.ai-trials-search.tmp.tsx');}
+ assert.ok(urls.includes('/admin/ai-trials?page=1&q='+visitor),urls.join());
+ assert.match(src,/const find=\(value:string\)=>\{setSearch\(value\.trim\(\)\);setPage\(1\);\};/);
+});
